@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isConversationParticipant(data) {
+      return isAuthenticated() && (request.auth.uid in data.participants);
+    }
+
+    // User profiles collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId);
+      allow delete: if false; // Deletions handled through server DPDP API
+    }
+
+    // Conversations collection
+    match /conversations/{conversationId} {
+      allow read: if isAuthenticated() && isConversationParticipant(resource.data);
+      allow create: if isAuthenticated() && isConversationParticipant(request.resource.data);
+      allow update: if isAuthenticated() && isConversationParticipant(resource.data);
+      allow delete: if false;
+
+      // Nested messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow create: if isAuthenticated() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+          request.resource.data.senderId == request.auth.uid;
+        allow update: if isAuthenticated() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow delete: if false;
+      }
+    }
+
+    // Rooms collection (Community read-only rules from client; writes via backend)
+    match /rooms/{roomId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Server authoritative
+
+      match /posts/{postId} {
+        allow read: if isAuthenticated();
+        allow write: if false;
+      }
+    }
+  }
+}
