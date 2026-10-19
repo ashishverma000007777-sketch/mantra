@@ -96,6 +96,14 @@ configurations.all {
 }
 '''
 
+    # Ensure release build uses debug signing config for testing/CI builds
+    if "signingConfig signingConfigs.debug" not in content and "signingConfig = signingConfigs.debug" not in content:
+        content = re.sub(
+            r'buildTypes\s*\{\s*release\s*\{',
+            'buildTypes {\n        release {\n            signingConfig signingConfigs.debug',
+            content
+        )
+
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     print("Configured android/app/build.gradle")

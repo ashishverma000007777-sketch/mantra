@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_apk:
-    name: Build Android Debug APK
+    name: Build Android Release APK (split-per-abi)
     runs-on: ubuntu-latest
 
     steps:
@@ -29,14 +29,16 @@ jobs:
         run: |
           if [ ! -f "android/build.gradle" ] && [ ! -f "android/build.gradle.kts" ]; then
             echo "Scaffolding Android platform structure for in.mantraapp..."
-            mkdir -p /tmp/mantra_android_backup
-            cp -r android/app/src/main/* /tmp/mantra_android_backup/
+            mkdir -p /tmp/mantra_android_backup/main
+            cp -r android/app/src/main/* /tmp/mantra_android_backup/main/
+            [ -f android/app/proguard-rules.pro ] && cp android/app/proguard-rules.pro /tmp/mantra_android_backup/
             flutter create . --platforms=android --org in.mantraapp --project-name mantra
             # Remove auto-generated sample widget test from flutter create
             rm -f test/widget_test.dart
-            # Restore custom files (MainActivity, ScreenshotPrevention, AndroidManifest, res)
-            cp -r /tmp/mantra_android_backup/* android/app/src/main/
-            # Configure Android Gradle files (Kotlin 1.9.22, R8 8.2.24, minSdk 23, exifinterface 1.3.7)
+            # Restore custom files (MainActivity, ScreenshotPrevention, AndroidManifest, res, proguard-rules)
+            cp -r /tmp/mantra_android_backup/main/* android/app/src/main/
+            [ -f /tmp/mantra_android_backup/proguard-rules.pro ] && cp /tmp/mantra_android_backup/proguard-rules.pro android/app/
+            # Configure Android Gradle files (Kotlin 1.9.22, R8 8.3.37, minSdk 23, exifinterface 1.3.7)
             python3 scripts/configure_android.py
           fi
 
@@ -49,15 +51,36 @@ jobs:
       - name: Run Flutter tests
         run: flutter test
 
-      - name: Build Android Debug APK
-        run: flutter build apk --debug
+      - name: Build Android Release APK with split-per-abi
+        run: flutter build apk --release --split-per-abi
 
-      - name: Verify APK build & calculate SHA-256
+      - name: Analyze APK size and file breakdown
+        run: |
+          echo "=========================================="
+          echo "All generated APK files:"
+          ls -lh build/app/outputs/flutter-apk/*.apk
+          echo "=========================================="
+          ARM64_APK="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          if [ -f "$ARM64_APK" ]; then
+            echo "Top 30 largest files inside app-arm64-v8a-release.apk:"
+            unzip -l "$ARM64_APK" | sort -k1 -nr | head -n 35
+            echo "=========================================="
+            echo "Native libraries (.so) breakdown:"
+            unzip -l "$ARM64_APK" | grep "\.so$" || true
+            echo "=========================================="
+            echo "DEX files breakdown:"
+            unzip -l "$ARM64_APK" | grep "\.dex$" || true
+            echo "=========================================="
+            echo "Assets breakdown:"
+            unzip -l "$ARM64_APK" | grep "assets/" || true
+          fi
+
+      - name: Verify ARM64 Release APK & calculate SHA-256
         id: verify
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           if [ ! -f "$APK_PATH" ]; then
-            echo "ERROR: APK not found at $APK_PATH" >&2
+            echo "ERROR: ARM64 Release APK not found at $APK_PATH" >&2
             exit 1
           fi
           APK_SIZE=$(stat -c%s "$APK_PATH" 2>/dev/null || stat -f%z "$APK_PATH")
@@ -67,7 +90,7 @@ jobs:
           fi
           SHA256=$(sha256sum "$APK_PATH" | awk '{print $1}')
           echo "=========================================="
-          echo "APK Verification Succeeded"
+          echo "ARM64 Release APK Verification Succeeded"
           echo "Path: $APK_PATH"
           echo "Size: $APK_SIZE bytes"
           echo "SHA-256: $SHA256"
@@ -76,10 +99,18 @@ jobs:
           echo "apk_size=$APK_SIZE" >> "$GITHUB_OUTPUT"
           echo "apk_sha256=$SHA256" >> "$GITHUB_OUTPUT"
 
-      - name: Upload APK artifact
+      - name: Upload ARM64 Release APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Mantra-debug-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: Mantra-arm64-v8a-release-APK
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload All Release APKs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mantra-all-split-release-APKs
+          path: build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 7
           if-no-files-found: error
