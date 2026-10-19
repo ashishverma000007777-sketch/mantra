@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
@@ -27,29 +28,37 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> sendOtp(String phoneNumber) async {
-    String? resolvedVerificationId;
+    final completer = Completer<String?>();
 
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: '+91$phoneNumber',
       verificationCompleted: (PhoneAuthCredential credential) async {
         await _firebaseAuth.signInWithCredential(credential);
+        if (!completer.isCompleted) {
+          completer.complete('AUTO_VERIFIED');
+        }
       },
       verificationFailed: (FirebaseAuthException e) {
-        throw Exception(e.message);
+        if (!completer.isCompleted) {
+          completer.completeError(Exception(e.message ?? 'Phone verification failed'));
+        }
       },
       codeSent: (String verificationId, int? resendToken) {
         _verificationId = verificationId;
-        resolvedVerificationId = verificationId;
+        if (!completer.isCompleted) {
+          completer.complete(verificationId);
+        }
       },
       codeAutoRetrievalTimeout: (String verificationId) {
         _verificationId = verificationId;
+        if (!completer.isCompleted) {
+          completer.complete(verificationId);
+        }
       },
       timeout: const Duration(seconds: 60),
     );
 
-    // Wait for codeSent
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _verificationId;
+    return completer.future;
   }
 
   @override

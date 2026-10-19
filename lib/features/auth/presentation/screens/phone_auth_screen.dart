@@ -40,11 +40,25 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final controller = ref.read(authControllerProvider.notifier);
     final verificationId = await controller.sendOtp(_phoneController.text.trim());
 
-    if (verificationId != null && mounted) {
-      context.push('/auth/otp', extra: {
-        'phone': _phoneController.text.trim(),
-        'verificationId': verificationId,
-      });
+    if (!mounted) return;
+
+    if (verificationId != null) {
+      if (verificationId == 'AUTO_VERIFIED') {
+        context.go('/auth/kyc');
+      } else {
+        context.push('/auth/otp', extra: {
+          'phone': _phoneController.text.trim(),
+          'verificationId': verificationId,
+        });
+      }
+    } else {
+      final error = ref.read(authControllerProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error?.toString().replaceAll('Exception: ', '') ??
+              'Failed to send OTP. Please check your network and phone number.'),
+        ),
+      );
     }
   }
 

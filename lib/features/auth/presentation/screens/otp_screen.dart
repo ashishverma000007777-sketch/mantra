@@ -64,8 +64,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     if (_otp.length != 6 || _verificationId == null) return;
     final controller = ref.read(authControllerProvider.notifier);
     final success = await controller.verifyOtp(_verificationId!, _otp);
-    if (success && mounted) {
+    if (!mounted) return;
+    if (success) {
       context.go('/auth/kyc');
+    } else {
+      final error = ref.read(authControllerProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error?.toString().replaceAll('Exception: ', '') ??
+              'Invalid OTP. Please verify and try again.'),
+        ),
+      );
     }
   }
 

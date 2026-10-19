@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "607675067117",
+    "project_id": "raahi-a3194",
+    "storage_bucket": "raahi-a3194.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:607675067117:android:6d2a658b50376f6e3cfae4",
+        "android_client_info": {
+          "package_name": "com.raahi.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCExXcyh-3IKQnpIskMOZkzfgbiJETJB9g"
+        },
+        {
+          "current_key": "AIzaSyBfNBten4ru1yumqRAJFddddt9Uz9MgTfU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:607675067117:android:ec9590f6934cdd493cfae4",
+        "android_client_info": {
+          "package_name": "in.mantraapp.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCExXcyh-3IKQnpIskMOZkzfgbiJETJB9g"
+        },
+        {
+          "current_key": "AIzaSyBfNBten4ru1yumqRAJFddddt9Uz9MgTfU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

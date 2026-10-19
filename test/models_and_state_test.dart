@@ -5,8 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:mantra/features/chat/data/models/message_model.dart';
 import 'package:mantra/features/auth/data/models/user_model.dart';
 import 'package:mantra/features/community/data/models/room_model.dart';
+import 'package:mantra/firebase_options.dart';
 
 void main() {
+  group('Firebase Configuration Unit Tests', () {
+    test('Android FirebaseOptions match Mantra package and raahi-a3194 project', () {
+      final androidOptions = DefaultFirebaseOptions.android;
+      expect(androidOptions.projectId, 'raahi-a3194');
+      expect(androidOptions.appId, '1:607675067117:android:ec9590f6934cdd493cfae4');
+      expect(androidOptions.messagingSenderId, '607675067117');
+      expect(androidOptions.apiKey, 'AIzaSyCExXcyh-3IKQnpIskMOZkzfgbiJETJB9g');
+      expect(androidOptions.storageBucket, 'raahi-a3194.firebasestorage.app');
+    });
+  });
+
   group('MessageModel Unit Tests', () {
     test('Correctly parses canonical sender_id and calculates isMine', () {
       final json = {

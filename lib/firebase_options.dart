@@ -19,13 +19,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // REPLACE WITH YOUR CONFIG FROM: Firebase Console > Project Settings > Your Apps
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: '1:YOUR_APP_ID:android:YOUR_HASH',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'mantra-app-prod',
-    storageBucket: 'mantra-app-prod.appspot.com',
+    apiKey: 'AIzaSyCExXcyh-3IKQnpIskMOZkzfgbiJETJB9g',
+    appId: '1:607675067117:android:ec9590f6934cdd493cfae4',
+    messagingSenderId: '607675067117',
+    projectId: 'raahi-a3194',
+    storageBucket: 'raahi-a3194.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

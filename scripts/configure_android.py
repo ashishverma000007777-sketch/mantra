@@ -16,6 +16,14 @@ def configure_settings_gradle():
         content
     )
 
+    # Add google services plugin to settings plugins block if present
+    if "com.google.gms.google-services" not in content and "plugins {" in content:
+        content = re.sub(
+            r'plugins\s*\{',
+            'plugins {\n    id "com.google.gms.google-services" version "4.4.2" apply false',
+            content
+        )
+
     # Inject R8 override into pluginManagement
     if "com.android.tools:r8" not in content and "pluginManagement {" in content:
         r8_block = '''pluginManagement {
@@ -50,7 +58,7 @@ def configure_root_build_gradle():
         content
     )
 
-    # Inject R8 override into root buildscript if needed
+    # Inject R8 and Google Services into root buildscript if needed
     if "com.android.tools:r8" not in content:
         r8_root = '''buildscript {
     repositories {
@@ -60,11 +68,18 @@ def configure_root_build_gradle():
     }
     dependencies {
         classpath("com.android.tools:r8:8.3.37")
+        classpath("com.google.gms:google-services:4.4.2")
     }
 }
 
 '''
         content = r8_root + content
+    elif "com.google.gms:google-services" not in content:
+        content = re.sub(
+            r'dependencies\s*\{',
+            'dependencies {\n        classpath("com.google.gms:google-services:4.4.2")',
+            content
+        )
 
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
@@ -96,6 +111,15 @@ configurations.all {
 }
 '''
 
+    # Apply google-services plugin if google-services.json exists
+    if "com.google.gms.google-services" not in content:
+        content += '''
+
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+'''
+
     # Ensure release build uses debug signing config for testing/CI builds
     if "signingConfig signingConfigs.debug" not in content and "signingConfig = signingConfigs.debug" not in content:
         content = re.sub(
@@ -118,6 +142,14 @@ def configure_app_build_gradle_kts():
     content = re.sub(r'namespace\s*=\s*["\'][^"\']+["\']', 'namespace = "in.mantraapp.app"', content)
     content = re.sub(r'applicationId\s*=\s*["\'][^"\']+["\']', 'applicationId = "in.mantraapp.app"', content)
     content = re.sub(r'minSdk\s*=\s*flutter\.minSdkVersion', 'minSdk = 23', content)
+
+    if "com.google.gms.google-services" not in content:
+        content += '''
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+'''
 
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)

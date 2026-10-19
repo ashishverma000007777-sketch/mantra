@@ -24,11 +24,13 @@ void main() async {
     ),
   );
 
-  // Firebase init
+  // Firebase init (prevent duplicate initialization)
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
   } catch (e) {
     debugPrint('Firebase init fallback: $e');
   }

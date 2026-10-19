@@ -32,13 +32,15 @@ jobs:
             mkdir -p /tmp/mantra_android_backup/main
             cp -r android/app/src/main/* /tmp/mantra_android_backup/main/
             [ -f android/app/proguard-rules.pro ] && cp android/app/proguard-rules.pro /tmp/mantra_android_backup/
+            [ -f android/app/google-services.json ] && cp android/app/google-services.json /tmp/mantra_android_backup/
             flutter create . --platforms=android --org in.mantraapp --project-name mantra
             # Remove auto-generated sample widget test from flutter create
             rm -f test/widget_test.dart
-            # Restore custom files (MainActivity, ScreenshotPrevention, AndroidManifest, res, proguard-rules)
+            # Restore custom files (MainActivity, ScreenshotPrevention, AndroidManifest, res, proguard-rules, google-services)
             cp -r /tmp/mantra_android_backup/main/* android/app/src/main/
             [ -f /tmp/mantra_android_backup/proguard-rules.pro ] && cp /tmp/mantra_android_backup/proguard-rules.pro android/app/
-            # Configure Android Gradle files (Kotlin 1.9.22, R8 8.3.37, minSdk 23, exifinterface 1.3.7)
+            [ -f /tmp/mantra_android_backup/google-services.json ] && cp /tmp/mantra_android_backup/google-services.json android/app/
+            # Configure Android Gradle files (Kotlin 1.9.22, R8 8.3.37, minSdk 23, exifinterface 1.3.7, Google Services)
             python3 scripts/configure_android.py
           fi
 
