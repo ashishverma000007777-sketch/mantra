@@ -6,6 +6,7 @@ on:
     branches: [main, staging]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -153,7 +154,7 @@ jobs:
     name: Deploy to Staging
     needs: build_and_push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging'
     environment: staging
 
     steps:
@@ -179,7 +180,7 @@ jobs:
     name: Deploy to Production
     needs: build_and_push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     environment: production
 
     steps:
@@ -212,7 +213,7 @@ jobs:
     name: Build Flutter APK
     needs: flutter_test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
