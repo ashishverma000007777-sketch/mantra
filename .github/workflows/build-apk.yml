@@ -32,6 +32,8 @@ jobs:
             mkdir -p /tmp/mantra_android_backup
             cp -r android/app/src/main/* /tmp/mantra_android_backup/
             flutter create . --platforms=android --org in.mantraapp --project-name mantra
+            # Remove auto-generated sample widget test from flutter create
+            rm -f test/widget_test.dart
             # Restore custom files (MainActivity, ScreenshotPrevention, AndroidManifest, res)
             cp -r /tmp/mantra_android_backup/* android/app/src/main/
             # Ensure namespace and applicationId match in.mantraapp.app
