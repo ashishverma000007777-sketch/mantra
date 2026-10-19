@@ -93,8 +93,11 @@ def configure_app_build_gradle():
         content = f.read()
 
     # Ensure namespace and applicationId match in.mantraapp.app
-    content = re.sub(r'namespace\s+["\'][^"\']+["\']', 'namespace "in.mantraapp.app"', content)
-    content = re.sub(r'applicationId\s+["\'][^"\']+["\']', 'applicationId "in.mantraapp.app"', content)
+    content, n_ns = re.subn(r'namespace\s*=?\s*["\'][^"\']+["\']', 'namespace = "in.mantraapp.app"', content)
+    content, n_app = re.subn(r'applicationId\s*=?\s*["\'][^"\']+["\']', 'applicationId = "in.mantraapp.app"', content)
+    print(f"Configured build.gradle: namespace replacements={n_ns}, applicationId replacements={n_app}")
+    if n_app == 0:
+        raise ValueError("Failed to replace applicationId in android/app/build.gradle!")
 
     # Set minSdkVersion to 23
     content = re.sub(r'minSdkVersion\s+flutter\.minSdkVersion', 'minSdkVersion 23', content)
@@ -139,8 +142,11 @@ def configure_app_build_gradle_kts():
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    content = re.sub(r'namespace\s*=\s*["\'][^"\']+["\']', 'namespace = "in.mantraapp.app"', content)
-    content = re.sub(r'applicationId\s*=\s*["\'][^"\']+["\']', 'applicationId = "in.mantraapp.app"', content)
+    content, n_ns = re.subn(r'namespace\s*=\s*["\'][^"\']+["\']', 'namespace = "in.mantraapp.app"', content)
+    content, n_app = re.subn(r'applicationId\s*=\s*["\'][^"\']+["\']', 'applicationId = "in.mantraapp.app"', content)
+    print(f"Configured build.gradle.kts: namespace replacements={n_ns}, applicationId replacements={n_app}")
+    if n_app == 0:
+        raise ValueError("Failed to replace applicationId in android/app/build.gradle.kts!")
     content = re.sub(r'minSdk\s*=\s*flutter\.minSdkVersion', 'minSdk = 23', content)
 
     if "com.google.gms.google-services" not in content:

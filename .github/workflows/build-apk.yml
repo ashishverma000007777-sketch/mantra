@@ -42,6 +42,8 @@ jobs:
             [ -f /tmp/mantra_android_backup/google-services.json ] && cp /tmp/mantra_android_backup/google-services.json android/app/
             # Configure Android Gradle files (Kotlin 1.9.22, R8 8.3.37, minSdk 23, exifinterface 1.3.7, Google Services)
             python3 scripts/configure_android.py
+            echo "=== Checking applicationId and namespace in build.gradle ==="
+            grep -E "applicationId|namespace" android/app/build.gradle* || true
           fi
 
       - name: Resolve Flutter dependencies
