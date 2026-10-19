@@ -231,21 +231,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/compatibility/:targetUserId',
         builder: (context, state) => CompatibilityDnaScreen(
           targetUserId: state.pathParameters['targetUserId']!,
-          targetUserName: state.uri.queryParameters['name'],
         ),
       ),
       GoRoute(
         path: '/quest/:connectionId',
         builder: (context, state) => ConversationQuestScreen(
           connectionId: state.pathParameters['connectionId']!,
-          partnerName: state.uri.queryParameters['partnerName'],
         ),
       ),
       GoRoute(
         path: '/garden/:connectionId',
         builder: (context, state) => ConnectionGardenScreen(
           connectionId: state.pathParameters['connectionId']!,
-          partnerName: state.uri.queryParameters['partnerName'],
         ),
       ),
     ],
