@@ -102,7 +102,7 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
       - run: pip install -r ai_service/requirements.txt
-      - run: pytest ai_service/tests/ -v
+      - run: pytest ai_service/test_ai_service.py -v
         env:
           OPENAI_API_KEY: test_key
           REDIS_URL: redis://localhost:6379
@@ -110,7 +110,7 @@ jobs:
   # ─── Build & Push Docker Images ────────────────────────────────────
   build_and_push:
     name: Build Docker Images
-    needs: [backend_test, ai_test]
+    needs: [flutter_test, backend_test, ai_test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
     permissions:

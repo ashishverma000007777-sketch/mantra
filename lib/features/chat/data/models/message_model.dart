@@ -27,20 +27,24 @@ class MessageModel {
     this.voiceDuration,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> json, String myUserId) =>
-      MessageModel(
-        id: json['_id'] ?? json['id'],
-        conversationId: json['conversation_id'],
-        senderId: json['sender_id'],
-        type: MessageType.values.firstWhere(
-          (t) => t.name == (json['type'] ?? 'text'),
-          orElse: () => MessageType.text,
-        ),
-        content: json['content'] ?? '',
-        isMine: json['sender_id'] == myUserId,
-        isRead: json['read_at'] != null,
-        isDelivered: json['delivered_at'] != null,
-        createdAt: DateTime.parse(json['created_at']),
-        voiceDuration: json['voice_duration'],
-      );
+  factory MessageModel.fromJson(Map<String, dynamic> json, String myUserId) {
+    final sender = (json['sender_id'] ?? json['senderId'] ?? '').toString();
+    return MessageModel(
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      conversationId: (json['conversation_id'] ?? json['conversationId'] ?? '').toString(),
+      senderId: sender,
+      type: MessageType.values.firstWhere(
+        (t) => t.name == (json['type'] ?? 'text'),
+        orElse: () => MessageType.text,
+      ),
+      content: (json['content'] ?? '').toString(),
+      isMine: sender == myUserId,
+      isRead: json['read_at'] != null || json['is_read'] == true,
+      isDelivered: json['delivered_at'] != null,
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+      voiceDuration: json['voice_duration'] as int?,
+    );
+  }
 }

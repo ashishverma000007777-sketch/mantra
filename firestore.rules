@@ -11,8 +11,16 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    function isConversationParticipant(data) {
-      return isAuthenticated() && (request.auth.uid in data.participants);
+    function isParticipant(convData) {
+      return isAuthenticated() && (request.auth.uid in convData.participants);
+    }
+
+    function getConversation(convId) {
+      return get(/databases/$(database)/documents/conversations/$(convId)).data;
+    }
+
+    function conversationExists(convId) {
+      return exists(/databases/$(database)/documents/conversations/$(convId));
     }
 
     // User profiles collection
@@ -24,22 +32,64 @@ service cloud.firestore {
 
     // Conversations collection
     match /conversations/{conversationId} {
-      allow read: if isAuthenticated() && isConversationParticipant(resource.data);
-      allow create: if isAuthenticated() && isConversationParticipant(request.resource.data);
-      allow update: if isAuthenticated() && isConversationParticipant(resource.data);
+      allow read: if isAuthenticated() && isParticipant(resource.data);
+      allow create: if isAuthenticated() && isParticipant(request.resource.data);
+      allow update: if isAuthenticated() && isParticipant(resource.data) &&
+        // Participants array and conversation identity cannot be changed by clients
+        request.resource.data.participants == resource.data.participants;
       allow delete: if false;
 
-      // Nested messages subcollection
+      // Nested messages subcollection (if accessed via subcollection path)
       match /messages/{messageId} {
         allow read: if isAuthenticated() &&
-          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+          request.auth.uid in getConversation(conversationId).participants;
         allow create: if isAuthenticated() &&
-          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
-          request.resource.data.senderId == request.auth.uid;
+          request.auth.uid in getConversation(conversationId).participants &&
+          request.resource.data.sender_id == request.auth.uid &&
+          request.resource.data.content is string &&
+          request.resource.data.content.size() <= 2000 &&
+          (!('is_moderated' in request.resource.data) || request.resource.data.is_moderated == false) &&
+          (!('moderation_status' in request.resource.data) || request.resource.data.moderation_status == 'pending');
         allow update: if isAuthenticated() &&
-          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+          request.auth.uid in getConversation(conversationId).participants &&
+          request.resource.data.sender_id == resource.data.sender_id &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_read', 'read_at', 'delivered_at', 'reaction']);
         allow delete: if false;
       }
+    }
+
+    // Top-level messages collection (used by Flutter chat client)
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() &&
+        conversationExists(resource.data.conversation_id) &&
+        request.auth.uid in getConversation(resource.data.conversation_id).participants;
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.conversation_id is string &&
+        conversationExists(request.resource.data.conversation_id) &&
+        request.auth.uid in getConversation(request.resource.data.conversation_id).participants &&
+        request.resource.data.sender_id == request.auth.uid &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() <= 2000 &&
+        (!('is_moderated' in request.resource.data) || request.resource.data.is_moderated == false) &&
+        (!('moderation_status' in request.resource.data) || request.resource.data.moderation_status == 'pending') &&
+        (!('is_deleted' in request.resource.data) || request.resource.data.is_deleted == false);
+
+      allow update: if isAuthenticated() &&
+        conversationExists(resource.data.conversation_id) &&
+        request.auth.uid in getConversation(resource.data.conversation_id).participants &&
+        request.resource.data.sender_id == resource.data.sender_id &&
+        request.resource.data.conversation_id == resource.data.conversation_id &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_read', 'read_at', 'delivered_at', 'reaction']);
+
+      allow delete: if false;
+    }
+
+    // Typing indicators collection
+    match /typing/{conversationId} {
+      allow read, write: if isAuthenticated() &&
+        conversationExists(conversationId) &&
+        request.auth.uid in getConversation(conversationId).participants;
     }
 
     // Rooms collection (Community read-only rules from client; writes via backend)

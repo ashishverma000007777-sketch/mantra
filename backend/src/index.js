@@ -95,6 +95,22 @@ async function buildApp(options = {}) {
     },
   });
 
+  // Raw body capture for webhook HMAC signature verification
+  app.addContentTypeParser('application/json', { parseAs: 'buffer' }, (req, body, done) => {
+    if (!body || body.length === 0) {
+      req.rawBody = '';
+      return done(null, {});
+    }
+    req.rawBody = body.toString('utf8');
+    try {
+      const json = JSON.parse(req.rawBody);
+      done(null, json);
+    } catch (err) {
+      err.statusCode = 400;
+      done(err, undefined);
+    }
+  });
+
   // ─── Decorators ───────────────────────────────────────────
   app.decorate('db', db);
   app.decorate('redis', redis);

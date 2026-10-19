@@ -301,13 +301,22 @@ class MockDatabase {
       return { rows: [], rowCount: 1 };
     }
 
-    if (s.includes('select user_id, plan_id, status from payment_orders')) {
-      const o = this.paymentOrders.get(params[0]) || {
-        user_id: 'test-user',
-        plan_id: 'gold_monthly',
-        status: 'pending',
-      };
-      return { rows: [o], rowCount: 1 };
+    if (s.includes('from payment_orders')) {
+      const o = this.paymentOrders.get(params[0]);
+      if (o) {
+        return { rows: [o], rowCount: 1 };
+      }
+      return { rows: [], rowCount: 0 };
+    }
+
+    if (s.includes('update payment_orders')) {
+      for (const [orderId, order] of this.paymentOrders.entries()) {
+        if (params.includes(orderId)) {
+          order.status = s.includes("'failed'") ? 'failed' : 'paid';
+          break;
+        }
+      }
+      return { rows: [{ id: 'order-1' }], rowCount: 1 };
     }
 
     // Fallback
