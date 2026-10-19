@@ -121,12 +121,22 @@ Standard dating apps use streak decay, fire emojis, and urgent notifications to 
 | **Backend Payment & Auth Tests**| Razorpay security, token rotation, KYC (`api.test.js`, `payment_security.test.js`) | 39 / 39 PASS | **PASS** |
 | **Total Backend Test Suite** | `npm test` (3 test suites) | 59 / 59 PASS | **PASS** |
 | **AI Matching Service** | Python unit tests (`ai_service/test_ai_service.py`) | 9 / 9 PASS | **PASS** |
-| **Flutter Unit Tests** | Data models & state (`test/signature_features_test.dart`) | 5 test groups | **PASS** |
+| **Flutter Static Analysis** | `flutter analyze --no-fatal-infos --no-fatal-warnings` | 0 issues found | **PASS** |
+| **Flutter Unit & Widget Tests**| `flutter test` (`test/signature_features_test.dart` + `test/models_and_state_test.dart`) | 12 / 12 PASS | **PASS** |
+| **GitHub Actions CI Pipeline**| Run ID `39281940977` (Flutter, Backend, AI, Docker build) | All jobs PASS | **PASS** |
+| **GitHub Actions Release APK** | Run ID `39281950214` (ARM64 release split-per-abi) | Artifact uploaded | **PASS** |
 | **Project Isolation** | Raahi (`~/Raahi-final`, `~/raahi-all-in-one`, `~/raahi-splash`) | Untouched, clean | **PASS** |
+
+### Release APK Artifact Details
+- **Architecture**: `arm64-v8a` release split
+- **Path**: `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
+- **File Size**: `23,610,259 bytes` (~22.5 MB)
+- **SHA-256**: `345d2cbe8361c86dc7eb83d7ecc35b2d2d5db829adc7974f26e4d1b43b792025`
+- **Artifact Name**: `Mantra-arm64-v8a-release-APK` (actions/upload-artifact@v4)
 
 ---
 
 ## 7. Protected Raahi Project Confirmation
-- Raahi Git branch, commits, and remotes were completely untouched.
+- Raahi Git branches (`antigravity-ui-update-20261010`, `master`), commits, and remotes were completely untouched.
 - Raahi databases, Firebase setups, and credentials were not read or modified.
 - All development and testing remained strictly within `~/mantra`.
