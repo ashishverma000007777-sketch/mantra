@@ -8,239 +8,252 @@ import 'package:mantra/features/chat/data/models/gradual_reveal_model.dart';
 import 'package:mantra/features/chat/data/models/connection_garden_model.dart';
 
 void main() {
-  group('Mystery Match Model Tests', () {
-    test('Correctly parses personality-first discovery card without photos/name', () {
+  group('MysteryMatchModel Unit Tests', () {
+    test('Correctly parses personality-first card without exposed photos or real name', () {
       final json = {
-        'id': 'cand-uuid-1',
-        'masked_name': 'Soulful Thinker',
+        'candidate_id': 'cand-uuid-1',
+        'pseudonym': 'Soulful Thinker',
         'age': 27,
         'city': 'Bengaluru',
-        'prompts': [
+        'intent': 'Long-term partnership',
+        'personality_tags': ['Authenticity', 'Mindfulness', 'Kindness'],
+        'shared_interests': ['Reading', 'Stargazing', 'Vinyl Records'],
+        'prompt_responses': [
           {'question': 'A weekend well spent?', 'answer': 'Books and filter coffee.'},
           {'question': 'Life philosophy?', 'answer': 'Slow and intentional.'},
         ],
-        'values': ['Authenticity', 'Mindfulness', 'Kindness'],
-        'interests': ['Reading', 'Stargazing', 'Vinyl Records'],
-        'relationship_intention': 'Long-term partnership',
-        'lifestyle': {'sleep': 'Early bird', 'social': 'Introverted'},
-        'compatibility_score': 88,
+        'trust_score': 88.0,
+        'has_voice_intro': true,
+        'photos_hidden': true,
       };
 
-      final candidate = MysteryCandidateModel.fromJson(json);
-      expect(candidate.id, 'cand-uuid-1');
-      expect(candidate.maskedName, 'Soulful Thinker');
-      expect(candidate.age, 27);
-      expect(candidate.city, 'Bengaluru');
-      expect(candidate.prompts.length, 2);
-      expect(candidate.prompts.first.question, 'A weekend well spent?');
-      expect(candidate.values, contains('Mindfulness'));
-      expect(candidate.interests, contains('Stargazing'));
-      expect(candidate.relationshipIntention, 'Long-term partnership');
-      expect(candidate.lifestyle['sleep'], 'Early bird');
-      expect(candidate.compatibilityScore, 88);
+      final match = MysteryMatchModel.fromJson(json);
+      expect(match.candidateId, 'cand-uuid-1');
+      expect(match.pseudonym, 'Soulful Thinker');
+      expect(match.age, 27);
+      expect(match.city, 'Bengaluru');
+      expect(match.intent, 'Long-term partnership');
+      expect(match.personalityTags, contains('Mindfulness'));
+      expect(match.sharedInterests, contains('Stargazing'));
+      expect(match.promptResponses.length, 2);
+      expect(match.promptResponses.first.question, 'A weekend well spent?');
+      expect(match.trustScore, 88.0);
+      expect(match.photosHidden, true);
+      expect(match.hasVoiceIntro, true);
     });
 
-    test('Handles empty and fallback fields gracefully', () {
+    test('Handles fallback fields gracefully', () {
       final json = {
-        'id': 'cand-uuid-2',
+        'candidate_id': 'cand-uuid-2',
       };
 
-      final candidate = MysteryCandidateModel.fromJson(json);
-      expect(candidate.id, 'cand-uuid-2');
-      expect(candidate.maskedName, 'A Thoughtful Soul');
-      expect(candidate.age, 25);
-      expect(candidate.prompts, isEmpty);
-      expect(candidate.values, isEmpty);
-      expect(candidate.interests, isEmpty);
-      expect(candidate.compatibilityScore, 75);
+      final match = MysteryMatchModel.fromJson(json);
+      expect(match.candidateId, 'cand-uuid-2');
+      expect(match.pseudonym, 'Thoughtful Soul');
+      expect(match.age, 25);
+      expect(match.city, 'Nearby');
+      expect(match.promptResponses, isEmpty);
+      expect(match.personalityTags, isEmpty);
+      expect(match.sharedInterests, isEmpty);
+      expect(match.photosHidden, true);
     });
   });
 
-  group('Compatibility DNA Model Tests', () {
-    test('Correctly parses all 7 Slow-Dating dimensions', () {
+  group('CompatibilityDnaModel Unit Tests', () {
+    test('Correctly parses all 7 Slow-Dating dimensions and ethical disclaimer', () {
       final json = {
-        'overall_score': 84,
-        'summary': 'High intellectual and lifestyle synergy.',
-        'dimensions': [
-          {
+        'target_user_id': 'user-target-1',
+        'overall_alignment': 84,
+        'evaluated_dimensions_count': 7,
+        'ethical_notice': 'Self-reported preferences for understanding, not a psychological guarantee.',
+        'dimensions': {
+          'communication': {
             'dimension': 'communication',
             'score': 88,
-            'summary': 'Both value deep, reflective dialogue.',
-            'alignment': 'strong',
+            'insight': 'Both value deep, reflective dialogue.',
+            'contributing_factors': ['High prompt engagement', 'Consistent communication style'],
           },
-          {
+          'relationship_intentions': {
             'dimension': 'relationship_intentions',
             'score': 90,
-            'summary': 'Aligned on long-term commitment.',
-            'alignment': 'strong',
+            'insight': 'Aligned on long-term commitment.',
+            'contributing_factors': ['Both seeking life partner'],
           },
-          {
+          'core_values': {
             'dimension': 'core_values',
             'score': 82,
-            'summary': 'Shared grounding in empathy and growth.',
-            'alignment': 'strong',
+            'insight': 'Shared grounding in empathy and growth.',
+            'contributing_factors': ['Empathy', 'Mindfulness'],
           },
-          {
+          'lifestyle': {
             'dimension': 'lifestyle',
             'score': 78,
-            'summary': 'Complementary daily rhythms.',
-            'alignment': 'moderate',
+            'insight': 'Complementary daily rhythms.',
+            'contributing_factors': ['Early bird balance'],
           },
-          {
+          'emotional_readiness': {
             'dimension': 'emotional_readiness',
             'score': 85,
-            'summary': 'Both seek emotionally mature connection.',
-            'alignment': 'strong',
+            'insight': 'Both seek emotionally mature connection.',
+            'contributing_factors': ['High self-awareness'],
           },
-          {
+          'conflict_resolution': {
             'dimension': 'conflict_resolution',
             'score': 80,
-            'summary': 'Calm, communicative approach.',
-            'alignment': 'strong',
+            'insight': 'Calm, communicative approach.',
+            'contributing_factors': ['Discussion over escalation'],
           },
-          {
+          'shared_interests': {
             'dimension': 'shared_interests',
             'score': 75,
-            'summary': 'Overlapping love for arts and culture.',
-            'alignment': 'moderate',
+            'insight': 'Overlapping love for arts and culture.',
+            'contributing_factors': ['Literature', 'Coffee'],
           },
-        ],
+        },
       };
 
       final dna = CompatibilityDnaModel.fromJson(json);
-      expect(dna.overallScore, 84);
-      expect(dna.summary, 'High intellectual and lifestyle synergy.');
+      expect(dna.targetUserId, 'user-target-1');
+      expect(dna.overallAlignment, 84);
+      expect(dna.evaluatedDimensionsCount, 7);
       expect(dna.dimensions.length, 7);
-
-      final comm = dna.dimensions.firstWhere((d) => d.dimension == 'communication');
-      expect(comm.displayName, 'Communication');
-      expect(comm.score, 88);
-      expect(comm.alignment, 'strong');
-      expect(comm.icon, isNotEmpty);
+      expect(dna.dimensions['communication']?.score, 88);
+      expect(dna.dimensions['communication']?.insight, 'Both value deep, reflective dialogue.');
+      expect(dna.dimensions['core_values']?.contributingFactors, contains('Empathy'));
+      expect(dna.ethicalNotice, contains('psychological guarantee'));
     });
   });
 
-  group('Conversation Quest Model Tests', () {
-    test('Parses daily prompt and handles mutual unlock state', () {
+  group('ConversationQuestModel Unit Tests', () {
+    test('Parses daily prompt and handles mutual unlock and reactions', () {
       final json = {
         'id': 'quest-42',
         'category': 'values',
-        'prompt': 'What value do you cherish most?',
+        'prompt_text': 'What value do you cherish most?',
         'follow_up_prompt': 'When was this value tested recently?',
-        'day_number': 4,
-        'my_answer': 'Honesty, even when uncomfortable.',
-        'partner_answer': 'Vulnerability and trust.',
-        'partner_has_answered': true,
+        'has_user_answered': true,
+        'has_partner_answered': true,
         'is_unlocked': true,
-        'reactions': [
-          {'user_id': 'u1', 'reaction': '❤️'},
-          {'user_id': 'u2', 'reaction': '✨'},
-        ],
+        'my_answer': {
+          'id': 'ans-1',
+          'answer_text': 'Honesty, even when uncomfortable.',
+          'created_at': '2026-10-19T10:00:00Z',
+          'reactions': ['❤️', '✨'],
+        },
+        'partner_answer': {
+          'id': 'ans-2',
+          'answer_text': 'Vulnerability and trust.',
+          'created_at': '2026-10-19T10:05:00Z',
+          'reactions': ['☕'],
+        },
       };
 
       final quest = ConversationQuestModel.fromJson(json);
       expect(quest.id, 'quest-42');
       expect(quest.category, 'values');
-      expect(quest.categoryDisplayName, 'Core Values');
-      expect(quest.isAnsweredByMe, true);
-      expect(quest.partnerHasAnswered, true);
+      expect(quest.promptText, 'What value do you cherish most?');
+      expect(quest.followUpPrompt, 'When was this value tested recently?');
+      expect(quest.hasUserAnswered, true);
+      expect(quest.hasPartnerAnswered, true);
       expect(quest.isUnlocked, true);
-      expect(quest.partnerAnswer, 'Vulnerability and trust.');
-      expect(quest.reactions.length, 2);
+      expect(quest.myAnswer?.answerText, 'Honesty, even when uncomfortable.');
+      expect(quest.partnerAnswer?.answerText, 'Vulnerability and trust.');
+      expect(quest.myAnswer?.reactions.length, 2);
+      expect(quest.partnerAnswer?.reactions.first, '☕');
     });
 
-    test('Hides partner answer if not unlocked', () {
+    test('Hides partner answer when mutual unlock is not yet achieved', () {
       final json = {
         'id': 'quest-43',
         'category': 'lifestyle',
-        'prompt': 'How do you unwind after a long week?',
-        'day_number': 5,
-        'my_answer': null,
-        'partner_has_answered': true,
+        'prompt_text': 'How do you unwind after a long week?',
+        'has_user_answered': false,
+        'has_partner_answered': true,
         'is_unlocked': false,
+        'partner_answer': null,
       };
 
       final quest = ConversationQuestModel.fromJson(json);
-      expect(quest.isAnsweredByMe, false);
-      expect(quest.partnerHasAnswered, true);
+      expect(quest.hasUserAnswered, false);
+      expect(quest.hasPartnerAnswered, true);
       expect(quest.isUnlocked, false);
       expect(quest.partnerAnswer, isNull);
     });
   });
 
-  group('Gradual Reveal Model Tests', () {
-    test('Validates stage progression and mutual consent status', () {
+  group('GradualRevealModel Unit Tests', () {
+    test('Validates stage progression and pending requests', () {
       final json = {
+        'connection_id': 'conn-1',
         'current_stage': 'mind',
-        'my_requested_stage': 'voice',
-        'partner_requested_stage': null,
-        'is_mutual_voice': false,
-        'is_mutual_connection': false,
-        'is_mutual_face': false,
+        'my_consent': {'voice': true, 'connection': false, 'face': false},
+        'partner_consent': {'voice': false, 'connection': false, 'face': false},
+        'pending_requests_from_partner': [],
+        'pending_requests_from_me': ['voice'],
+        'is_voice_unlocked': false,
+        'is_photo_unlocked': false,
+        'explanation': 'Voice reveal requires mutual consent.',
       };
 
       final reveal = GradualRevealModel.fromJson(json);
-      expect(reveal.currentStage, RevealStage.mind);
-      expect(reveal.myRequestedStage, RevealStage.voice);
-      expect(reveal.isPendingMyRequest, true);
-      expect(reveal.nextStage, RevealStage.voice);
-      expect(reveal.isFaceRevealed, false);
-      expect(reveal.isVoiceRevealed, false);
+      expect(reveal.connectionId, 'conn-1');
+      expect(reveal.currentStage, 'mind');
+      expect(reveal.myConsent['voice'], true);
+      expect(reveal.partnerConsent['voice'], false);
+      expect(reveal.isVoiceUnlocked, false);
+      expect(reveal.isPhotoUnlocked, false);
+      expect(reveal.pendingRequestsFromMe, contains('voice'));
     });
 
     test('Validates full mutual face reveal stage', () {
       final json = {
+        'connection_id': 'conn-1',
         'current_stage': 'face',
-        'my_requested_stage': 'face',
-        'partner_requested_stage': 'face',
-        'is_mutual_voice': true,
-        'is_mutual_connection': true,
-        'is_mutual_face': true,
+        'my_consent': {'voice': true, 'connection': true, 'face': true},
+        'partner_consent': {'voice': true, 'connection': true, 'face': true},
+        'pending_requests_from_partner': [],
+        'pending_requests_from_me': [],
+        'is_voice_unlocked': true,
+        'is_photo_unlocked': true,
+        'explanation': 'Full mutual identity reveal active.',
       };
 
       final reveal = GradualRevealModel.fromJson(json);
-      expect(reveal.currentStage, RevealStage.face);
-      expect(reveal.isFaceRevealed, true);
-      expect(reveal.isVoiceRevealed, true);
-      expect(reveal.nextStage, isNull);
-      expect(reveal.isPendingMyRequest, false);
+      expect(reveal.currentStage, 'face');
+      expect(reveal.isVoiceUnlocked, true);
+      expect(reveal.isPhotoUnlocked, true);
     });
   });
 
-  group('Connection Garden Model Tests', () {
-    test('Calculates growth stage correctly based on score', () {
-      final seedGarden = ConnectionGardenModel.fromJson({
+  group('ConnectionGardenModel Unit Tests', () {
+    test('Calculates growth stage and milestones correctly', () {
+      final json = {
         'connection_id': 'conn-1',
-        'growth_stage': 'seed',
-        'growth_points': 20,
-        'streak_days': 2,
-        'milestones': [],
-      });
-      expect(seedGarden.stage, GardenStage.seed);
-      expect(seedGarden.stageName, 'Seed');
-      expect(seedGarden.nextStageThreshold, 50);
+        'stage': 'sprout',
+        'growth_points': 75,
+        'stage_description': 'Roots have taken hold; shared thoughts are sprouting.',
+        'is_paused': false,
+        'milestones': [
+          {
+            'milestone_type': 'first_quest',
+            'title': 'First Quest Completed',
+            'description': 'Both answered your first conversation quest.',
+            'achieved_at': '2026-10-19T12:00:00Z',
+          },
+        ],
+        'anti_streak_guarantee': 'Connection Gardens reflect mutual milestones, not compulsive daily streaks.',
+        'next_milestone_suggestion': 'Share a voice intro to water your garden.',
+      };
 
-      final sproutGarden = ConnectionGardenModel.fromJson({
-        'connection_id': 'conn-2',
-        'growth_stage': 'sprout',
-        'growth_points': 65,
-        'streak_days': 4,
-        'milestones': ['first_quest'],
-      });
-      expect(sproutGarden.stage, GardenStage.sprout);
-      expect(sproutGarden.stageName, 'Sprout');
-      expect(sproutGarden.nextStageThreshold, 150);
-
-      final bloomGarden = ConnectionGardenModel.fromJson({
-        'connection_id': 'conn-3',
-        'growth_stage': 'bloom',
-        'growth_points': 320,
-        'streak_days': 15,
-        'milestones': ['first_quest', 'voice_shared', 'full_bloom'],
-      });
-      expect(bloomGarden.stage, GardenStage.bloom);
-      expect(bloomGarden.stageName, 'Full Bloom');
-      expect(bloomGarden.progressPercent, 1.0);
+      final garden = ConnectionGardenModel.fromJson(json);
+      expect(garden.connectionId, 'conn-1');
+      expect(garden.stage, 'sprout');
+      expect(garden.growthPoints, 75);
+      expect(garden.isPaused, false);
+      expect(garden.milestones.length, 1);
+      expect(garden.milestones.first.title, 'First Quest Completed');
+      expect(garden.milestones.first.milestoneType, 'first_quest');
+      expect(garden.antiStreakGuarantee, contains('compulsive daily streaks'));
     });
   });
 }

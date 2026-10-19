@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../models/mystery_match_model.dart';
+import '../../data/models/mystery_match_model.dart';
 import '../../providers/mystery_match_provider.dart';
 
 class MysteryMatchScreen extends ConsumerStatefulWidget {
@@ -69,7 +69,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
         actions: [
           IconButton(
             tooltip: 'Compatibility DNA',
-            icon: const Icon(Icons.dna_rounded, color: AppColors.primary),
+            icon: Icon(Icons.psychology_rounded, color: AppColors.primary),
             onPressed: () {
               final candidates = matchesAsync.value ?? [];
               if (candidates.isNotEmpty && _currentIndex < candidates.length) {

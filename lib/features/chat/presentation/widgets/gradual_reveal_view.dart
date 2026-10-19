@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../models/gradual_reveal_model.dart';
-import '../providers/reveal_provider.dart';
+import '../../data/models/gradual_reveal_model.dart';
+import '../../providers/reveal_provider.dart';
 
 class GradualRevealView extends ConsumerWidget {
   final String connectionId;

@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../models/connection_garden_model.dart';
-import '../providers/garden_provider.dart';
+import '../../data/models/connection_garden_model.dart';
+import '../../providers/garden_provider.dart';
 
 class ConnectionGardenScreen extends ConsumerWidget {
   final String connectionId;

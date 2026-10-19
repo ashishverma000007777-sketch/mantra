@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../models/conversation_quest_model.dart';
-import '../providers/quest_provider.dart';
+import '../../data/models/conversation_quest_model.dart';
+import '../../providers/quest_provider.dart';
 
 class ConversationQuestScreen extends ConsumerStatefulWidget {
   final String connectionId;

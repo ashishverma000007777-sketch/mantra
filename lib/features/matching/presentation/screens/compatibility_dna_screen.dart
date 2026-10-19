@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../models/compatibility_dna_model.dart';
+import '../../data/models/compatibility_dna_model.dart';
 import '../../providers/compatibility_provider.dart';
 
 class CompatibilityDnaScreen extends ConsumerWidget {
