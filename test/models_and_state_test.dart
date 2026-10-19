@@ -2,9 +2,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
+import 'package:dio/dio.dart';
 import 'package:mantra/features/chat/data/models/message_model.dart';
 import 'package:mantra/features/auth/data/models/user_model.dart';
 import 'package:mantra/features/community/data/models/room_model.dart';
+import 'package:mantra/features/auth/data/repositories/auth_repository.dart';
+import 'package:mantra/core/constants/api_constants.dart';
 import 'package:mantra/firebase_options.dart';
 
 void main() {
@@ -102,6 +105,38 @@ void main() {
       expect(room.isWomenOnly, true);
       expect(room.color, const Color(0xFF8B5E3C));
       expect(room.memberCount, 142);
+    });
+  });
+
+  group('ApiConstants and Network Error Formatting Tests', () {
+    test('Default baseUrl is https://api.mantraapp.in/api/v1 and supports override', () {
+      expect(ApiConstants.baseUrl, 'https://api.mantraapp.in/api/v1');
+      ApiConstants.setBaseUrl('http://10.0.2.2:3000/api/v1');
+      expect(ApiConstants.baseUrl, 'http://10.0.2.2:3000/api/v1');
+      ApiConstants.reset();
+      expect(ApiConstants.baseUrl, 'https://api.mantraapp.in/api/v1');
+    });
+
+    test('formatNetworkError correctly identifies DNS host lookup failure and avoids OTP confusion', () {
+      final dioErr = DioException(
+        requestOptions: RequestOptions(path: '/auth/register'),
+        type: DioExceptionType.connectionError,
+        message: "Failed host lookup: 'api.mantraapp.in'",
+      );
+      final formatted = AuthRepositoryImpl.formatNetworkError(dioErr);
+      expect(formatted.contains('Unable to resolve or reach backend host (api.mantraapp.in)'), true);
+      expect(formatted.contains('OTP verification failed'), false);
+    });
+
+    test('formatNetworkError correctly identifies timeout failure and avoids OTP confusion', () {
+      final dioErr = DioException(
+        requestOptions: RequestOptions(path: '/auth/register'),
+        type: DioExceptionType.connectionTimeout,
+        message: 'The connection has timed out.',
+      );
+      final formatted = AuthRepositoryImpl.formatNetworkError(dioErr);
+      expect(formatted.contains('Network timeout'), true);
+      expect(formatted.contains('OTP verification failed'), false);
     });
   });
 }

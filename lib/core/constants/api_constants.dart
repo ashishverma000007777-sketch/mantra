@@ -3,8 +3,33 @@
 class ApiConstants {
   ApiConstants._();
 
-  static const String baseUrl = 'https://api.mantraapp.in/api/v1';
-  static const String wsUrl = 'wss://ws.mantraapp.in';
+  static const String _envBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://api.mantraapp.in/api/v1',
+  );
+  static const String _envWsUrl = String.fromEnvironment(
+    'WS_URL',
+    defaultValue: 'wss://ws.mantraapp.in',
+  );
+
+  static String _customBaseUrl = _envBaseUrl;
+  static String _customWsUrl = _envWsUrl;
+
+  static String get baseUrl => _customBaseUrl;
+  static String get wsUrl => _customWsUrl;
+
+  static void setBaseUrl(String url) {
+    _customBaseUrl = url;
+  }
+
+  static void setWsUrl(String url) {
+    _customWsUrl = url;
+  }
+
+  static void reset() {
+    _customBaseUrl = _envBaseUrl;
+    _customWsUrl = _envWsUrl;
+  }
 
   // Auth
   static const String sendOtp = '/auth/send-otp';
