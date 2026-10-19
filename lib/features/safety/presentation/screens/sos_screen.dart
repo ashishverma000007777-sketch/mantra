@@ -66,8 +66,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
     // Fetch location simultaneously
     try {
       final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.granted ||
-          permission == LocationPermission.whileInUse) {
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
         final pos = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           timeLimit: const Duration(seconds: 8),
