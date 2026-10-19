@@ -1,4 +1,4 @@
-package in.mantraapp.app
+package `in`.mantraapp.app
 
 import android.os.Bundle
 import android.view.WindowManager

@@ -1,4 +1,4 @@
-package in.mantraapp.app
+package `in`.mantraapp.app
 
 import android.view.WindowManager
 import io.flutter.embedding.engine.FlutterEngine
