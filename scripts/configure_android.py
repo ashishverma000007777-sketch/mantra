@@ -17,7 +17,7 @@ def configure_settings_gradle():
     )
 
     # Inject R8 override into pluginManagement
-    if "com.android.tools.r8:r8" not in content and "pluginManagement {" in content:
+    if "com.android.tools:r8" not in content and "pluginManagement {" in content:
         r8_block = '''pluginManagement {
     buildscript {
         repositories {
@@ -26,7 +26,7 @@ def configure_settings_gradle():
             maven { url = uri("https://storage.googleapis.com/r8-releases/raw") }
         }
         dependencies {
-            classpath("com.android.tools.r8:r8:8.2.24")
+            classpath("com.android.tools:r8:8.3.37")
         }
     }
 '''
@@ -51,7 +51,7 @@ def configure_root_build_gradle():
     )
 
     # Inject R8 override into root buildscript if needed
-    if "com.android.tools.r8:r8" not in content:
+    if "com.android.tools:r8" not in content:
         r8_root = '''buildscript {
     repositories {
         google()
@@ -59,7 +59,7 @@ def configure_root_build_gradle():
         maven { url = uri("https://storage.googleapis.com/r8-releases/raw") }
     }
     dependencies {
-        classpath("com.android.tools.r8:r8:8.2.24")
+        classpath("com.android.tools:r8:8.3.37")
     }
 }
 
