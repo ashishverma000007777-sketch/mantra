@@ -20,6 +20,10 @@ const communityRoutes = require('./routes/community');
 const safetyRoutes = require('./routes/safety');
 const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
+const compatibilityRoutes = require('./routes/compatibility');
+const questRoutes = require('./routes/quests');
+const revealRoutes = require('./routes/reveal');
+const gardenRoutes = require('./routes/garden');
 
 async function buildApp(options = {}) {
   const app = Fastify({
@@ -153,6 +157,10 @@ async function buildApp(options = {}) {
   app.register(safetyRoutes, { prefix: `${prefix}/safety` });
   app.register(paymentRoutes, { prefix: `${prefix}/payment` });
   app.register(adminRoutes, { prefix: `${prefix}/admin` });
+  app.register(compatibilityRoutes, { prefix: `${prefix}/compatibility` });
+  app.register(questRoutes, { prefix: `${prefix}/quests` });
+  app.register(revealRoutes, { prefix: `${prefix}/reveal` });
+  app.register(gardenRoutes, { prefix: `${prefix}/garden` });
 
   // Root & Health check
   app.get('/health', async () => ({

@@ -31,6 +31,10 @@ import '../features/safety/presentation/screens/safety_center_screen.dart';
 import '../features/safety/presentation/screens/sos_screen.dart';
 import '../features/safety/presentation/screens/trusted_contacts_screen.dart';
 import '../features/premium/presentation/screens/premium_screen.dart';
+import '../features/matching/presentation/screens/mystery_match_screen.dart';
+import '../features/matching/presentation/screens/compatibility_dna_screen.dart';
+import '../features/chat/presentation/screens/conversation_quest_screen.dart';
+import '../features/chat/presentation/screens/connection_garden_screen.dart';
 import '../features/auth/providers/auth_provider.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -216,6 +220,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/premium',
         builder: (_, __) => const PremiumScreen(),
+      ),
+
+      // Signature Slow-Dating Features
+      GoRoute(
+        path: '/mystery-match',
+        builder: (_, __) => const MysteryMatchScreen(),
+      ),
+      GoRoute(
+        path: '/compatibility/:targetUserId',
+        builder: (context, state) => CompatibilityDnaScreen(
+          targetUserId: state.pathParameters['targetUserId']!,
+          targetUserName: state.uri.queryParameters['name'],
+        ),
+      ),
+      GoRoute(
+        path: '/quest/:connectionId',
+        builder: (context, state) => ConversationQuestScreen(
+          connectionId: state.pathParameters['connectionId']!,
+          partnerName: state.uri.queryParameters['partnerName'],
+        ),
+      ),
+      GoRoute(
+        path: '/garden/:connectionId',
+        builder: (context, state) => ConnectionGardenScreen(
+          connectionId: state.pathParameters['connectionId']!,
+          partnerName: state.uri.queryParameters['partnerName'],
+        ),
       ),
     ],
   );

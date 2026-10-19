@@ -109,6 +109,16 @@ class HomeScreen extends ConsumerWidget {
               ).animate(delay: 180.ms).fadeIn().slideY(begin: 0.06, end: 0),
             ),
 
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+            // Mystery Match Banner (Slow Dating)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _MysteryMatchBanner(onTap: () => context.push('/mystery-match')),
+              ).animate(delay: 210.ms).fadeIn().slideY(begin: 0.06, end: 0),
+            ),
+
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
             // Communities header
@@ -297,6 +307,102 @@ class _SparksBanner extends StatelessWidget {
                 color: Colors.white,
                 size: 22,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MysteryMatchBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _MysteryMatchBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF281347), Color(0xFF421B66)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          border: Border.all(color: Colors.amber.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF281347).withOpacity(0.3),
+              blurRadius: 18,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Text('🎭', style: TextStyle(fontSize: 22)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Mystery Match',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Slow Dating',
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Explore minds before faces — no superficial swipes',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white70,
+              size: 24,
             ),
           ],
         ),

@@ -12,6 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../chat/data/models/message_model.dart';
 import '../../../chat/providers/chat_provider.dart';
+import '../widgets/gradual_reveal_view.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String conversationId;
@@ -93,8 +94,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _ChatAppBar(
-        name: extra?['name'] ?? 'Connection',
-        trustScore: (extra?['trust_score'] as num?)?.toDouble() ?? 75.0,
+        conversationId: widget.conversationId,
+        name: widget.extra?['name'] ?? 'Connection',
+        trustScore: (widget.extra?['trust_score'] as num?)?.toDouble() ?? 75.0,
         stage: chatState.value?.stage ?? 1,
         onBack: () => context.pop(),
         onMore: () => _showMoreOptions(context),
@@ -103,6 +105,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         children: [
           // Stage indicator
           _StageIndicator(stage: chatState.value?.stage ?? 1),
+
+          // Feature 4: Gradual Identity Reveal Stepper & Consent
+          GradualRevealView(connectionId: widget.conversationId),
 
           // AI suggestion banner
           if (_showSuggestion && chatState.value?.aiSuggestion != null)
@@ -185,6 +190,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
 // ─── App Bar ───────────────────────────────────────────
 class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String conversationId;
   final String name;
   final double trustScore;
   final int stage;
@@ -192,6 +198,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onMore;
 
   const _ChatAppBar({
+    required this.conversationId,
     required this.name,
     required this.trustScore,
     required this.stage,
@@ -236,9 +243,21 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        // Conversation Quest Action
+        IconButton(
+          tooltip: 'Conversation Quest',
+          onPressed: () => context.push('/quest/$conversationId'),
+          icon: const Icon(Icons.explore_outlined, color: AppColors.primary, size: 20),
+        ),
+        // Connection Garden Action
+        IconButton(
+          tooltip: 'Connection Garden',
+          onPressed: () => context.push('/garden/$conversationId'),
+          icon: const Icon(Icons.eco_outlined, color: AppColors.trust, size: 20),
+        ),
         // SOS always visible
         IconButton(
-          onPressed: () {},
+          onPressed: () => context.push('/safety'),
           icon: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(

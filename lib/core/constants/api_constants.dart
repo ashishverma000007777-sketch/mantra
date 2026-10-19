@@ -44,6 +44,29 @@ class ApiConstants {
   static const String createOrder = '/payment/order';
   static const String verifyPayment = '/payment/verify';
 
+  // Signature Features
+  // 1. Mystery Match
+  static const String mysteryMatch = '/match/mystery';
+  static const String mysteryExplore = '/match/mystery/explore';
+  static const String mysteryPass = '/match/mystery/pass';
+
+  // 2. Compatibility DNA
+  static const String compatibilityProfile = '/compatibility';
+  static const String compatibilityAnswers = '/compatibility/answers';
+  static const String compatibilityCompare = '/compatibility/compare';
+
+  // 3. Conversation Quest
+  static const String questDaily = '/quests/daily';
+  static const String questConnection = '/quests/connection';
+  static const String questAnswer = '/quests/answer';
+  static const String questReact = '/quests/react';
+
+  // 4. Gradual Identity Reveal
+  static const String reveal = '/reveal';
+
+  // 5. Connection Garden
+  static const String garden = '/garden';
+
   // Timeouts
   static const int connectTimeout = 15000;
   static const int receiveTimeout = 30000;
