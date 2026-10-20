@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/mantra_badge.dart';
 import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_button.dart';
 import '../../data/models/spark_model.dart';
 import '../../providers/sparks_provider.dart';
 
@@ -83,7 +83,7 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
         ),
@@ -171,24 +171,16 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                    if (spark.profilePhotoUrl != null && spark.profilePhotoUrl!.isNotEmpty)
-                                      CachedNetworkImage(
-                                        imageUrl: spark.profilePhotoUrl!,
-                                        fit: BoxFit.cover,
-                                        placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
-                                        errorWidget: (_, __, ___) => _fallbackAvatar(spark.displayName),
-                                      )
-                                    else
-                                      _fallbackAvatar(spark.displayName),
+                                    _buildAvatarImage(spark),
                                     if (spark.photosBlurred)
                                       BackdropFilter(
                                         filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
                                         child: Container(
-                                          color: AppColors.textPrimary.withOpacity(0.25),
+                                          color: AppColors.background.withOpacity(0.4),
                                           child: const Center(
                                             child: Icon(
                                               Icons.lock_rounded,
-                                              color: Colors.white,
+                                              color: AppColors.primaryLight,
                                               size: 26,
                                             ),
                                           ),
@@ -244,20 +236,20 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant.withOpacity(0.7),
+                                color: AppColors.surfaceVariant,
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.info_outline_rounded, size: 13, color: AppColors.textSecondary),
+                                  const Icon(Icons.blur_on_rounded, size: 14, color: AppColors.primary),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'Photos gradually reveal as your conversation deepens',
+                                    'Photos unblur at Connection Stage 4',
                                     style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary,
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primaryLight,
                                     ),
                                   ),
                                 ],
@@ -266,227 +258,24 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
                           ],
                         ],
                       ),
-                    ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.05, end: 0),
+                    ),
 
                     const SizedBox(height: 16),
 
-                    // Voice Cadence Card
+                    // Voice Note Player
                     MantraCard(
                       padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'VOICE CADENCE',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              Text(
-                                '0:${spark.voiceDurationSeconds.toString().padLeft(2, '0')}',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  color: AppColors.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '"Hear the tone, warmth, and emotion before seeing the face."',
-                            style: GoogleFonts.lora(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 13.5,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          InkWell(
-                            onTap: () => setState(() => _isPlayingVoice = !_isPlayingVoice),
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: _isPlayingVoice ? AppColors.surfaceVariant : AppColors.background,
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                                border: Border.all(
-                                  color: _isPlayingVoice ? AppColors.primaryLight : AppColors.border,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: _isPlayingVoice ? AppColors.primary : AppColors.surfaceVariant,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      _isPlayingVoice ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                      color: _isPlayingVoice ? Colors.white : AppColors.primary,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _isPlayingVoice ? 'Playing reflection audio' : 'Listen to voice intro',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        LinearProgressIndicator(
-                                          value: _isPlayingVoice ? 0.65 : 0.0,
-                                          backgroundColor: AppColors.border,
-                                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                                          minHeight: 3,
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ).animate(delay: 80.ms).fadeIn().slideY(begin: 0.05, end: 0),
-
-                    const SizedBox(height: 16),
-
-                    // Mindful Reflection Prompt
-                    MantraCard(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.format_quote_rounded, color: AppColors.primary, size: 20),
-                              const SizedBox(width: 6),
-                              Text(
-                                'A SUNDAY THOUGHT',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            '"My ideal weekend begins with silence, hand-drip coffee, and walking through quiet tree-lined alleys without a destination."',
-                            style: GoogleFonts.lora(
-                              fontSize: 15,
-                              height: 1.5,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Seeking someone who appreciates deliberate pace over rapid small talk.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12.5,
-                              color: AppColors.textSecondary,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ).animate(delay: 140.ms).fadeIn().slideY(begin: 0.05, end: 0),
-
-                    const SizedBox(height: 16),
-
-                    // Interests & Core Values
-                    if (spark.interests.isNotEmpty) ...[
-                      MantraCard(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'CORE INTERESTS & RHYTHMS',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.1,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: spark.interests.map((tag) {
-                                final isShared = spark.sharedInterests.contains(tag);
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: isShared ? AppColors.surfaceVariant : AppColors.background,
-                                    borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                                    border: Border.all(
-                                      color: isShared ? AppColors.primaryLight : AppColors.border,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (isShared) ...[
-                                        const Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
-                                        const SizedBox(width: 4),
-                                      ],
-                                      Text(
-                                        tag,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 12,
-                                          fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
-                                          color: isShared ? AppColors.primaryDark : AppColors.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ).animate(delay: 180.ms).fadeIn().slideY(begin: 0.05, end: 0),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // Compatibility DNA Card Teaser
-                    MantraCard(
-                      padding: const EdgeInsets.all(16),
-                      onTap: () => context.push('/compatibility/${spark.userId}'),
                       child: Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceVariant,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.border),
+                          IconButton.filled(
+                            style: IconButton.styleFrom(
+                              backgroundColor: _isPlayingVoice ? AppColors.primary : AppColors.surfaceVariant,
+                              foregroundColor: _isPlayingVoice ? AppColors.background : AppColors.primary,
                             ),
-                            child: const Icon(
-                              Icons.psychology_rounded,
-                              color: AppColors.primary,
-                              size: 22,
+                            onPressed: () => setState(() => _isPlayingVoice = !_isPlayingVoice),
+                            icon: Icon(
+                              _isPlayingVoice ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              size: 26,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -495,32 +284,123 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Explore Compatibility DNA',
-                                  style: GoogleFonts.lora(
-                                    fontSize: 15,
+                                  _isPlayingVoice ? 'Playing Voice Intro...' : 'Voice Introduction',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 14,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Review your 7 dimensions of psychological synergy',
+                                  'Hear cadence, tone, and presence',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11.5,
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.graphic_eq_rounded, color: AppColors.primary, size: 24),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Interests Section
+                    if (spark.interests.isNotEmpty) ...[
+                      Text(
+                        'Interests & Nuances',
+                        style: GoogleFonts.lora(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: spark.interests.map((tag) {
+                          final isShared = spark.sharedInterests.contains(tag);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isShared ? AppColors.surfaceVariant : AppColors.surface,
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                              border: Border.all(
+                                color: isShared ? AppColors.primary.withOpacity(0.5) : AppColors.border,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isShared) ...[
+                                  const Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
+                                  const SizedBox(width: 4),
+                                ],
+                                Text(
+                                  tag,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12.5,
+                                    color: isShared ? AppColors.primaryLight : AppColors.textSecondary,
+                                    fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+
+                    // Compatibility DNA Card Shortcut
+                    MantraCard(
+                      onTap: () => context.push('/compatibility/${spark.userId}'),
+                      padding: const EdgeInsets.all(16),
+                      borderColor: AppColors.primary.withOpacity(0.3),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.bubble_chart_outlined, color: AppColors.primary, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Explore Compatibility DNA',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Deep dive into 7 slow-dating emotional dimensions',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12,
                                     color: AppColors.textSecondary,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.textMuted,
-                            size: 20,
-                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
                         ],
                       ),
-                    ).animate(delay: 220.ms).fadeIn().slideY(begin: 0.05, end: 0),
+                    ),
+
+                    const SizedBox(height: 36),
                   ],
                 ),
               ),
@@ -528,78 +408,43 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
 
             // Bottom Action Bar
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
                 color: AppColors.surface,
-                border: const Border(
-                  top: BorderSide(color: AppColors.border, width: 1),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.shadow.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+                border: Border(top: BorderSide(color: AppColors.borderSubtle)),
               ),
               child: Row(
                 children: [
                   Expanded(
-                    flex: 1,
-                    child: OutlinedButton(
+                    flex: 2,
+                    child: OutlinedButton.icon(
                       onPressed: () => _onPass(spark),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        side: const BorderSide(color: AppColors.border),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                        ),
-                      ),
-                      child: Text(
+                      icon: const Icon(Icons.close_rounded, size: 16),
+                      label: Text(
                         'Pass',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
+                        side: const BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    flex: 2,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.28),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: _isConnecting ? null : () => _onConnect(spark),
-                        icon: const Icon(Icons.favorite_rounded, color: Colors.white, size: 18),
-                        label: Text(
-                          _isConnecting ? 'Connecting...' : 'Connect with Spark',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          ),
-                        ),
-                      ),
+                    flex: 3,
+                    child: MantraButton(
+                      label: 'Connect Intentional',
+                      isLoading: _isConnecting,
+                      onPressed: () => _onConnect(spark),
+                      icon: Icons.favorite_rounded,
                     ),
                   ),
                 ],
@@ -611,12 +456,31 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
     );
   }
 
-  Widget _fallbackAvatar(String displayName) {
+  Widget _buildAvatarImage(SparkModel spark) {
+    if (spark.profilePhotoUrl != null && spark.profilePhotoUrl!.startsWith('assets/')) {
+      return Image.asset(
+        spark.profilePhotoUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _fallbackAvatar(spark.displayName),
+      );
+    } else if (spark.profilePhotoUrl != null && spark.profilePhotoUrl!.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: spark.profilePhotoUrl!,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
+        errorWidget: (_, __, ___) => _fallbackAvatar(spark.displayName),
+      );
+    }
+    return _fallbackAvatar(spark.displayName);
+  }
+
+  Widget _fallbackAvatar(String name) {
+    final initial = name.isNotEmpty ? name[0] : '?';
     return Container(
       color: AppColors.surfaceVariant,
       child: Center(
         child: Text(
-          displayName.isNotEmpty ? displayName[0] : '?',
+          initial,
           style: GoogleFonts.lora(
             fontSize: 40,
             fontWeight: FontWeight.w600,

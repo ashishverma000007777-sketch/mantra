@@ -1,12 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_navigation.dart';
+import '../../../../core/preview/dev_preview.dart';
 
-class MainShellScreen extends StatelessWidget {
+class MainShellScreen extends ConsumerWidget {
   final Widget child;
 
   const MainShellScreen({super.key, required this.child});
@@ -42,151 +46,117 @@ class MainShellScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = _currentIndex(context);
+    final isPreviewActive = !kReleaseMode && ref.watch(devPreviewProvider);
 
     return Scaffold(
-      body: child,
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border: Border(
-            top: BorderSide(
-              color: AppColors.border,
-              width: 1,
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: Icons.home_rounded,
-                  iconOutlined: Icons.home_outlined,
-                  label: 'Home',
-                  isActive: currentIndex == 0,
-                  onTap: () => _onTap(context, 0),
-                ),
-                _NavItem(
-                  icon: Icons.auto_awesome_rounded,
-                  iconOutlined: Icons.auto_awesome_outlined,
-                  label: 'Sparks',
-                  isActive: currentIndex == 1,
-                  onTap: () => _onTap(context, 1),
-                  badge: '7',
-                ),
-                _NavItem(
-                  icon: Icons.chat_bubble_rounded,
-                  iconOutlined: Icons.chat_bubble_outline_rounded,
-                  label: 'Chats',
-                  isActive: currentIndex == 2,
-                  onTap: () => _onTap(context, 2),
-                ),
-                _NavItem(
-                  icon: Icons.groups_rounded,
-                  iconOutlined: Icons.groups_outlined,
-                  label: 'Rooms',
-                  isActive: currentIndex == 3,
-                  onTap: () => _onTap(context, 3),
-                ),
-                _NavItem(
-                  icon: Icons.person_rounded,
-                  iconOutlined: Icons.person_outline_rounded,
-                  label: 'Profile',
-                  isActive: currentIndex == 4,
-                  onTap: () => _onTap(context, 4),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          // Screen child
+          child,
 
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final IconData iconOutlined;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-  final String? badge;
-
-  const _NavItem({
-    required this.icon,
-    required this.iconOutlined,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-    this.badge,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.surfaceVariant : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  isActive ? icon : iconOutlined,
-                  color: isActive ? AppColors.primary : AppColors.textSecondary,
-                  size: 22,
+          // Offline Developer Preview Banner
+          if (isPreviewActive)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 6,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSecondary.withOpacity(0.92),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.4), width: 1),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-                if (badge != null)
-                  Positioned(
-                    top: -4,
-                    right: -7,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
-                      decoration: BoxDecoration(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(10),
+                        shape: BoxShape.circle,
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
                       child: Text(
-                        badge!,
+                        'Dev Preview Mode (Offline Mock Data)',
                         style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryLight,
+                          letterSpacing: 0.1,
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 10.5,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? AppColors.primary : AppColors.textSecondary,
-                letterSpacing: 0.2,
+                    GestureDetector(
+                      onTap: () {
+                        ref.read(devPreviewProvider.notifier).exitPreview();
+                        context.go('/auth/phone');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Exit',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: MantraBottomNavigation(
+          currentIndex: currentIndex,
+          onTap: (index) => _onTap(context, index),
+          items: const [
+            MantraNavItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home_rounded,
+              label: 'Home',
+            ),
+            MantraNavItem(
+              icon: Icons.auto_awesome_outlined,
+              activeIcon: Icons.auto_awesome_rounded,
+              label: 'Sparks',
+              badgeCount: 7,
+            ),
+            MantraNavItem(
+              icon: Icons.chat_bubble_outline_rounded,
+              activeIcon: Icons.chat_bubble_rounded,
+              label: 'Chats',
+            ),
+            MantraNavItem(
+              icon: Icons.groups_outlined,
+              activeIcon: Icons.groups_rounded,
+              label: 'Rooms',
+            ),
+            MantraNavItem(
+              icon: Icons.person_outline_rounded,
+              activeIcon: Icons.person_rounded,
+              label: 'Profile',
             ),
           ],
         ),

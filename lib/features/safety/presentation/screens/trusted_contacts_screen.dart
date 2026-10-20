@@ -8,7 +8,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/mantra_button.dart';
 import '../../../../core/widgets/mantra_card.dart';
-import '../../../../core/network/api_client.dart';
 
 class TrustedContactsScreen extends StatefulWidget {
   const TrustedContactsScreen({super.key});
@@ -20,11 +19,10 @@ class TrustedContactsScreen extends StatefulWidget {
 class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  List<dynamic> _contacts = [
+  final List<dynamic> _contacts = [
     {'name': 'Papa', 'phone': '+91 98765 43210'},
     {'name': 'Rhea (Roommate)', 'phone': '+91 91234 56789'},
   ];
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -81,7 +79,7 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 20),
+                  icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.textMuted),
                   onPressed: () => Navigator.pop(ctx),
                 ),
               ],
@@ -89,16 +87,25 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
             const SizedBox(height: 14),
             TextField(
               controller: _nameController,
-              style: GoogleFonts.plusJakartaSans(fontSize: 14),
+              style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Contact Name',
                 labelStyle: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
                 hintText: 'e.g. Maya or Mom',
+                hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
                 filled: true,
-                fillColor: AppColors.background,
+                fillColor: AppColors.surfaceSecondary,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.accent),
                 ),
               ),
             ),
@@ -106,16 +113,25 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
             TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
-              style: GoogleFonts.plusJakartaSans(fontSize: 14),
+              style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Phone Number',
                 labelStyle: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
                 hintText: '+91 98765 43210',
+                hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
                 filled: true,
-                fillColor: AppColors.background,
+                fillColor: AppColors.surfaceSecondary,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.accent),
                 ),
               ),
             ),
@@ -138,7 +154,7 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -172,7 +188,7 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.6),
+                  color: AppColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -213,7 +229,7 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
                       icon: const Icon(Icons.add_rounded, size: 16),
                       label: const Text('Add Contact'),
                       style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary,
+                        foregroundColor: AppColors.accent,
                         textStyle: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
                           fontSize: 12.5,
@@ -250,8 +266,9 @@ class _TrustedContactsScreenState extends State<TrustedContactsScreen> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: AppColors.trustLight.withOpacity(0.35),
+                                    color: AppColors.trust.withOpacity(0.15),
                                     shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.trust.withOpacity(0.3)),
                                   ),
                                   child: const Icon(
                                     Icons.person_rounded,

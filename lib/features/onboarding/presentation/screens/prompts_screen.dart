@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../widgets/step_bar.dart';
 
 class PromptsScreen extends StatelessWidget {
@@ -18,13 +20,14 @@ class PromptsScreen extends StatelessWidget {
       "What slow, intentional love means to me...",
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topCenter,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
         ),
       ),
       body: SafeArea(
@@ -65,57 +68,47 @@ class PromptsScreen extends StatelessWidget {
 
               ...prompts.asMap().entries.map((e) => Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      e.value,
-                      style: GoogleFonts.lora(
-                        color: AppColors.primary,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w600,
-                        height: 1.35,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Share your authentic thoughts...',
-                        hintStyle: GoogleFonts.plusJakartaSans(
-                          color: AppColors.textMuted,
-                          fontSize: 13.5,
+                child: MantraCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        e.value,
+                        style: GoogleFonts.lora(
+                          color: AppColors.primary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          height: 1.35,
                         ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        fillColor: Colors.transparent,
-                        filled: false,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      TextField(
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Share your authentic thoughts...',
+                          hintStyle: GoogleFonts.plusJakartaSans(
+                            color: AppColors.textMuted,
+                            fontSize: 13.5,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          fillColor: Colors.transparent,
+                          filled: false,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
               MantraButton(
                 label: 'Save & View Safety Tour',

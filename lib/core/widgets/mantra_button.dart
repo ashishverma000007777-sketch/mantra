@@ -6,6 +6,7 @@ import '../theme/app_spacing.dart';
 
 enum MantraButtonVariant { primary, secondary, outline, ghost, soft }
 
+/// Primary high-touch interactive button with subtle scale physics and editorial styling.
 class MantraButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -63,9 +64,9 @@ class _MantraButtonState extends State<MantraButton>
       case MantraButtonVariant.primary:
         return AppColors.primary;
       case MantraButtonVariant.secondary:
-        return AppColors.secondary;
+        return AppColors.surfaceSecondary;
       case MantraButtonVariant.soft:
-        return AppColors.surfaceVariant;
+        return AppColors.softAccent;
       case MantraButtonVariant.outline:
       case MantraButtonVariant.ghost:
         return Colors.transparent;
@@ -76,11 +77,13 @@ class _MantraButtonState extends State<MantraButton>
     if (widget.foregroundColor != null) return widget.foregroundColor!;
     switch (widget.variant) {
       case MantraButtonVariant.primary:
+        return AppColors.background;
       case MantraButtonVariant.secondary:
-        return Colors.white;
+        return AppColors.textPrimary;
       case MantraButtonVariant.soft:
-        return AppColors.primaryDark;
+        return AppColors.primaryLight;
       case MantraButtonVariant.outline:
+        return AppColors.textPrimary;
       case MantraButtonVariant.ghost:
         return AppColors.primary;
     }
@@ -101,64 +104,153 @@ class _MantraButtonState extends State<MantraButton>
         },
         onTapUp: (_) => _scaleController.reverse(),
         onTapCancel: () => _scaleController.reverse(),
-        onTap: isDisabled ? null : widget.onPressed,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          width: widget.width ?? double.infinity,
+        child: SizedBox(
+          width: widget.width,
           height: widget.height,
-          decoration: BoxDecoration(
+          child: Material(
             color: isDisabled
-                ? _backgroundColor.withOpacity(0.35)
+                ? AppColors.surface.withOpacity(0.5)
                 : _backgroundColor,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-            border: widget.variant == MantraButtonVariant.outline
-                ? Border.all(color: AppColors.primary, width: 1.5)
-                : null,
-            boxShadow: widget.variant == MantraButtonVariant.primary && !isDisabled
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.2),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Center(
-            child: widget.isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(_foregroundColor),
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.label,
-                        style: GoogleFonts.plusJakartaSans(
+            child: InkWell(
+              onTap: isDisabled ? null : widget.onPressed,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                  border: widget.variant == MantraButtonVariant.outline
+                      ? Border.all(color: AppColors.border, width: 1.2)
+                      : widget.variant == MantraButtonVariant.secondary
+                          ? Border.all(color: AppColors.borderSubtle, width: 1)
+                          : null,
+                ),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: widget.isLoading
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
                           color: _foregroundColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.2,
                         ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.icon != null) ...[
+                            Icon(widget.icon, size: 18, color: _foregroundColor),
+                            const SizedBox(width: AppSpacing.sm),
+                          ],
+                          Text(
+                            widget.label,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: isDisabled
+                                  ? AppColors.textMuted
+                                  : _foregroundColor,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
                       ),
-                      if (widget.icon != null) ...[
-                        const SizedBox(width: 8),
-                        Icon(
-                          widget.icon,
-                          color: _foregroundColor,
-                          size: 18,
-                        ),
-                      ],
-                    ],
-                  ),
+              ),
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// Standalone Secondary button for auxiliary editorial actions.
+class MantraSecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final double? width;
+  final double height;
+  final bool isLoading;
+
+  const MantraSecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.width,
+    this.height = 46,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MantraButton(
+      label: label,
+      onPressed: onPressed,
+      icon: icon,
+      width: width,
+      height: height,
+      isLoading: isLoading,
+      variant: MantraButtonVariant.secondary,
+    );
+  }
+}
+
+/// Circular or rounded icon button with subtle border and elevation.
+class MantraIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final Color? color;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double size;
+  final double iconSize;
+
+  const MantraIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.color,
+    this.backgroundColor,
+    this.borderColor,
+    this.size = 44,
+    this.iconSize = 20,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final btn = Material(
+      color: backgroundColor ?? AppColors.surface,
+      shape: CircleBorder(
+        side: BorderSide(
+          color: borderColor ?? AppColors.border,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Center(
+            child: Icon(
+              icon,
+              size: iconSize,
+              color: color ?? AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip!, child: btn);
+    }
+    return btn;
   }
 }

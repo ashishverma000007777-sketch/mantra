@@ -1,5 +1,4 @@
 // lib/features/safety/presentation/screens/safety_center_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -31,7 +30,7 @@ class SafetyCenterScreen extends ConsumerWidget {
         ),
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
         ),
       ),
       body: SingleChildScrollView(
@@ -70,7 +69,7 @@ class SafetyCenterScreen extends ConsumerWidget {
 
             _SafetyOption(
               icon: Icons.visibility_off_rounded,
-              iconColor: AppColors.secondary,
+              iconColor: AppColors.accent,
               title: 'Ghost Mode',
               subtitle: 'Browse quietly without appearing in sparks',
               trailing: const _ToggleSwitch(),
@@ -79,7 +78,7 @@ class SafetyCenterScreen extends ConsumerWidget {
 
             _SafetyOption(
               icon: Icons.no_photography_rounded,
-              iconColor: AppColors.warning,
+              iconColor: AppColors.accent,
               title: 'Screenshot Alerts',
               subtitle: 'Immediate alert if a chat or prompt is captured',
               trailing: const _ToggleSwitch(initialValue: true),
@@ -88,7 +87,7 @@ class SafetyCenterScreen extends ConsumerWidget {
 
             _SafetyOption(
               icon: Icons.nightlight_round,
-              iconColor: AppColors.primary,
+              iconColor: AppColors.trust,
               title: 'Night Protection',
               subtitle: 'Mute alerts and pause new connections after 11 PM',
               trailing: const _ToggleSwitch(initialValue: true),
@@ -110,7 +109,7 @@ class SafetyCenterScreen extends ConsumerWidget {
 
             _SafetyOption(
               icon: Icons.blur_on_rounded,
-              iconColor: AppColors.primary,
+              iconColor: AppColors.accent,
               title: 'Strict Photo Blurring',
               subtitle: 'Requires double mutual confirmation before reveal',
               trailing: const _ToggleSwitch(initialValue: true),
@@ -119,7 +118,7 @@ class SafetyCenterScreen extends ConsumerWidget {
 
             _SafetyOption(
               icon: Icons.location_off_rounded,
-              iconColor: AppColors.secondary,
+              iconColor: AppColors.trust,
               title: 'City-Level Location Only',
               subtitle: 'Never disclose coordinates or neighborhood',
               trailing: const _ToggleSwitch(initialValue: true),
@@ -132,7 +131,7 @@ class SafetyCenterScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant.withOpacity(0.6),
+                color: AppColors.surfaceSecondary,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
                 border: Border.all(color: AppColors.border),
               ),
@@ -185,16 +184,17 @@ class _SOSCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFC94A4A),
-              Color(0xFFDC6868),
+              Color(0xFF9E2A2B),
+              Color(0xFFB83A3B),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          border: Border.all(color: const Color(0xFFD96C72).withOpacity(0.4)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFC94A4A).withOpacity(0.3),
+              color: const Color(0xFF9E2A2B).withOpacity(0.35),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -206,7 +206,7 @@ class _SOSCard extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withOpacity(0.18),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -325,7 +325,7 @@ class _SafetyOption extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceSecondary,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                 border: Border.all(color: AppColors.border),
               ),
@@ -333,7 +333,7 @@ class _SafetyOption extends StatelessWidget {
                 badge!,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 11,
-                  color: AppColors.primaryDark,
+                  color: AppColors.trust,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -377,8 +377,8 @@ class _ToggleSwitchState extends State<_ToggleSwitch> {
           HapticFeedback.selectionClick();
           setState(() => _value = v);
         },
-        activeColor: AppColors.primary,
-        activeTrackColor: AppColors.primaryLight.withOpacity(0.4),
+        activeColor: AppColors.trust,
+        activeTrackColor: AppColors.trust.withOpacity(0.35),
       ),
     );
   }

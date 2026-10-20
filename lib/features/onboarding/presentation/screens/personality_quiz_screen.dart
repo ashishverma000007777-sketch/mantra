@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../widgets/step_bar.dart';
 
 class PersonalityQuizScreen extends StatefulWidget {
@@ -22,46 +24,46 @@ class _PersonalityQuizScreenState extends State<PersonalityQuizScreen> {
     {
       'q': 'Your ideal Saturday morning looks like...',
       'options': [
-        '🏔️ Morning hike or outdoor cycle',
-        '☕ Quiet café corner with a book',
-        '🛋️ Slow wake-up, music and tea at home',
-        '🍳 Cooking an elaborate breakfast with friends',
+        'Morning hike or outdoor nature cycle',
+        'Quiet café corner with an evocative book',
+        'Slow wake-up, acoustic music and tea at home',
+        'Cooking an elaborate breakfast for thoughtful conversation',
       ],
     },
     {
       'q': 'When meeting someone new, you naturally tend to...',
       'options': [
-        '😃 Jump in with warmth and high energy',
-        '😅 Feel cautious at first, then open up deeply',
-        '😌 Calmly observe the room and vibes',
-        '🤐 Keep quiet until finding a shared interest',
+        'Jump in with warmth, presence, and genuine curiosity',
+        'Feel cautious at first, then open up deeply',
+        'Calmly observe the room, energy, and subtle nuances',
+        'Keep quiet until finding a shared philosophical thread',
       ],
     },
     {
       'q': 'The conversations that leave you most fulfilled are...',
       'options': [
-        '🌊 Deep emotional reflections and personal values',
-        '😂 Playful banter and witty back-and-forth',
-        '🧠 Intellectual debates on books, ideas, and society',
-        '🌱 Daydreams, ambitions, and creative hopes',
+        'Deep emotional reflections and personal vulnerability',
+        'Playful banter with intellectual wit and rhythm',
+        'Explorations of literature, art, and human society',
+        'Quiet daydreams, creative crafts, and quiet hopes',
       ],
     },
     {
       'q': 'In romantic connections, your emotional style is...',
       'options': [
-        '❤️ Expressive and vulnerable from early on',
-        '🤔 Thoughtful, grounded, and observant',
-        '😄 Lighthearted with humor, deep over time',
-        '🌱 Intentional and taking it one step at a time',
+        'Open, expressive, and deeply intentional',
+        'Thoughtful, grounded, and steady over time',
+        'Warm and lighthearted, deepening naturally',
+        'Patient and taking one meaningful step at a time',
       ],
     },
     {
       'q': 'Above all else, you cherish a partner with...',
       'options': [
-        '🤝 Unwavering loyalty and presence',
-        '💡 Sharp curiosity and depth of thought',
-        '💛 Empathy, emotional maturity, and kindness',
-        '🚀 Passion, drive, and mutual encouragement',
+        'Unwavering emotional loyalty and mindful presence',
+        'Sharp curiosity, quiet intelligence, and humility',
+        'Empathy, gentle kindness, and emotional maturity',
+        'Creative passion, drive, and mutual quiet support',
       ],
     },
   ];
@@ -81,17 +83,18 @@ class _PersonalityQuizScreenState extends State<PersonalityQuizScreen> {
   @override
   Widget build(BuildContext context) {
     final q = _questions[_step];
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topRight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: _step > 0
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
                 onPressed: () => setState(() => _step--),
               )
             : IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
                 onPressed: () => context.pop(),
               ),
       ),
@@ -124,48 +127,61 @@ class _PersonalityQuizScreenState extends State<PersonalityQuizScreen> {
                 key: ValueKey(_step),
               ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.08, end: 0),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
               ...((q['options'] as List<String>).asMap().entries.map((e) {
                 final selected = _answers[_step] == e.key;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _selectAnswer(e.key),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppColors.surfaceVariant.withOpacity(0.6)
-                              : AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                          border: Border.all(
-                            color: selected ? AppColors.primary : AppColors.border,
-                            width: selected ? 1.8 : 1,
+                  child: MantraCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    color: selected ? AppColors.surfaceSecondary : AppColors.surface,
+                    borderColor: selected ? AppColors.primary : AppColors.border,
+                    hasGlow: selected,
+                    onTap: () => _selectAnswer(e.key),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selected
+                                ? AppColors.primary.withOpacity(0.2)
+                                : AppColors.surfaceVariant,
+                            border: Border.all(
+                              color: selected ? AppColors.primary : AppColors.borderSubtle,
+                              width: 1,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            String.fromCharCode(65 + e.key),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: selected ? AppColors.primary : AppColors.textMuted,
+                            ),
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                e.value,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14.5,
-                                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                                  color: selected ? AppColors.primary : AppColors.textPrimary,
-                                ),
-                              ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            e.value,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14.5,
+                              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                              color: selected ? AppColors.primaryLight : AppColors.textPrimary,
+                              height: 1.35,
                             ),
-                            if (selected)
-                              const Icon(Icons.check_circle_rounded,
-                                  color: AppColors.primary, size: 20),
-                          ],
+                          ),
                         ),
-                      ),
+                        if (selected) ...[
+                          const SizedBox(width: 8),
+                          const Icon(Icons.check_circle_rounded,
+                              color: AppColors.primary, size: 20),
+                        ],
+                      ],
                     ),
                   ),
                 ).animate(delay: Duration(milliseconds: e.key * 50)).fadeIn(duration: 200.ms);

@@ -45,7 +45,7 @@ class SparksScreen extends ConsumerWidget {
                       title: "You've seen today's sparks",
                       message: 'New sparks arrive every morning at 9 AM.\nMeanwhile, explore community reflections or check your garden.',
                       actionLabel: 'Explore Community',
-                      onAction: () => context.go('/community'),
+                      onAction: () => context.go('/rooms'),
                     );
                   }
                   return _SparksList(sparks: sparks);
@@ -80,7 +80,7 @@ class _SparksHeader extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.4,
                     color: AppColors.primary,
                   ),
                 ),
@@ -124,7 +124,7 @@ class _SparksHeader extends StatelessWidget {
                 Text(
                   '$sparksCount remaining',
                   style: GoogleFonts.plusJakartaSans(
-                    color: AppColors.primaryDark,
+                    color: AppColors.primaryLight,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -203,11 +203,14 @@ class _SparkCardState extends ConsumerState<SparkCard> {
     return GestureDetector(
       onTap: () => context.push('/sparks/${spark.userId}', extra: spark),
       child: AnimatedOpacity(
-        opacity: _actionTaken ? 0.4 : 1.0,
+        opacity: _actionTaken ? 0.35 : 1.0,
         duration: const Duration(milliseconds: 300),
         child: MantraCard(
           padding: const EdgeInsets.all(16),
           hasShadow: true,
+          borderColor: spark.compatibilityScore >= 90
+              ? AppColors.primary.withOpacity(0.35)
+              : AppColors.border,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -272,7 +275,7 @@ class _SparkCardState extends ConsumerState<SparkCard> {
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceVariant,
                                   borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: AppColors.borderSubtle),
                                 ),
                                 child: Text(
                                   '${spark.sharedRoomsCount} shared rooms',
@@ -320,7 +323,7 @@ class _SparkCardState extends ConsumerState<SparkCard> {
                         color: isShared ? AppColors.surfaceVariant : AppColors.surface,
                         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                         border: Border.all(
-                          color: isShared ? AppColors.primaryLight : AppColors.border,
+                          color: isShared ? AppColors.primary.withOpacity(0.4) : AppColors.borderSubtle,
                         ),
                       ),
                       child: Row(
@@ -328,7 +331,7 @@ class _SparkCardState extends ConsumerState<SparkCard> {
                         children: [
                           if (isShared) ...[
                             const Icon(
-                              Icons.favorite_rounded,
+                              Icons.auto_awesome_rounded,
                               size: 10,
                               color: AppColors.primary,
                             ),
@@ -338,7 +341,7 @@ class _SparkCardState extends ConsumerState<SparkCard> {
                             tag,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 11.5,
-                              color: isShared ? AppColors.primaryDark : AppColors.textSecondary,
+                              color: isShared ? AppColors.primaryLight : AppColors.textSecondary,
                               fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
                             ),
                           ),
@@ -395,36 +398,23 @@ class _SparkCardState extends ConsumerState<SparkCard> {
                   // Connect
                   Expanded(
                     flex: 4,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.28),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: _actionTaken ? null : _onConnect,
-                        icon: const Icon(Icons.favorite_rounded, size: 16, color: Colors.white),
-                        label: Text(
-                          'Connect',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
+                    child: ElevatedButton.icon(
+                      onPressed: _actionTaken ? null : _onConnect,
+                      icon: const Icon(Icons.favorite_rounded, size: 16, color: AppColors.background),
+                      label: Text(
+                        'Connect',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppColors.background,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.background,
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                         ),
                       ),
                     ),
@@ -452,39 +442,49 @@ class _BlurredAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget imageContent;
+    if (imageUrl != null && imageUrl!.startsWith('assets/')) {
+      imageContent = Image.asset(
+        imageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _fallbackAvatar(),
+      );
+    } else if (imageUrl != null && imageUrl!.isNotEmpty) {
+      imageContent = CachedNetworkImage(
+        imageUrl: imageUrl!,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
+        errorWidget: (_, __, ___) => _fallbackAvatar(),
+      );
+    } else {
+      imageContent = _fallbackAvatar();
+    }
+
     return Container(
       width: 72,
       height: 72,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (imageUrl != null && imageUrl!.isNotEmpty)
-              CachedNetworkImage(
-                imageUrl: imageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
-                errorWidget: (_, __, ___) => _fallbackAvatar(),
-              )
-            else
-              _fallbackAvatar(),
+            imageContent,
             if (isBlurred)
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
-                  color: AppColors.textPrimary.withOpacity(0.2),
+                  color: AppColors.background.withOpacity(0.35),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(
                           Icons.lock_outline_rounded,
-                          color: Colors.white,
+                          color: AppColors.primaryLight,
                           size: 18,
                         ),
                         const SizedBox(height: 2),
@@ -493,7 +493,7 @@ class _BlurredAvatar extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: AppColors.primaryLight,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -538,89 +538,66 @@ class _VoiceIntroButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(
-          color: isPlaying ? AppColors.surfaceVariant : AppColors.background,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-          border: Border.all(
-            color: isPlaying ? AppColors.primaryLight : AppColors.border,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isPlaying ? AppColors.surfaceVariant : AppColors.surfaceSecondary,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+            border: Border.all(
+              color: isPlaying ? AppColors.primary : AppColors.borderSubtle,
+              width: 1,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: isPlaying ? AppColors.primary : AppColors.surfaceVariant,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isPlaying ? AppColors.primary : AppColors.border,
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isPlaying ? AppColors.primary : AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  color: isPlaying ? AppColors.background : AppColors.primary,
+                  size: 18,
                 ),
               ),
-              child: Icon(
-                isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                color: isPlaying ? Colors.white : AppColors.primary,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        isPlaying ? 'Playing Voice Cadence' : 'Voice Introduction',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isPlaying ? 'Playing Voice Introduction...' : 'Voice Introduction',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
                       ),
-                      Text(
-                        '0:${durationSeconds.toString().padLeft(2, '0')}',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppColors.textMuted,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    ),
+                    Text(
+                      '${durationSeconds}s · Tone, presence & cadence',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: List.generate(24, (i) {
-                      final heights = [
-                        4.0, 8.0, 14.0, 6.0, 11.0, 16.0, 7.0, 10.0,
-                        13.0, 8.0, 15.0, 9.0, 5.0, 12.0, 8.0, 14.0,
-                        16.0, 7.0, 10.0, 6.0, 11.0, 9.0, 6.0, 4.0,
-                      ];
-                      final isPastBar = isPlaying && i < 14;
-                      return Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 0.8),
-                          height: heights[i % heights.length],
-                          decoration: BoxDecoration(
-                            color: isPastBar
-                                ? AppColors.primary
-                                : (isPlaying ? AppColors.primaryLight : AppColors.border),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const Icon(
+                Icons.graphic_eq_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -632,20 +609,18 @@ class _SparksShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      physics: const NeverScrollableScrollPhysics(),
+    return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       itemCount: 3,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (_, __) => Container(
         height: 220,
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderSubtle),
         ),
-      ).animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(duration: 1200.ms, color: AppColors.surfaceVariant),
+      ),
     );
   }
 }

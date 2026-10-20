@@ -127,7 +127,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 20),
+                  icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.textMuted),
                   onPressed: () => Navigator.pop(ctx),
                 ),
               ],
@@ -137,7 +137,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
               controller: _postController,
               maxLines: 4,
               maxLength: 500,
-              style: GoogleFonts.plusJakartaSans(fontSize: 14),
+              style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Write a calm, thoughtful perspective...',
                 hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
@@ -151,16 +151,20 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.accent),
                 ),
                 filled: true,
-                fillColor: AppColors.background,
+                fillColor: AppColors.surfaceSecondary,
               ),
             ),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFE5C896), Color(0xFFC79E5E)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
               ),
               child: ElevatedButton(
@@ -192,7 +196,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 child: Text(
                   'Publish Reflection',
                   style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white,
+                    color: const Color(0xFF080B0D),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -217,7 +221,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -237,7 +241,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
               ),
               label: Text(_isMember ? 'Joined' : 'Join Room'),
               style: TextButton.styleFrom(
-                foregroundColor: _isMember ? AppColors.trust : AppColors.primary,
+                foregroundColor: _isMember ? AppColors.trust : AppColors.accent,
                 textStyle: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 12.5,
@@ -249,18 +253,18 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddPostDialog,
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.edit_note_rounded, color: Colors.white),
+        backgroundColor: AppColors.accent,
+        icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF080B0D)),
         label: Text(
           'Reflect',
           style: GoogleFonts.plusJakartaSans(
-            color: Colors.white,
+            color: const Color(0xFF080B0D),
             fontWeight: FontWeight.w700,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.accent))
           : ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 80),
@@ -274,7 +278,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
+                          color: AppColors.surfaceSecondary,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border),
                         ),
@@ -316,7 +320,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant.withOpacity(0.5),
+                    color: AppColors.surfaceSecondary,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                     border: Border.all(color: AppColors.border),
                   ),
@@ -416,7 +420,7 @@ class _PostCard extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.surfaceSecondary,
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.border),
                     ),
@@ -426,7 +430,7 @@ class _PostCard extends StatelessWidget {
                         style: GoogleFonts.lora(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: AppColors.accent,
                         ),
                       ),
                     ),
@@ -470,7 +474,7 @@ class _PostCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     children: [
-                      const Icon(Icons.favorite_rounded, size: 15, color: AppColors.primary),
+                      const Icon(Icons.favorite_rounded, size: 15, color: AppColors.accent),
                       const SizedBox(width: 4),
                       Text(
                         '$likesCount',

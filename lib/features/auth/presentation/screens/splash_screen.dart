@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/preview/dev_preview.dart';
 import '../../providers/auth_provider.dart';
 
@@ -52,25 +52,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.center,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Refined Monogram Seal
+            // Dark obsidian seal with refined warm gold monogram
             Container(
-              width: 84,
-              height: 84,
+              width: 86,
+              height: 86,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(26),
-                border: Border.all(color: AppColors.border, width: 1.5),
+                border: Border.all(color: AppColors.border, width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.12),
-                    blurRadius: 28,
-                    offset: const Offset(0, 10),
+                    color: AppColors.primary.withOpacity(0.18),
+                    blurRadius: 36,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
@@ -79,14 +80,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   width: 58,
                   height: 58,
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFE7D5B5), Color(0xFFD6B27A)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Center(
                     child: Text(
                       'M',
                       style: GoogleFonts.lora(
-                        color: Colors.white,
+                        color: AppColors.background,
                         fontSize: 34,
                         fontWeight: FontWeight.w700,
                       ),
@@ -97,20 +102,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             )
                 .animate()
                 .fadeIn(duration: 500.ms, curve: Curves.easeOut)
-                .scale(begin: const Offset(0.85, 0.85), curve: Curves.easeOutBack),
+                .scale(begin: const Offset(0.88, 0.88), curve: Curves.easeOutBack),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
             Text(
               'Mantra',
               style: GoogleFonts.lora(
-                fontSize: 32,
+                fontSize: 34,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
-                letterSpacing: 1.2,
+                letterSpacing: 1.5,
               ),
             )
-                .animate(delay: 250.ms)
+                .animate(delay: 200.ms)
                 .fadeIn(duration: 400.ms)
                 .slideY(begin: 0.15, end: 0),
 
@@ -120,31 +125,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               'Know them before you show yourself.',
               style: GoogleFonts.lora(
                 color: AppColors.textSecondary,
-                fontSize: 14,
+                fontSize: 14.5,
                 fontStyle: FontStyle.italic,
                 letterSpacing: 0.2,
               ),
             )
-                .animate(delay: 450.ms)
+                .animate(delay: 400.ms)
                 .fadeIn(duration: 400.ms),
 
             const SizedBox(height: 52),
 
-            // Mindful subtle pulse indicator
+            // Subtle pulsing indicator
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (i) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: 7,
-                  height: 7,
+                  width: 6,
+                  height: 6,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.6),
+                    color: AppColors.primary.withOpacity(0.7),
                     shape: BoxShape.circle,
                   ),
                 )
                     .animate(
-                      delay: Duration(milliseconds: 700 + (i * 180)),
+                      delay: Duration(milliseconds: 600 + (i * 180)),
                       onPlay: (c) => c.repeat(),
                     )
                     .fadeIn(duration: 350.ms)

@@ -5,6 +5,7 @@ import '../theme/app_spacing.dart';
 
 enum MantraBadgeVariant { trust, primary, soft, outline, warning }
 
+/// Subtle pill badge for trust score, alignment, categories, and verified markers.
 class MantraBadge extends StatelessWidget {
   final String label;
   final IconData? icon;
@@ -57,19 +58,19 @@ class MantraBadge extends StatelessWidget {
 
     switch (variant) {
       case MantraBadgeVariant.trust:
-        bg = AppColors.trustLight.withOpacity(0.35);
+        bg = AppColors.trust.withOpacity(0.15);
         fg = AppColors.trust;
-        border = Border.all(color: AppColors.trust.withOpacity(0.4), width: 1);
+        border = Border.all(color: AppColors.trust.withOpacity(0.35), width: 1);
         break;
       case MantraBadgeVariant.primary:
-        bg = AppColors.surfaceVariant;
+        bg = AppColors.primary.withOpacity(0.15);
         fg = AppColors.primary;
-        border = Border.all(color: AppColors.primary.withOpacity(0.3), width: 1);
+        border = Border.all(color: AppColors.primary.withOpacity(0.35), width: 1);
         break;
       case MantraBadgeVariant.soft:
-        bg = AppColors.surfaceVariant;
+        bg = AppColors.surfaceSecondary;
         fg = AppColors.textSecondary;
-        border = Border.all(color: AppColors.border, width: 1);
+        border = Border.all(color: AppColors.borderSubtle, width: 1);
         break;
       case MantraBadgeVariant.outline:
         bg = Colors.transparent;
@@ -77,9 +78,9 @@ class MantraBadge extends StatelessWidget {
         border = Border.all(color: AppColors.border, width: 1);
         break;
       case MantraBadgeVariant.warning:
-        bg = AppColors.warningLight.withOpacity(0.4);
+        bg = AppColors.warning.withOpacity(0.15);
         fg = AppColors.warning;
-        border = Border.all(color: AppColors.warning.withOpacity(0.4), width: 1);
+        border = Border.all(color: AppColors.warning.withOpacity(0.35), width: 1);
         break;
     }
 
@@ -103,7 +104,7 @@ class MantraBadge extends StatelessWidget {
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
               color: fg,
-              letterSpacing: 0.2,
+              letterSpacing: 0.1,
             ),
           ),
         ],

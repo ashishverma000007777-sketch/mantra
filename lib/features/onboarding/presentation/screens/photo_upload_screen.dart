@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../widgets/step_bar.dart';
 
 class PhotoUploadScreen extends StatelessWidget {
@@ -12,13 +14,14 @@ class PhotoUploadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topRight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
         ),
         actions: [
           TextButton(
@@ -70,16 +73,13 @@ class PhotoUploadScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Privacy shield banner
-              Container(
+              MantraCard(
+                color: AppColors.surface,
+                borderColor: AppColors.trust.withOpacity(0.35),
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                  border: Border.all(color: AppColors.border),
-                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.blur_on_rounded, color: AppColors.primary, size: 22),
+                    const Icon(Icons.blur_on_rounded, color: AppColors.trust, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -95,7 +95,7 @@ class PhotoUploadScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
               GridView.count(
                 shrinkWrap: true,
@@ -108,12 +108,20 @@ class PhotoUploadScreen extends StatelessWidget {
                   final isPrimary = i == 0;
                   return Container(
                     decoration: BoxDecoration(
-                      color: isPrimary ? AppColors.surface : AppColors.surfaceVariant.withOpacity(0.4),
+                      color: isPrimary ? AppColors.surfaceSecondary : AppColors.surface,
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                       border: Border.all(
                         color: isPrimary ? AppColors.primary : AppColors.border,
-                        width: isPrimary ? 1.5 : 1,
+                        width: isPrimary ? 1.6 : 1,
                       ),
+                      boxShadow: isPrimary
+                          ? [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.12),
+                                blurRadius: 10,
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -123,11 +131,11 @@ class PhotoUploadScreen extends StatelessWidget {
                           color: isPrimary ? AppColors.primary : AppColors.textMuted,
                           size: isPrimary ? 28 : 22,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           isPrimary ? 'Primary' : 'Photo ${i + 1}',
                           style: GoogleFonts.plusJakartaSans(
-                            color: isPrimary ? AppColors.primary : AppColors.textSecondary,
+                            color: isPrimary ? AppColors.primaryLight : AppColors.textSecondary,
                             fontSize: 11,
                             fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500,
                           ),

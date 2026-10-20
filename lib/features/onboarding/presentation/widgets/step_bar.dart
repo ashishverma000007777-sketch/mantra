@@ -35,7 +35,7 @@ class StepBar extends StatelessWidget {
               '${((current / total) * 100).round()}%',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
@@ -51,8 +51,16 @@ class StepBar extends StatelessWidget {
                 margin: EdgeInsets.only(right: i == total - 1 ? 0 : 6),
                 height: 4,
                 decoration: BoxDecoration(
-                  color: i < current ? AppColors.primary : AppColors.border,
+                  color: i < current ? AppColors.primary : AppColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(2),
+                  boxShadow: i < current
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.3),
+                            blurRadius: 4,
+                          ),
+                        ]
+                      : null,
                 ),
               ),
             ),

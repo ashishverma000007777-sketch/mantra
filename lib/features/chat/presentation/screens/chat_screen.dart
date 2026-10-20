@@ -107,7 +107,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           // Stage indicator
           _StageIndicator(stage: chatState.value?.stage ?? (widget.extra?['stage'] as num?)?.toInt() ?? 1),
 
-          // Feature 4: Gradual Identity Reveal Stepper & Consent
+          // Gradual Identity Reveal Stepper & Consent
           GradualRevealView(connectionId: widget.conversationId),
 
           // AI suggestion banner
@@ -125,7 +125,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Expanded(
             child: chatState.when(
               loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+                child: CircularProgressIndicator(color: AppColors.accent),
               ),
               error: (e, _) => Center(
                 child: Text(
@@ -178,8 +178,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
     );
   }
-
-  Map<String, dynamic>? get extra => widget.extra;
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -242,7 +240,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       leading: IconButton(
         onPressed: onBack,
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,9 +256,9 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           Row(
             children: [
               const Icon(Icons.shield_rounded, size: 11, color: AppColors.trust),
-              const SizedBox(width: 3),
+              const SizedBox(width: 4),
               Text(
-                '${trustScore.toInt()} Trust · Stage $stage',
+                '${trustScore.toInt()}% Trust · Stage $stage',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 11,
                   color: AppColors.textSecondary,
@@ -276,7 +274,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           tooltip: 'Conversation Quest',
           onPressed: () => context.push('/quest/$conversationId'),
-          icon: const Icon(Icons.psychology_outlined, color: AppColors.primary, size: 21),
+          icon: const Icon(Icons.psychology_outlined, color: AppColors.accent, size: 21),
         ),
         // Connection Garden Action
         IconButton(
@@ -292,7 +290,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         IconButton(
           onPressed: onMore,
-          icon: const Icon(Icons.more_vert_rounded, size: 20),
+          icon: const Icon(Icons.more_vert_rounded, size: 20, color: AppColors.textPrimary),
         ),
       ],
       bottom: const PreferredSize(
@@ -311,15 +309,15 @@ class _StageIndicator extends StatelessWidget {
   String get _label {
     switch (stage) {
       case 1:
-        return 'Stage 1 — Breaking the ice 🌱';
+        return 'Stage 1 — Breaking the ice';
       case 2:
-        return 'Stage 2 — Getting to know each other 🌿';
+        return 'Stage 2 — Getting to know each other';
       case 3:
-        return 'Stage 3 — Building trust 🌸';
+        return 'Stage 3 — Building trust';
       case 4:
-        return 'Stage 4 — Deep connection 🌳';
+        return 'Stage 4 — Deep connection';
       case 5:
-        return 'Stage 5 — Trusted ✨';
+        return 'Stage 5 — Trusted';
       default:
         return 'Stage $stage';
     }
@@ -329,7 +327,7 @@ class _StageIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.surfaceVariant.withOpacity(0.5),
+      color: AppColors.surfaceSecondary,
       child: Row(
         children: [
           Expanded(
@@ -337,7 +335,7 @@ class _StageIndicator extends StatelessWidget {
               _label,
               style: GoogleFonts.plusJakartaSans(
                 color: AppColors.textSecondary,
-                fontSize: 12,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -352,7 +350,7 @@ class _StageIndicator extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: i < stage
-                      ? AppColors.primary
+                      ? AppColors.accent
                       : AppColors.border,
                 ),
               );
@@ -382,15 +380,15 @@ class _AISuggestionBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
         border: Border.all(
-          color: AppColors.primaryLight.withOpacity(0.4),
+          color: AppColors.accent.withOpacity(0.35),
         ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.lightbulb_outline_rounded, size: 18, color: AppColors.primary),
+          const Icon(Icons.lightbulb_outline_rounded, size: 18, color: AppColors.accent),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -409,7 +407,7 @@ class _AISuggestionBanner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              foregroundColor: AppColors.primary,
+              foregroundColor: AppColors.accent,
             ),
             child: Text(
               'Use',
@@ -444,7 +442,7 @@ class MessageBubble extends StatelessWidget {
     final isMine = message.isMine;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 3.5),
       child: Row(
         mainAxisAlignment:
             isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -454,23 +452,27 @@ class MessageBubble extends StatelessWidget {
           Flexible(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.72,
+                maxWidth: MediaQuery.of(context).size.width * 0.74,
               ),
               padding: message.type == MessageType.voice
                   ? const EdgeInsets.all(10)
                   : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isMine ? AppColors.primary : AppColors.surface,
+                color: isMine ? const Color(0xFF231F18) : AppColors.surface,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
-                  bottomLeft: Radius.circular(isMine ? 18 : 4),
-                  bottomRight: Radius.circular(isMine ? 4 : 18),
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(isMine ? 16 : 4),
+                  bottomRight: Radius.circular(isMine ? 4 : 16),
                 ),
-                border: isMine ? null : Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: isMine
+                      ? AppColors.accent.withOpacity(0.35)
+                      : AppColors.border,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow.withOpacity(0.04),
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -512,7 +514,7 @@ class _TextMessageContent extends StatelessWidget {
         Text(
           message.content,
           style: GoogleFonts.plusJakartaSans(
-            color: isMine ? Colors.white : AppColors.textPrimary,
+            color: AppColors.textPrimary,
             fontSize: 14.5,
             height: 1.45,
           ),
@@ -525,7 +527,7 @@ class _TextMessageContent extends StatelessWidget {
               _formatTime(message.createdAt),
               style: GoogleFonts.plusJakartaSans(
                 color: isMine
-                    ? Colors.white.withOpacity(0.7)
+                    ? AppColors.accent.withOpacity(0.7)
                     : AppColors.textMuted,
                 fontSize: 10,
               ),
@@ -538,8 +540,8 @@ class _TextMessageContent extends StatelessWidget {
                     : Icons.done_rounded,
                 size: 12,
                 color: message.isRead
-                    ? AppColors.surfaceVariant
-                    : Colors.white.withOpacity(0.7),
+                    ? AppColors.trust
+                    : AppColors.accent.withOpacity(0.7),
               ),
             ],
           ],
@@ -573,14 +575,12 @@ class _VoiceMessageContent extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: isMine
-                ? Colors.white.withOpacity(0.2)
-                : AppColors.primary.withOpacity(0.12),
+            color: AppColors.accent.withOpacity(0.18),
             shape: BoxShape.circle,
           ),
-          child: Icon(
+          child: const Icon(
             Icons.play_arrow_rounded,
-            color: isMine ? Colors.white : AppColors.primary,
+            color: AppColors.accent,
             size: 20,
           ),
         ),
@@ -601,8 +601,8 @@ class _VoiceMessageContent extends StatelessWidget {
                   height: heights[i],
                   decoration: BoxDecoration(
                     color: isMine
-                        ? Colors.white.withOpacity(0.75)
-                        : AppColors.primaryLight,
+                        ? AppColors.accent.withOpacity(0.8)
+                        : AppColors.trust.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );
@@ -612,9 +612,7 @@ class _VoiceMessageContent extends StatelessWidget {
             Text(
               '0:${message.voiceDuration?.toString().padLeft(2, '0') ?? '00'}',
               style: GoogleFonts.plusJakartaSans(
-                color: isMine
-                    ? Colors.white.withOpacity(0.75)
-                    : AppColors.textMuted,
+                color: AppColors.textSecondary,
                 fontSize: 10,
               ),
             ),
@@ -675,7 +673,10 @@ class _ChatInputBar extends StatelessWidget {
                 controller: controller,
                 onChanged: onChanged,
                 maxLines: null,
-                style: GoogleFonts.plusJakartaSans(fontSize: 14.5),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14.5,
+                  color: AppColors.textPrimary,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Share a genuine reflection...',
                   hintStyle: GoogleFonts.plusJakartaSans(
@@ -705,11 +706,15 @@ class _ChatInputBar extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE5C896), Color(0xFFC79E5E)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.accent.withOpacity(0.35),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -717,7 +722,7 @@ class _ChatInputBar extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.send_rounded,
-                        color: Colors.white,
+                        color: Color(0xFF080B0D),
                         size: 20,
                       ),
                     ),
@@ -733,15 +738,17 @@ class _ChatInputBar extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isRecording
                             ? AppColors.error
-                            : AppColors.surfaceVariant,
+                            : AppColors.surfaceSecondary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(
+                          color: isRecording ? AppColors.error : AppColors.border,
+                        ),
                       ),
                       child: Icon(
                         isRecording ? Icons.stop_rounded : Icons.mic_rounded,
                         color: isRecording
                             ? Colors.white
-                            : AppColors.primary,
+                            : AppColors.accent,
                         size: 22,
                       ),
                     ),
@@ -758,7 +765,7 @@ class _RecordingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.error.withOpacity(0.08),
+      color: AppColors.error.withOpacity(0.12),
       child: Row(
         children: [
           Container(
@@ -806,7 +813,7 @@ class _DateDivider extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
+            color: AppColors.surfaceSecondary,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
             border: Border.all(color: AppColors.border),
           ),
@@ -860,6 +867,7 @@ class _ChatMoreOptions extends StatelessWidget {
           _Option(
             icon: Icons.flag_outlined,
             label: 'Report Connection',
+            color: AppColors.textPrimary,
             onTap: onReport,
           ),
           _Option(

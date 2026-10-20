@@ -1,6 +1,5 @@
 // lib/features/matching/presentation/screens/compatibility_dna_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,7 +17,7 @@ class CompatibilityDnaScreen extends ConsumerWidget {
   const CompatibilityDnaScreen({super.key, required this.targetUserId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final dnaAsync = ref.watch(compatibilityDnaFamily(targetUserId));
 
     return Scaffold(
@@ -27,7 +26,7 @@ class CompatibilityDnaScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -97,9 +96,9 @@ class CompatibilityDnaScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.7),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.trust.withOpacity(0.35)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +106,7 @@ class CompatibilityDnaScreen extends ConsumerWidget {
                     const Icon(
                       Icons.spa_outlined,
                       size: 18,
-                      color: AppColors.secondary,
+                      color: AppColors.trust,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -137,19 +136,11 @@ class _OverallAlignmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MantraCard(
+      color: AppColors.surface,
+      borderColor: AppColors.primary.withOpacity(0.4),
+      hasGlow: true,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
       child: Row(
         children: [
           // Circular Score Indicator
@@ -158,8 +149,8 @@ class _OverallAlignmentCard extends StatelessWidget {
             height: 76,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.18),
-              border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+              color: AppColors.primary.withOpacity(0.12),
+              border: Border.all(color: AppColors.primary, width: 2),
             ),
             child: Center(
               child: Column(
@@ -170,14 +161,14 @@ class _OverallAlignmentCard extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: AppColors.primary,
                     ),
                   ),
                   Text(
                     'harmony',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10,
-                      color: Colors.white.withOpacity(0.9),
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -194,18 +185,18 @@ class _OverallAlignmentCard extends StatelessWidget {
                 Text(
                   'Compatibility DNA',
                   style: GoogleFonts.lora(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Evaluated across ${dna.evaluatedDimensionsCount} mindful dimensions including values, rhythm, and communication.',
+                  'Multi-dimensional alignment across communication, emotional depth, values, and pace.',
                   style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white.withOpacity(0.92),
-                    fontSize: 12,
-                    height: 1.4,
+                    color: AppColors.textSecondary,
+                    fontSize: 12.5,
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -213,157 +204,82 @@ class _OverallAlignmentCard extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0);
+    );
   }
 }
 
 class _DimensionCard extends StatelessWidget {
   final String dimensionKey;
-  final DimensionInsightModel model;
+  final DimensionScore model;
 
-  const _DimensionCard({required this.dimensionKey, required this.model});
+  const _DimensionCard({
+    required this.dimensionKey,
+    required this.model,
+  });
 
-  IconData _getIcon() {
-    switch (dimensionKey) {
-      case 'communication':
-        return Icons.chat_bubble_outline_rounded;
-      case 'relationship_intentions':
-        return Icons.favorite_border_rounded;
-      case 'core_values':
-        return Icons.verified_user_outlined;
-      case 'lifestyle':
-        return Icons.wb_sunny_outlined;
-      case 'emotional_readiness':
-        return Icons.self_improvement_rounded;
-      case 'conflict_resolution':
-        return Icons.handshake_outlined;
-      case 'shared_interests':
-        return Icons.interests_outlined;
-      default:
-        return Icons.bubble_chart_outlined;
-    }
+  String get _title {
+    return dimensionKey
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .join(' ');
   }
 
   @override
   Widget build(BuildContext context) {
-    final pct = model.score / 100.0;
-
-    return MantraCard(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Icon(_getIcon(), size: 16, color: AppColors.primary),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  model.dimension,
-                  style: GoogleFonts.lora(
-                    fontWeight: FontWeight.w600,
+      child: MantraCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _title,
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
-              ),
-              Text(
-                '${model.score}%',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  color: model.score >= 80 ? AppColors.trust : AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // Score bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: pct,
-              backgroundColor: AppColors.surfaceVariant,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                model.score >= 80 ? AppColors.trust : AppColors.primary,
-              ),
-              minHeight: 5,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Insight explanation
-          Text(
-            model.insight,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
-              color: AppColors.textPrimary,
-              height: 1.4,
-            ),
-          ),
-
-          // Contributing factors
-          if (model.contributingFactors.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
                 Text(
-                  'Based on: ',
+                  '${model.score}%',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11,
-                    color: AppColors.textMuted,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    model.contributingFactors.join(' · '),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      color: AppColors.textSecondary,
-                    ),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
             ),
-          ],
+            const SizedBox(height: 8),
 
-          // Shared items tags
-          if (model.sharedItems.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: model.score / 100,
+                minHeight: 5,
+                backgroundColor: AppColors.surfaceVariant,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  model.score >= 80 ? AppColors.primary : AppColors.secondary,
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 5,
-              children: model.sharedItems.map((item) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Text(
-                      '✨ $item',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: AppColors.primaryDark,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )).toList(),
+
+            Text(
+              model.insight,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.5,
+                color: AppColors.textSecondary,
+                height: 1.4,
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

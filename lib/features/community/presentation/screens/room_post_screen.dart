@@ -68,7 +68,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -101,7 +101,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant,
+                                color: AppColors.surfaceSecondary,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: AppColors.border),
                               ),
@@ -111,7 +111,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                                   style: GoogleFonts.lora(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: AppColors.accent,
                                   ),
                                 ),
                               ),
@@ -164,10 +164,10 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: _isLiked ? AppColors.surfaceVariant : AppColors.surface,
+                                  color: _isLiked ? AppColors.surfaceSecondary : AppColors.surface,
                                   borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                                   border: Border.all(
-                                    color: _isLiked ? AppColors.primaryLight : AppColors.border,
+                                    color: _isLiked ? AppColors.accent.withOpacity(0.5) : AppColors.border,
                                   ),
                                 ),
                                 child: Row(
@@ -175,7 +175,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                                     Icon(
                                       _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                                       size: 15,
-                                      color: AppColors.primary,
+                                      color: AppColors.accent,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
@@ -183,7 +183,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.primaryDark,
+                                        color: AppColors.accent,
                                       ),
                                     ),
                                   ],
@@ -283,7 +283,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                       ),
                       child: TextField(
                         controller: _commentController,
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textPrimary),
                         decoration: InputDecoration(
                           hintText: 'Add to this reflection...',
                           hintStyle: GoogleFonts.plusJakartaSans(
@@ -299,7 +299,7 @@ class _RoomPostScreenState extends State<RoomPostScreen> {
                   const SizedBox(width: 10),
                   IconButton(
                     onPressed: _addComment,
-                    icon: const Icon(Icons.send_rounded, color: AppColors.primary),
+                    icon: const Icon(Icons.send_rounded, color: AppColors.accent),
                   ),
                 ],
               ),

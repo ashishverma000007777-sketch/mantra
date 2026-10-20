@@ -8,7 +8,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
 import '../../providers/auth_provider.dart';
 
@@ -92,13 +92,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Widget build(BuildContext context) {
     final isLoading = ref.watch(authControllerProvider).isLoading;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topRight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
         ),
       ),
       body: SafeArea(
@@ -139,7 +140,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
               const SizedBox(height: 36),
 
-              // PIN Code Fields
+              // PIN Code Fields with Dark Cinematic Styling
               PinCodeTextField(
                 appContext: context,
                 controller: _otpController,
@@ -159,7 +160,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   fieldWidth: 46,
                   activeFillColor: AppColors.surface,
                   inactiveFillColor: AppColors.surface,
-                  selectedFillColor: AppColors.surfaceVariant.withOpacity(0.5),
+                  selectedFillColor: AppColors.surfaceSecondary,
                   activeColor: AppColors.primary,
                   inactiveColor: AppColors.border,
                   selectedColor: AppColors.primary,

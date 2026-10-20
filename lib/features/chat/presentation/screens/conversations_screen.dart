@@ -1,4 +1,6 @@
 // lib/features/chat/presentation/screens/conversations_screen.dart
+import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -78,7 +80,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
           children: [
             // Editorial Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -91,11 +93,11 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                            color: AppColors.primary,
+                            letterSpacing: 1.4,
+                            color: AppColors.accent,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 3),
                         Text(
                           'Conversations',
                           style: GoogleFonts.lora(
@@ -123,23 +125,30 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
                       onTap: () => context.push('/quest/daily'),
                       borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: AppColors.accent.withOpacity(0.35)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.psychology_outlined, size: 14, color: AppColors.primary),
-                            const SizedBox(width: 5),
+                            const Icon(Icons.psychology_outlined, size: 14, color: AppColors.accent),
+                            const SizedBox(width: 6),
                             Text(
                               'Daily Quest',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primaryDark,
+                                color: AppColors.accent,
                               ),
                             ),
                           ],
@@ -155,7 +164,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(color: AppColors.accent),
                     )
                   : _error != null
                       ? MantraErrorState(
@@ -183,10 +192,12 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
                                 final convId = c['id'] ?? c['conversation_id'];
                                 final trustScore = (c['trust_score'] as num?)?.toDouble() ?? 80.0;
                                 final unreadCount = (c['unread_count'] as num?)?.toInt() ?? 0;
+                                final photoUrl = c['profile_photo_url'] as String?;
 
                                 return _ConversationCard(
                                   name: name,
                                   stage: stage,
+                                  photoUrl: photoUrl,
                                   lastMessage: lastMsg,
                                   trustScore: trustScore,
                                   unreadCount: unreadCount,
@@ -214,6 +225,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
 class _ConversationCard extends StatelessWidget {
   final String name;
   final int stage;
+  final String? photoUrl;
   final String lastMessage;
   final double trustScore;
   final int unreadCount;
@@ -222,6 +234,7 @@ class _ConversationCard extends StatelessWidget {
   const _ConversationCard({
     required this.name,
     required this.stage,
+    this.photoUrl,
     required this.lastMessage,
     required this.trustScore,
     required this.unreadCount,
@@ -243,16 +256,23 @@ class _ConversationCard extends StatelessWidget {
     }
   }
 
+  double get _blurSigma {
+    if (stage >= 4) return 0.0;
+    if (stage == 3) return 3.0;
+    if (stage == 2) return 7.0;
+    return 14.0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MantraCard(
       padding: const EdgeInsets.all(14),
       onTap: onTap,
       hasShadow: unreadCount > 0,
-      borderColor: unreadCount > 0 ? AppColors.primaryLight : AppColors.border,
+      borderColor: unreadCount > 0 ? AppColors.accent.withOpacity(0.4) : AppColors.border,
       child: Row(
         children: [
-          // Avatar with stage ring
+          // Avatar with progressive reveal
           Stack(
             children: [
               Container(
@@ -260,23 +280,28 @@ class _ConversationCard extends StatelessWidget {
                 height: 52,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.surfaceVariant,
+                  color: AppColors.surfaceSecondary,
                   border: Border.all(
                     color: stage >= 3
                         ? AppColors.trust
-                        : (stage >= 2 ? AppColors.primary : AppColors.border),
-                    width: 2,
+                        : (stage >= 2 ? AppColors.accent : AppColors.border),
+                    width: 1.8,
                   ),
                 ),
-                child: Center(
-                  child: Text(
-                    name.isNotEmpty ? name[0] : '?',
-                    style: GoogleFonts.lora(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryDark,
-                    ),
-                  ),
+                child: ClipOval(
+                  child: photoUrl != null
+                      ? ImageFiltered(
+                          imageFilter: ImageFilter.blur(sigmaX: _blurSigma, sigmaY: _blurSigma),
+                          child: photoUrl!.startsWith('assets/')
+                              ? Image.asset(photoUrl!, fit: BoxFit.cover)
+                              : CachedNetworkImage(
+                                  imageUrl: photoUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (_, __) => Container(color: AppColors.surfaceSecondary),
+                                  errorWidget: (_, __, ___) => _fallbackLetter(),
+                                ),
+                        )
+                      : _fallbackLetter(),
                 ),
               ),
               if (stage >= 2)
@@ -290,15 +315,15 @@ class _ConversationCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Container(
-                      padding: const EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(2.5),
                       decoration: BoxDecoration(
-                        color: stage >= 3 ? AppColors.trust : AppColors.primary,
+                        color: stage >= 3 ? AppColors.trust : AppColors.accent,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         stage >= 3 ? Icons.lock_open_rounded : Icons.mic_rounded,
-                        size: 9,
-                        color: Colors.white,
+                        size: 9.5,
+                        color: AppColors.background,
                       ),
                     ),
                   ),
@@ -340,18 +365,20 @@ class _ConversationCard extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
+                        color: AppColors.surfaceSecondary,
                         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(
+                          color: stage >= 3 ? AppColors.trust.withOpacity(0.4) : AppColors.border,
+                        ),
                       ),
                       child: Text(
                         _getStageLabel(stage),
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryDark,
+                          color: stage >= 3 ? AppColors.trust : AppColors.accent,
                         ),
                       ),
                     ),
@@ -375,17 +402,17 @@ class _ConversationCard extends StatelessWidget {
                     if (unreadCount > 0) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: AppColors.accent,
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                         ),
                         child: Text(
                           '$unreadCount',
                           style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
+                            color: AppColors.background,
                             fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -396,6 +423,22 @@ class _ConversationCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _fallbackLetter() {
+    return Container(
+      color: AppColors.surfaceSecondary,
+      child: Center(
+        child: Text(
+          name.isNotEmpty ? name[0] : '?',
+          style: GoogleFonts.lora(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: AppColors.accent,
+          ),
+        ),
       ),
     );
   }

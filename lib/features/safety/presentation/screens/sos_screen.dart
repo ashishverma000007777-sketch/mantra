@@ -126,8 +126,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.trustLight.withOpacity(0.4),
+                color: AppColors.trust.withOpacity(0.18),
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.trust.withOpacity(0.35)),
               ),
               child: const Icon(
                 Icons.check_circle_rounded,
@@ -161,9 +162,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.08),
+                  color: AppColors.error.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(color: AppColors.error.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.error.withOpacity(0.35)),
                 ),
                 child: Row(
                   children: [
@@ -199,21 +200,33 @@ class _SosScreenState extends ConsumerState<SosScreen>
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.08),
+                  color: AppColors.warning.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(color: AppColors.warning.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.warning.withOpacity(0.35)),
                 ),
                 child: Row(
                   children: [
                     const Icon(Icons.emergency_rounded, color: AppColors.warning, size: 22),
                     const SizedBox(width: 12),
-                    Text(
-                      'National Emergency Helpline — 112',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppColors.warning,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'National Emergency Helpline — 112',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppColors.warning,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'All-in-one emergency dispatch helpline',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppColors.textSecondary,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -392,14 +405,15 @@ class _IdleSOSButtonState extends State<_IdleSOSButton> {
         height: _pressing ? 154 : 170,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFC94A4A), Color(0xFFDC6868)],
+            colors: [Color(0xFF9E2A2B), Color(0xFFB83A3B)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFD96C72).withOpacity(0.4)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFC94A4A).withOpacity(_pressing ? 0.2 : 0.35),
+              color: const Color(0xFF9E2A2B).withOpacity(_pressing ? 0.2 : 0.4),
               blurRadius: _pressing ? 16 : 28,
               offset: const Offset(0, 8),
             ),
@@ -509,11 +523,11 @@ class _InfoCard extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceSecondary,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.border),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 18),
+            child: Icon(icon, color: AppColors.accent, size: 18),
           ),
           const SizedBox(width: 14),
           Expanded(

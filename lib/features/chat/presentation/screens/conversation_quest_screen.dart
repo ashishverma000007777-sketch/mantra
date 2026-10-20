@@ -66,16 +66,16 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
     switch (category.toLowerCase()) {
       case 'values':
       case 'values & reflections':
-        return AppColors.primary;
+        return AppColors.accent;
       case 'memories':
       case 'shared memories':
-        return AppColors.secondary;
+        return AppColors.trust;
       case 'relationships':
-        return const Color(0xFF5B8DB8);
+        return const Color(0xFF86A5C4);
       case 'aspirations':
-        return const Color(0xFFD4884A);
+        return const Color(0xFFD4B07A);
       default:
-        return AppColors.primary;
+        return AppColors.accent;
     }
   }
 
@@ -89,7 +89,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -116,7 +116,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
       body: SafeArea(
         child: questAsync.when(
           loading: () => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+            child: CircularProgressIndicator(color: AppColors.accent),
           ),
           error: (e, _) => MantraErrorState(
             message: 'Could not load today\'s quest.\n${e.toString()}',
@@ -133,6 +133,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                 MantraCard(
                   padding: const EdgeInsets.all(20),
                   hasShadow: true,
+                  borderColor: AppColors.accent.withOpacity(0.35),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -142,7 +143,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                         decoration: BoxDecoration(
                           color: catColor.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          border: Border.all(color: catColor.withOpacity(0.3), width: 0.8),
+                          border: Border.all(color: catColor.withOpacity(0.4), width: 0.8),
                         ),
                         child: Text(
                           quest.category.toUpperCase().replaceAll('_', ' '),
@@ -173,8 +174,8 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: quest.isUnlocked
-                              ? AppColors.trustLight.withOpacity(0.35)
-                              : AppColors.surfaceVariant,
+                              ? AppColors.trust.withOpacity(0.15)
+                              : AppColors.surfaceSecondary,
                           borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                           border: Border.all(
                             color: quest.isUnlocked ? AppColors.trust : AppColors.border,
@@ -240,7 +241,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                           controller: _answerController,
                           maxLines: 4,
                           maxLength: 1000,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: 'Take your time. Speak from the heart...',
                             hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 13.5),
@@ -254,20 +255,24 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.primary),
+                              borderSide: const BorderSide(color: AppColors.accent),
                             ),
                             filled: true,
-                            fillColor: AppColors.background,
+                            fillColor: AppColors.surfaceSecondary,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE5C896), Color(0xFFC79E5E)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.28),
+                                color: AppColors.accent.withOpacity(0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
@@ -287,12 +292,12 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                                 ? const SizedBox(
                                     height: 18,
                                     width: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF080B0D)),
                                   )
                                 : Text(
                                     'Submit Reflection',
                                     style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white,
+                                      color: const Color(0xFF080B0D),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13.5,
                                     ),
@@ -322,14 +327,14 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                   if (quest.followUpPrompt != null) ...[
                     MantraCard(
                       padding: const EdgeInsets.all(16),
-                      color: AppColors.surfaceVariant.withOpacity(0.4),
-                      borderColor: AppColors.secondaryLight,
+                      color: AppColors.surfaceSecondary,
+                      borderColor: AppColors.trust.withOpacity(0.3),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.spa_outlined, size: 16, color: AppColors.secondary),
+                              const Icon(Icons.spa_outlined, size: 16, color: AppColors.trust),
                               const SizedBox(width: 6),
                               Text(
                                 'DEEPER REFLECTION',
@@ -337,7 +342,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                                   fontWeight: FontWeight.w700,
                                   fontSize: 11,
                                   letterSpacing: 0.8,
-                                  color: AppColors.secondaryDark,
+                                  color: AppColors.trust,
                                 ),
                               ),
                             ],
@@ -370,16 +375,20 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
+                            color: AppColors.surfaceSecondary,
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.border),
                           ),
-                          child: const Icon(Icons.lock_rounded, size: 24, color: AppColors.primary),
+                          child: const Icon(Icons.lock_rounded, size: 24, color: AppColors.accent),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           'Partner\'s Answer is Gated',
-                          style: GoogleFonts.lora(fontWeight: FontWeight.w600, fontSize: 16),
+                          style: GoogleFonts.lora(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -472,7 +481,7 @@ class _AnswerCard extends StatelessWidget {
                   .map((e) => Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
+                          color: AppColors.surfaceSecondary,
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                           border: Border.all(color: AppColors.border),
                         ),

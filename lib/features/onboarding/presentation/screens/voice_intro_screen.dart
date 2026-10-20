@@ -13,8 +13,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../widgets/step_bar.dart';
 
 enum VoiceRecordState { idle, recording, recorded, playing }
@@ -141,13 +142,14 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topCenter,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
         ),
         actions: [
           TextButton(
@@ -201,20 +203,8 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
               const SizedBox(height: 24),
 
               // Editorial prompt card
-              Container(
+              MantraCard(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -227,7 +217,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: 1.1,
+                            letterSpacing: 1.2,
                             color: AppColors.primary,
                           ),
                         ),
@@ -247,7 +237,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                 ),
               ).animate(delay: 150.ms).fadeIn(),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
               // Audio Waveform / Recording status area
               Center(
@@ -279,7 +269,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                                 playerController: _playerController,
                                 waveformType: WaveformType.fitWidth,
                                 playerWaveStyle: const PlayerWaveStyle(
-                                  fixedWaveColor: AppColors.border,
+                                  fixedWaveColor: AppColors.borderSubtle,
                                   liveWaveColor: AppColors.primary,
                                   spacing: 7.0,
                                 ),
@@ -287,7 +277,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.graphic_eq_rounded,
                                     size: 36,
                                     color: AppColors.textMuted,
@@ -324,12 +314,12 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.primary.withOpacity(0.3),
-                                blurRadius: 18,
+                                blurRadius: 20,
                                 offset: const Offset(0, 6),
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.mic_rounded, color: Colors.white, size: 34),
+                          child: const Icon(Icons.mic_rounded, color: AppColors.background, size: 34),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -360,7 +350,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.error.withOpacity(0.3),
-                                blurRadius: 18,
+                                blurRadius: 20,
                                 offset: const Offset(0, 6),
                               ),
                             ],

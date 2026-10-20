@@ -21,7 +21,7 @@ class TrustScoreScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -54,26 +54,32 @@ class TrustScoreScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.trustLight.withOpacity(0.35),
-                    AppColors.surfaceVariant.withOpacity(0.5),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-                border: Border.all(color: AppColors.trust.withOpacity(0.3)),
+                border: Border.all(color: AppColors.trust.withOpacity(0.35)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 84,
+                    height: 84,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.surface,
+                      color: AppColors.surfaceSecondary,
                       border: Border.all(color: AppColors.trust, width: 2.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.trust.withOpacity(0.2),
+                          blurRadius: 12,
+                        ),
+                      ],
                     ),
                     child: Center(
                       child: Column(
@@ -99,7 +105,7 @@ class TrustScoreScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -194,7 +200,7 @@ class TrustScoreScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant.withOpacity(0.5),
+                color: AppColors.surfaceSecondary,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                 border: Border.all(color: AppColors.border),
               ),
@@ -203,7 +209,7 @@ class TrustScoreScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.spa_outlined, size: 16, color: AppColors.secondary),
+                      const Icon(Icons.spa_outlined, size: 16, color: AppColors.trust),
                       const SizedBox(width: 8),
                       Text(
                         'THE MANTRA TRUST PHILOSOPHY',
@@ -211,7 +217,7 @@ class TrustScoreScreen extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           fontSize: 10.5,
                           letterSpacing: 0.8,
-                          color: AppColors.secondaryDark,
+                          color: AppColors.trust,
                         ),
                       ),
                     ],
@@ -243,6 +249,7 @@ class _BreakdownItem extends StatelessWidget {
   final bool isComplete;
 
   const _BreakdownItem({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -259,7 +266,7 @@ class _BreakdownItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.trustLight.withOpacity(0.35),
+              color: AppColors.trust.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 17, color: AppColors.trust),
@@ -291,7 +298,7 @@ class _BreakdownItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.trustLight.withOpacity(0.35),
+              color: AppColors.trust.withOpacity(0.15),
               borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
             ),
             child: Text(

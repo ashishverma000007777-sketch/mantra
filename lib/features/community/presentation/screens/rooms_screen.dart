@@ -1,5 +1,4 @@
 // lib/features/community/presentation/screens/rooms_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,11 +64,11 @@ class _RoomsHeader extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
-                        color: AppColors.primary,
+                        letterSpacing: 1.4,
+                        color: AppColors.accent,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       'Community Rooms',
                       style: GoogleFonts.lora(
@@ -92,7 +91,7 @@ class _RoomsHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           // Search box
           Container(
             height: 44,
@@ -102,7 +101,7 @@ class _RoomsHeader extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             child: TextField(
-              style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+              style: GoogleFonts.plusJakartaSans(fontSize: 13.5, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search communities & reflections...',
                 hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 13.5),
@@ -151,19 +150,19 @@ class _RoomsContent extends StatelessWidget {
           _SectionTitle(title: 'Featured Reflections'),
           const SizedBox(height: 10),
           SizedBox(
-            height: 136,
+            height: 148,
             child: ListView.separated(
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               itemCount: featured.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, i) =>
-                  _FeaturedRoomCard(room: featured[i])
+                  _FeaturedRoomCard(room: featured[i], index: i)
                       .animate(delay: Duration(milliseconds: i * 60))
                       .fadeIn(duration: 250.ms),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
         ],
 
         _SectionTitle(title: 'Discover Communities'),
@@ -204,10 +203,10 @@ class _FilterChipsState extends State<_FilterChips> {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: active ? AppColors.primary : AppColors.surface,
+                color: active ? AppColors.accent : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                 border: Border.all(
-                  color: active ? AppColors.primary : AppColors.border,
+                  color: active ? AppColors.accent : AppColors.border,
                 ),
               ),
               child: Text(
@@ -215,7 +214,7 @@ class _FilterChipsState extends State<_FilterChips> {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 12,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? Colors.white : AppColors.textSecondary,
+                  color: active ? const Color(0xFF080B0D) : AppColors.textSecondary,
                 ),
               ),
             ),
@@ -243,9 +242,9 @@ class RoomCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: room.color.withOpacity(0.12),
+              color: AppColors.surfaceSecondary,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: room.color.withOpacity(0.25)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Center(
               child: Text(room.emoji, style: const TextStyle(fontSize: 22)),
@@ -275,14 +274,14 @@ class RoomCard extends StatelessWidget {
                         margin: const EdgeInsets.only(left: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withOpacity(0.12),
+                          color: AppColors.trust.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                          border: Border.all(color: AppColors.trust.withOpacity(0.4)),
                         ),
                         child: Text(
                           '♀ Women Only',
                           style: GoogleFonts.plusJakartaSans(
-                            color: AppColors.secondaryDark,
+                            color: AppColors.trust,
                             fontSize: 9.5,
                             fontWeight: FontWeight.w700,
                           ),
@@ -328,9 +327,9 @@ class RoomCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                   decoration: BoxDecoration(
-                    color: AppColors.trustLight.withOpacity(0.4),
+                    color: AppColors.trust.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                    border: Border.all(color: AppColors.trust.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.trust.withOpacity(0.35)),
                   ),
                   child: Text(
                     'Joined',
@@ -351,57 +350,93 @@ class RoomCard extends StatelessWidget {
 
 class _FeaturedRoomCard extends StatelessWidget {
   final RoomModel room;
-  const _FeaturedRoomCard({required this.room});
+  final int index;
+  const _FeaturedRoomCard({required this.room, required this.index});
+
+  String get _featuredAsset {
+    if (index % 2 == 0) {
+      return 'assets/images/community_literature.jpg';
+    } else {
+      return 'assets/images/community_chai.jpg';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/rooms/${room.id}'),
       child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(14),
+        width: 180,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              room.color.withOpacity(0.85),
-              room.color,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
           borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: room.color.withOpacity(0.25),
+              color: Colors.black.withOpacity(0.4),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(room.emoji, style: const TextStyle(fontSize: 26)),
-            const Spacer(),
-            Text(
-              room.name,
-              style: GoogleFonts.lora(
-                color: Colors.white,
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
-                height: 1.25,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                _featuredAsset,
+                fit: BoxFit.cover,
               ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${room.memberCount} members',
-              style: GoogleFonts.plusJakartaSans(
-                color: Colors.white.withOpacity(0.85),
-                fontSize: 11,
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.35),
+                      Colors.black.withOpacity(0.85),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(room.emoji, style: const TextStyle(fontSize: 16)),
+                    ),
+                    const Spacer(),
+                    Text(
+                      room.name,
+                      style: GoogleFonts.lora(
+                        color: AppColors.textPrimary,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${room.memberCount} members',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.accent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -443,7 +478,7 @@ class _RoomsShimmer extends StatelessWidget {
           border: Border.all(color: AppColors.border),
         ),
       ).animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(duration: 1200.ms, color: AppColors.surfaceVariant),
+          .shimmer(duration: 1200.ms, color: AppColors.surfaceSecondary),
     );
   }
 }

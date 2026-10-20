@@ -14,9 +14,9 @@ class MantraApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Mantra',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       routerConfig: router,
     );
   }

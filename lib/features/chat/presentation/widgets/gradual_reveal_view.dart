@@ -22,7 +22,7 @@ class GradualRevealView extends ConsumerWidget {
     return revealAsync.when(
       loading: () => const SizedBox(
         height: 60,
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accent)),
       ),
       error: (_, __) => const SizedBox.shrink(),
       data: (reveal) => Container(
@@ -34,7 +34,7 @@ class GradualRevealView extends ConsumerWidget {
           border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadow.withOpacity(0.04),
+              color: Colors.black.withOpacity(0.2),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -49,7 +49,7 @@ class GradualRevealView extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.shield_outlined, size: 16, color: AppColors.primary),
+                    const Icon(Icons.shield_outlined, size: 16, color: AppColors.accent),
                     const SizedBox(width: 6),
                     Text(
                       'Gradual Reveal',
@@ -65,8 +65,8 @@ class GradualRevealView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                   decoration: BoxDecoration(
                     color: reveal.isPhotoUnlocked
-                        ? AppColors.trustLight.withOpacity(0.35)
-                        : AppColors.surfaceVariant,
+                        ? AppColors.trust.withOpacity(0.15)
+                        : AppColors.surfaceSecondary,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                     border: Border.all(
                       color: reveal.isPhotoUnlocked ? AppColors.trust : AppColors.border,
@@ -78,8 +78,8 @@ class GradualRevealView extends ConsumerWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 9.5,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                      color: reveal.isPhotoUnlocked ? AppColors.trust : AppColors.primary,
+                      letterSpacing: 0.6,
+                      color: reveal.isPhotoUnlocked ? AppColors.trust : AppColors.accent,
                     ),
                   ),
                 ),
@@ -119,13 +119,13 @@ class GradualRevealView extends ConsumerWidget {
                 margin: const EdgeInsets.only(top: 4, bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: AppColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                  border: Border.all(color: AppColors.primaryLight.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.accent.withOpacity(0.4)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.mark_email_unread_outlined, size: 16, color: AppColors.primary),
+                    const Icon(Icons.mark_email_unread_outlined, size: 16, color: AppColors.accent),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -142,7 +142,7 @@ class GradualRevealView extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        foregroundColor: AppColors.primary,
+                        foregroundColor: AppColors.accent,
                       ),
                       onPressed: () {
                         HapticFeedback.mediumImpact();
@@ -195,20 +195,20 @@ class GradualRevealView extends ConsumerWidget {
               ] else ...[
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.border),
+                    side: BorderSide(color: AppColors.accent.withOpacity(0.4)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                     ),
                   ),
                   onPressed: () => _confirmRequestFaceReveal(context, ref),
-                  icon: const Icon(Icons.visibility_outlined, size: 14, color: AppColors.primary),
+                  icon: const Icon(Icons.visibility_outlined, size: 14, color: AppColors.accent),
                   label: Text(
                     'Request Mutual Face Reveal',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: AppColors.accent,
                     ),
                   ),
                 ),
@@ -260,11 +260,19 @@ class GradualRevealView extends ConsumerWidget {
         backgroundColor: AppColors.surface,
         title: Text(
           'Request Mutual Face Reveal?',
-          style: GoogleFonts.lora(fontWeight: FontWeight.w600, fontSize: 18),
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: AppColors.textPrimary,
+          ),
         ),
         content: Text(
           'Both participants must explicitly consent before photos are unblurred. Your photos remain protected until your connection also consents.',
-          style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.45, color: AppColors.textSecondary),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            height: 1.45,
+            color: AppColors.textSecondary,
+          ),
         ),
         actions: [
           TextButton(
@@ -274,29 +282,23 @@ class GradualRevealView extends ConsumerWidget {
               style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              foregroundColor: const Color(0xFF080B0D),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
               ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                ref.read(revealProviderFamily(connectionId).notifier).requestStage('face');
-              },
-              child: Text(
-                'Give Consent',
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(revealProviderFamily(connectionId).notifier).requestStage('face');
+            },
+            child: Text(
+              'Give Consent',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -313,11 +315,19 @@ class GradualRevealView extends ConsumerWidget {
         backgroundColor: AppColors.surface,
         title: Text(
           'Revoke Face Reveal?',
-          style: GoogleFonts.lora(fontWeight: FontWeight.w600, fontSize: 18),
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: AppColors.textPrimary,
+          ),
         ),
         content: Text(
           'Photos will be immediately secured and re-blurred. You can request reveal again at any time.',
-          style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.45, color: AppColors.textSecondary),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            height: 1.45,
+            color: AppColors.textSecondary,
+          ),
         ),
         actions: [
           TextButton(
@@ -330,6 +340,7 @@ class GradualRevealView extends ConsumerWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
               ),
@@ -340,7 +351,7 @@ class GradualRevealView extends ConsumerWidget {
             },
             child: Text(
               'Revoke Now',
-              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w600),
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -362,13 +373,13 @@ class _StagePill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: isCurrent
-            ? AppColors.primary
+            ? AppColors.accent
             : isActive
-                ? AppColors.surfaceVariant
+                ? AppColors.surfaceSecondary
                 : AppColors.background,
         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
         border: Border.all(
-          color: isCurrent || isActive ? AppColors.primaryLight : AppColors.border,
+          color: isCurrent || isActive ? AppColors.accent.withOpacity(0.5) : AppColors.border,
           width: 0.8,
         ),
       ),
@@ -378,9 +389,9 @@ class _StagePill extends StatelessWidget {
           fontSize: 10,
           fontWeight: isCurrent || isActive ? FontWeight.w700 : FontWeight.w500,
           color: isCurrent
-              ? Colors.white
+              ? const Color(0xFF080B0D)
               : isActive
-                  ? AppColors.primaryDark
+                  ? AppColors.accent
                   : AppColors.textMuted,
         ),
       ),
@@ -397,7 +408,7 @@ class _StepDivider extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 1.5,
-        color: isActive ? AppColors.primaryLight : AppColors.border,
+        color: isActive ? AppColors.accent.withOpacity(0.5) : AppColors.border,
       ),
     );
   }

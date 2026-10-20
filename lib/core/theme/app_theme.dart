@@ -8,32 +8,33 @@ import 'app_spacing.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  /// Primary Dark Cinematic Theme for Mantra
+  static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
       colorScheme: const ColorScheme(
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         primary: AppColors.primary,
-        onPrimary: Colors.white,
+        onPrimary: AppColors.background,
         primaryContainer: AppColors.surfaceVariant,
-        onPrimaryContainer: AppColors.primaryDark,
+        onPrimaryContainer: AppColors.primaryLight,
         secondary: AppColors.secondary,
-        onSecondary: Colors.white,
-        secondaryContainer: AppColors.secondaryLight,
-        onSecondaryContainer: AppColors.secondaryDark,
+        onSecondary: AppColors.background,
+        secondaryContainer: AppColors.secondaryDark,
+        onSecondaryContainer: AppColors.secondaryLight,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
         surfaceContainerHighest: AppColors.surfaceVariant,
         onSurfaceVariant: AppColors.textSecondary,
         error: AppColors.error,
-        onError: Colors.white,
+        onError: AppColors.background,
         outline: AppColors.border,
         shadow: AppColors.shadow,
-        scrim: Colors.black54,
-        inverseSurface: AppColors.darkSurface,
-        onInverseSurface: AppColors.textLight,
-        inversePrimary: AppColors.primaryLight,
+        scrim: Colors.black87,
+        inverseSurface: AppColors.textPrimary,
+        onInverseSurface: AppColors.background,
+        inversePrimary: AppColors.primaryDark,
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: AppTextStyles.textTheme,
@@ -51,11 +52,11 @@ class AppTheme {
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.backgroundSecondary,
         selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        unselectedItemColor: AppColors.textMuted,
         type: BottomNavigationBarType.fixed,
-        elevation: 4,
+        elevation: 0,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedLabelStyle: TextStyle(
@@ -80,7 +81,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.background,
           elevation: 0,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
@@ -99,8 +100,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
             vertical: AppSpacing.md,
@@ -108,11 +109,22 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           ),
+          side: const BorderSide(color: AppColors.border, width: 1.2),
           textStyle: GoogleFonts.plusJakartaSans(
             fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.1,
           ),
           minimumSize: const Size(double.infinity, 50),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -145,7 +157,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceVariant,
-        selectedColor: AppColors.primaryLight,
+        selectedColor: AppColors.softAccent,
         labelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 12,
           fontWeight: FontWeight.w500,
@@ -163,91 +175,40 @@ class AppTheme {
         space: 1,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.surfaceSecondary,
         contentTextStyle: GoogleFonts.plusJakartaSans(
-          color: Colors.white,
+          color: AppColors.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+          side: const BorderSide(color: AppColors.border),
         ),
         behavior: SnackBarBehavior.floating,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surface,
+        modalBackgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(24),
           ),
         ),
         showDragHandle: true,
+        dragHandleColor: AppColors.border,
       ),
       dialogTheme: DialogTheme(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          side: const BorderSide(color: AppColors.border),
         ),
         elevation: 6,
       ),
     );
   }
 
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        primary: AppColors.primaryLight,
-        onPrimary: AppColors.darkBackground,
-        primaryContainer: AppColors.primaryDark,
-        onPrimaryContainer: AppColors.primaryLight,
-        secondary: AppColors.secondaryLight,
-        onSecondary: AppColors.darkBackground,
-        secondaryContainer: AppColors.secondaryDark,
-        onSecondaryContainer: AppColors.secondaryLight,
-        surface: AppColors.darkSurface,
-        onSurface: AppColors.textLight,
-        surfaceContainerHighest: AppColors.darkSurfaceVariant,
-        onSurfaceVariant: AppColors.textMutedDark,
-        error: AppColors.errorLight,
-        onError: AppColors.darkBackground,
-        outline: AppColors.darkBorder,
-        shadow: Colors.black,
-        scrim: Colors.black87,
-        inverseSurface: AppColors.surface,
-        onInverseSurface: AppColors.textPrimary,
-        inversePrimary: AppColors.primary,
-      ),
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      textTheme: AppTextStyles.darkTextTheme,
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.darkBackground,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textLight),
-        titleTextStyle: GoogleFonts.lora(
-          color: AppColors.textLight,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.primaryLight,
-        unselectedItemColor: AppColors.textMutedDark,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
-      cardTheme: CardTheme(
-        color: AppColors.darkSurface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-          side: const BorderSide(color: AppColors.darkBorder, width: 1),
-        ),
-      ),
-    );
-  }
+  /// Light theme fallback that gracefully inherits the dark cinematic tone
+  static ThemeData get lightTheme => darkTheme;
 }

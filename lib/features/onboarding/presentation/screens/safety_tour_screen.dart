@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 
 class SafetyTourScreen extends StatelessWidget {
   const SafetyTourScreen({super.key});
@@ -39,8 +41,9 @@ class SafetyTourScreen extends StatelessWidget {
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topCenter,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -56,9 +59,15 @@ class SafetyTourScreen extends StatelessWidget {
                 width: 76,
                 height: 76,
                 decoration: BoxDecoration(
-                  color: AppColors.trustLight.withOpacity(0.35),
+                  color: AppColors.trust.withOpacity(0.15),
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.trust.withOpacity(0.35), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.trust.withOpacity(0.12),
+                      blurRadius: 20,
+                    ),
+                  ],
                 ),
                 child: const Icon(Icons.shield_rounded, color: AppColors.trust, size: 38),
               ),
@@ -90,57 +99,48 @@ class SafetyTourScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               ...safetyPillars.map((item) => Container(
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.trustLight.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(10),
+                margin: const EdgeInsets.only(bottom: 12),
+                child: MantraCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.trust.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.trust.withOpacity(0.25)),
+                        ),
+                        child: Icon(item.$1, color: AppColors.trust, size: 20),
                       ),
-                      child: Icon(item.$1, color: AppColors.trust, size: 20),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.$2,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.$2,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            item.$3,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12.5,
-                              color: AppColors.textSecondary,
-                              height: 1.35,
+                            const SizedBox(height: 3),
+                            Text(
+                              item.$3,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12.5,
+                                color: AppColors.textSecondary,
+                                height: 1.35,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               )),
 
@@ -149,7 +149,7 @@ class SafetyTourScreen extends StatelessWidget {
               MantraButton(
                 label: "I'm Ready to Enter Mantra",
                 onPressed: () => context.go('/home'),
-                icon: Icons.favorite_border_rounded,
+                icon: Icons.explore_outlined,
               ),
 
               const SizedBox(height: 20),

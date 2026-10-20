@@ -88,11 +88,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (!isPremium)
             TextButton.icon(
               onPressed: () => context.push('/premium'),
-              icon: const Icon(Icons.star_rounded, size: 16, color: AppColors.gold),
+              icon: const Icon(Icons.star_rounded, size: 16, color: AppColors.accent),
               label: Text(
                 'Membership',
                 style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.gold,
+                  color: AppColors.accent,
                   fontWeight: FontWeight.w700,
                   fontSize: 12.5,
                 ),
@@ -101,7 +101,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.accent))
           : ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -112,13 +112,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.surfaceSecondary,
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.explore_outlined, color: AppColors.primary, size: 20),
+                        const Icon(Icons.explore_outlined, color: AppColors.accent, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -152,7 +152,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             'Exit',
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
+                              color: AppColors.accent,
                               fontSize: 12,
                             ),
                           ),
@@ -162,77 +162,129 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ],
 
-                // Editorial Profile Header Card
-                MantraCard(
-                  padding: const EdgeInsets.all(20),
-                  hasShadow: true,
-                  child: Column(
+                // Editorial Profile Header Card with subtle ambient sanctuary art
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+                    border: Border.all(color: AppColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
                     children: [
-                      Center(
-                        child: Stack(
+                      // Subtle sanctuary backdrop banner
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        child: SizedBox(
+                          height: 90,
+                          width: double.infinity,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.asset(
+                                'assets/images/trust_safety_hero.jpg',
+                                fit: BoxFit.cover,
+                              ),
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.black.withOpacity(0.3),
+                                      AppColors.surface,
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 45, 20, 20),
+                        child: Column(
                           children: [
-                            Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.surfaceVariant,
-                                border: Border.all(color: AppColors.border, width: 2),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  name.isNotEmpty ? name[0] : 'M',
-                                  style: GoogleFonts.lora(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                            Center(
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 86,
+                                    height: 86,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppColors.surfaceSecondary,
+                                      border: Border.all(color: AppColors.accent, width: 2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.accent.withOpacity(0.2),
+                                          blurRadius: 10,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        name.isNotEmpty ? name[0] : 'M',
+                                        style: GoogleFonts.lora(
+                                          fontSize: 34,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.accent,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: InkWell(
+                                      onTap: () => context.push('/profile/edit'),
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accent,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: AppColors.background, width: 2),
+                                        ),
+                                        child: const Icon(
+                                          Icons.edit_rounded,
+                                          size: 13,
+                                          color: Color(0xFF080B0D),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: InkWell(
-                                onTap: () => context.push('/profile/edit'),
-                                borderRadius: BorderRadius.circular(20),
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                  ),
-                                  child: const Icon(
-                                    Icons.edit_rounded,
-                                    size: 13,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                            const SizedBox(height: 12),
+                            Text(
+                              name,
+                              style: GoogleFonts.lora(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
                               ),
                             ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '$age · $city',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            MantraBadge.trust(score: trustScore, fontSize: 12),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        name,
-                        style: GoogleFonts.lora(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$age · $city',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      MantraBadge.trust(score: trustScore, fontSize: 12),
                     ],
                   ),
                 ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.05, end: 0),
@@ -259,7 +311,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         value: '7',
                         subtitle: 'Reflections',
                         icon: Icons.auto_awesome_rounded,
-                        color: AppColors.primary,
+                        color: AppColors.accent,
                         onTap: () => context.go('/sparks'),
                       ),
                     ),
@@ -270,7 +322,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         value: 'Sprout',
                         subtitle: 'Blooming',
                         icon: Icons.eco_outlined,
-                        color: AppColors.secondary,
+                        color: AppColors.trust,
                         onTap: () => context.push('/conversations'),
                       ),
                     ),
@@ -319,6 +371,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         icon: Icons.workspace_premium_outlined,
                         title: 'Mantra Membership',
                         subtitle: isPremium ? 'Active Inner Circle Member' : 'Explore mindful perks',
+                        iconColor: AppColors.accent,
                         onTap: () => context.push('/premium'),
                       ),
                       const Divider(height: 1, color: AppColors.border),
@@ -419,10 +472,10 @@ class _ProfileTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.primary).withOpacity(0.1),
+          color: (iconColor ?? AppColors.accent).withOpacity(0.12),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+        child: Icon(icon, size: 18, color: iconColor ?? AppColors.accent),
       ),
       title: Text(
         title,

@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/mantra_badge.dart';
 import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_button.dart';
 import '../../../../core/widgets/mantra_states.dart';
 import '../../data/models/mystery_match_model.dart';
 import '../../providers/mystery_match_provider.dart';
@@ -34,7 +35,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -96,7 +97,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
           ),
           IconButton(
             tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh_rounded, size: 20),
+            icon: const Icon(Icons.refresh_rounded, size: 20, color: AppColors.textPrimary),
             onPressed: () => ref.read(mysteryMatchProvider.notifier).refresh(),
           ),
         ],
@@ -117,7 +118,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
                 title: 'No More Mystery Matches Today',
                 message: 'In slow dating, quality comes before quantity. Take time to reflect, nurture current connections, or explore community rooms.',
                 actionLabel: 'Explore Community',
-                onAction: () => context.go('/community'),
+                onAction: () => context.go('/rooms'),
               );
             }
 
@@ -179,7 +180,10 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: AppColors.border),
+        ),
         backgroundColor: AppColors.surface,
         title: Column(
           children: [
@@ -188,7 +192,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
               child: const Icon(
                 Icons.auto_awesome_rounded,
@@ -219,36 +223,16 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
         ),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                if (conversationId != null) {
-                  context.push('/chat/$conversationId');
-                } else {
-                  context.push('/conversations');
-                }
-              },
-              child: Text(
-                'Begin Slow Conversation',
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+          MantraButton(
+            label: 'Begin Slow Conversation',
+            onPressed: () {
+              Navigator.pop(ctx);
+              if (conversationId != null) {
+                context.push('/chat/$conversationId');
+              } else {
+                context.push('/conversations');
+              }
+            },
           ),
         ],
       ),
@@ -276,11 +260,11 @@ class _MysteryCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         border: Border.all(color: AppColors.border),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.06),
+            color: AppColors.shadow,
             blurRadius: 16,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -293,16 +277,9 @@ class _MysteryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.surfaceVariant.withOpacity(0.7),
-                    AppColors.background,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: AppColors.surfaceSecondary,
                 border: const Border(
-                  bottom: BorderSide(color: AppColors.border, width: 1),
+                  bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
                 ),
               ),
               child: Row(
@@ -314,7 +291,7 @@ class _MysteryCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.surface,
-                      border: Border.all(color: AppColors.primaryLight, width: 1.5),
+                      border: Border.all(color: AppColors.primary, width: 1.5),
                     ),
                     child: const Center(
                       child: Icon(
@@ -371,7 +348,7 @@ class _MysteryCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceVariant,
                                   borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: AppColors.borderSubtle),
                                 ),
                                 child: Row(
                                   children: [
@@ -382,7 +359,7 @@ class _MysteryCard extends StatelessWidget {
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.primaryDark,
+                                        color: AppColors.primaryLight,
                                       ),
                                     ),
                                   ],
@@ -398,150 +375,111 @@ class _MysteryCard extends StatelessWidget {
               ),
             ),
 
-            // Card Body with Mindful Answers
+            // Scrollable prompts & values
             Expanded(
-              child: ListView(
+              child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Relationship Intention Pill
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.favorite_outline_rounded, size: 16, color: AppColors.primary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Intention: ${candidate.intent}',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryDark,
-                            ),
-                          ),
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Intent quote
+                    if (candidate.intent.isNotEmpty) ...[
+                      Text(
+                        'INTENT & VISION',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                          letterSpacing: 1.2,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Compatibility DNA banner trigger
-                  GestureDetector(
-                    onTap: onViewDna,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                        border: Border.all(color: AppColors.border),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.psychology_rounded, size: 18, color: AppColors.secondary),
-                              const SizedBox(width: 8),
-                              Text(
-                                'View Compatibility DNA',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
-                        ],
+                      const SizedBox(height: 6),
+                      Text(
+                        '"${candidate.intent}"',
+                        style: GoogleFonts.lora(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14.5,
+                          color: AppColors.textPrimary,
+                          height: 1.45,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
+                      const SizedBox(height: 18),
+                    ],
 
-                  // Prompt answers (Thoughtful Mind Discovery)
-                  if (candidate.promptResponses.isNotEmpty) ...[
-                    ...candidate.promptResponses.map((p) => Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                p.question.toUpperCase(),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.8,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '"${p.answer}"',
-                                style: GoogleFonts.lora(
-                                  fontSize: 14,
-                                  height: 1.45,
-                                  fontStyle: FontStyle.italic,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                  ],
-
-                  // Personality & Values Tags
-                  if (candidate.personalityTags.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'VALUES & PERSPECTIVES',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                        color: AppColors.primary,
+                    // Personality tags
+                    if (candidate.personalityTags.isNotEmpty) ...[
+                      Text(
+                        'VALUES & CORE PILLARS',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: candidate.personalityTags.map((tag) {
-                        final isShared = candidate.sharedInterests.contains(tag);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: isShared ? AppColors.surfaceVariant : AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                            border: Border.all(
-                              color: isShared ? AppColors.primaryLight : AppColors.border,
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: candidate.personalityTags.map((tag) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                              border: Border.all(color: AppColors.borderSubtle),
                             ),
-                          ),
-                          child: Text(
-                            isShared ? '✨ $tag' : tag,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11.5,
-                              fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
-                              color: isShared ? AppColors.primaryDark : AppColors.textSecondary,
+                            child: Text(
+                              tag,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 18),
+                    ],
+
+                    // Prompt responses
+                    ...candidate.promptResponses.map((pr) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceSecondary,
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                          border: Border.all(color: AppColors.borderSubtle),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              pr.question,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              pr.answer,
+                              style: GoogleFonts.lora(
+                                fontSize: 13.5,
+                                color: AppColors.textPrimary,
+                                height: 1.45,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
-                ],
+                ),
               ),
             ),
 
@@ -549,68 +487,54 @@ class _MysteryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.border)),
+                color: AppColors.surface,
+                border: Border(
+                  top: BorderSide(color: AppColors.borderSubtle, width: 1),
+                ),
               ),
               child: Row(
                 children: [
                   // Pass
                   Expanded(
-                    child: OutlinedButton.icon(
+                    flex: 2,
+                    child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
                         side: const BorderSide(color: AppColors.border),
-                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                         ),
                       ),
                       onPressed: onPass,
-                      icon: const Icon(Icons.close_rounded, size: 16, color: AppColors.textSecondary),
-                      label: Text(
+                      child: Text(
                         'Pass',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
 
-                  // Explore Mind
+                  // DNA button
+                  IconButton.outlined(
+                    tooltip: 'Compatibility DNA',
+                    icon: const Icon(Icons.bubble_chart_outlined, size: 20),
+                    color: AppColors.primary,
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(color: AppColors.border),
+                      padding: const EdgeInsets.all(12),
+                    ),
+                    onPressed: onViewDna,
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Explore Spark
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.28),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                          ),
-                        ),
-                        onPressed: onExplore,
-                        icon: const Icon(Icons.psychology_rounded, size: 17, color: Colors.white),
-                        label: Text(
-                          'Explore Mind',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
+                    flex: 3,
+                    child: MantraButton(
+                      label: 'Explore Mind',
+                      icon: Icons.auto_awesome_rounded,
+                      onPressed: onExplore,
                     ),
                   ),
                 ],
@@ -619,6 +543,6 @@ class _MysteryCard extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.04, end: 0);
+    );
   }
 }

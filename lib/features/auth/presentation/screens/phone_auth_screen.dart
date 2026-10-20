@@ -7,8 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../../../../core/preview/dev_preview.dart';
 import '../../providers/auth_provider.dart';
 
@@ -71,8 +72,9 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topRight,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -85,21 +87,21 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // Editorial Brand Monogram
+                // Dark Editorial Brand Monogram
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.border),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: AppColors.shadow,
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
+                        blurRadius: 16,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
@@ -120,10 +122,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                 Text(
                   'Your story\nbegins here.',
                   style: GoogleFonts.lora(
-                    fontSize: 32,
+                    fontSize: 34,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
-                    height: 1.25,
+                    height: 1.22,
                     letterSpacing: -0.5,
                   ),
                 )
@@ -131,7 +133,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                     .fadeIn(duration: 400.ms)
                     .slideY(begin: 0.1, end: 0),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 Text(
                   'Slow, intentional dating based on connection before revelation.',
@@ -150,7 +152,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
+                    letterSpacing: 1.2,
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -166,13 +168,13 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant.withOpacity(0.5),
-                          borderRadius: const BorderRadius.only(
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(AppSpacing.radiusMD - 1),
                             bottomLeft: Radius.circular(AppSpacing.radiusMD - 1),
                           ),
-                          border: const Border(
+                          border: Border(
                             right: BorderSide(color: AppColors.border),
                           ),
                         ),
@@ -250,7 +252,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: _agreed
-                              ? const Icon(Icons.check, color: Colors.white, size: 14)
+                              ? const Icon(Icons.check, color: AppColors.background, size: 14)
                               : null,
                         ),
                       ),
@@ -264,7 +266,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                               fontSize: 13,
                               height: 1.4,
                             ),
-                            children: [
+                            children: const [
                               TextSpan(
                                 text: 'Terms of Service',
                                 style: TextStyle(
@@ -273,7 +275,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
-                              const TextSpan(text: ' and '),
+                              TextSpan(text: ' and '),
                               TextSpan(
                                 text: 'Privacy Policy',
                                 style: TextStyle(
@@ -305,13 +307,13 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.trustLight.withOpacity(0.2),
+                    color: AppColors.trust.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                     border: Border.all(color: AppColors.trust.withOpacity(0.25)),
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.verified_user_outlined,
                         color: AppColors.trust,
                         size: 18,
@@ -337,7 +339,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   const SizedBox(height: 36),
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      const Expanded(child: Divider(color: AppColors.borderSubtle)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
@@ -346,21 +348,19 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.2,
-                            color: AppColors.gold,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      const Expanded(child: Divider(color: AppColors.borderSubtle)),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  Container(
+                  MantraCard(
+                    color: AppColors.surface,
+                    borderColor: AppColors.primary.withOpacity(0.35),
+                    hasGlow: true,
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                      border: Border.all(color: AppColors.gold.withOpacity(0.4)),
-                    ),
                     child: Column(
                       children: [
                         Row(
@@ -368,10 +368,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.gold.withOpacity(0.15),
+                                color: AppColors.primary.withOpacity(0.15),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.explore_outlined, color: AppColors.gold, size: 20),
+                              child: const Icon(Icons.explore_outlined, color: AppColors.primary, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -403,7 +403,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           label: 'Explore App in Preview Mode',
                           variant: MantraButtonVariant.outline,
                           height: 44,
-                          foregroundColor: AppColors.gold,
+                          foregroundColor: AppColors.primary,
                           onPressed: () {
                             final success = ref.read(devPreviewProvider.notifier).enterPreview();
                             if (success) {

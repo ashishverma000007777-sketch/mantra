@@ -6,8 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_scaffold.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../widgets/step_bar.dart';
 
 class IntentScreen extends ConsumerStatefulWidget {
@@ -23,31 +24,31 @@ class _IntentScreenState extends ConsumerState<IntentScreen> {
   final _intents = const [
     {
       'id': 'meaningful',
-      'emoji': '🌱',
+      'icon': Icons.spa_outlined,
       'title': 'Something Meaningful',
       'subtitle': 'Seeking a slow, emotionally deep romantic connection.',
     },
     {
       'id': 'partner',
-      'emoji': '🏡',
+      'icon': Icons.home_outlined,
       'title': 'Long-term Life Partner',
       'subtitle': 'Looking for someone to build a shared future and life with.',
     },
     {
       'id': 'friendship',
-      'emoji': '🤝',
+      'icon': Icons.handshake_outlined,
       'title': 'Deep Friendship',
       'subtitle': 'Genuine companions who appreciate heartfelt conversations.',
     },
     {
       'id': 'conversations',
-      'emoji': '☕',
+      'icon': Icons.coffee_outlined,
       'title': 'Thoughtful Conversations',
       'subtitle': 'Love discussing books, philosophies, and everyday nuances.',
     },
     {
       'id': 'exploring',
-      'emoji': '✨',
+      'icon': Icons.explore_outlined,
       'title': 'Open & Exploring',
       'subtitle': 'Letting connections unfold naturally without rigid labels.',
     },
@@ -55,8 +56,9 @@ class _IntentScreenState extends ConsumerState<IntentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return MantraScaffold(
+      showAmbientGlow: true,
+      glowAlignment: Alignment.topRight,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -98,19 +100,20 @@ class _IntentScreenState extends ConsumerState<IntentScreen> {
               ...List.generate(_intents.length, (i) {
                 final intent = _intents[i];
                 final isSelected = _selectedIntent == intent['id'];
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: _IntentCard(
-                    emoji: intent['emoji']!,
-                    title: intent['title']!,
-                    subtitle: intent['subtitle']!,
+                    icon: intent['icon'] as IconData,
+                    title: intent['title'] as String,
+                    subtitle: intent['subtitle'] as String,
                     isSelected: isSelected,
-                    onTap: () => setState(() => _selectedIntent = intent['id']),
+                    onTap: () => setState(() => _selectedIntent = intent['id'] as String),
                   ),
                 ).animate(delay: Duration(milliseconds: 120 + i * 60)).fadeIn(duration: 250.ms);
               }),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
               MantraButton(
                 label: 'Continue',
@@ -130,14 +133,14 @@ class _IntentScreenState extends ConsumerState<IntentScreen> {
 }
 
 class _IntentCard extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String title;
   final String subtitle;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _IntentCard({
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.subtitle,
     required this.isSelected,
@@ -146,70 +149,76 @@ class _IntentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.surfaceVariant.withOpacity(0.5) : AppColors.surface,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-            border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border,
-              width: isSelected ? 1.8 : 1,
+    return MantraCard(
+      padding: const EdgeInsets.all(16),
+      color: isSelected ? AppColors.surfaceSecondary : AppColors.surface,
+      borderColor: isSelected ? AppColors.primary : AppColors.border,
+      hasGlow: isSelected,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppColors.primary.withOpacity(0.18)
+                  : AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.borderSubtle,
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 22,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
             ),
           ),
-          child: Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 26)),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5,
-                        color: AppColors.textSecondary,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? AppColors.primary : Colors.transparent,
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : AppColors.border,
-                    width: 1.5,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? AppColors.primaryLight : AppColors.textPrimary,
                   ),
                 ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 14)
-                    : null,
-              ),
-            ],
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          const SizedBox(width: 8),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.border,
+                width: 1.5,
+              ),
+            ),
+            child: isSelected
+                ? const Icon(Icons.check, color: AppColors.background, size: 14)
+                : null,
+          ),
+        ],
       ),
     );
   }

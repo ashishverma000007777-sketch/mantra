@@ -9,7 +9,6 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/mantra_button.dart';
-import '../../../../core/widgets/mantra_card.dart';
 import '../../../../core/network/api_client.dart';
 
 enum PremiumPlan { gold, platinum }
@@ -83,7 +82,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           'name': 'Mantra',
           'description':
               '${_selected == PremiumPlan.gold ? 'Gold' : 'Platinum'} ${_isAnnual ? '(Annual)' : '(Monthly)'}',
-          'theme': {'color': '#C66F55'},
+          'theme': {'color': '#D6B27A'},
         };
         _razorpay.open(options);
       } else {
@@ -160,58 +159,72 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // Header
+          // Header with celestial aurora photographic artwork
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 220,
             pinned: true,
             backgroundColor: AppColors.background,
             leading: IconButton(
               onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF2C2220), Color(0xFF1E1614)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/images/premium_aurora.jpg',
+                    fit: BoxFit.cover,
                   ),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 30),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.gold.withOpacity(0.18),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.auto_awesome_rounded, color: AppColors.gold, size: 28),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.35),
+                          Colors.black.withOpacity(0.7),
+                          AppColors.background,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Mantra Inner Circle',
-                        style: GoogleFonts.lora(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Patience rewarded. Intentional depth unlocked.',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white.withOpacity(0.75),
-                          fontSize: 12.5,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  SafeArea(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 24),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withOpacity(0.18),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.accent.withOpacity(0.4)),
+                          ),
+                          child: const Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 28),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Mantra Inner Circle',
+                          style: GoogleFonts.lora(
+                            color: AppColors.textPrimary,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Patience rewarded. Intentional depth unlocked.',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppColors.textSecondary,
+                            fontSize: 12.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -273,9 +286,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.trustLight.withOpacity(0.35),
+                      color: AppColors.trust.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
-                      border: Border.all(color: AppColors.trust.withOpacity(0.3)),
+                      border: Border.all(color: AppColors.trust.withOpacity(0.35)),
                     ),
                     child: Row(
                       children: [
@@ -338,7 +351,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant.withOpacity(0.5),
+                      color: AppColors.surfaceSecondary,
                       borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                       border: Border.all(color: AppColors.border),
                     ),
@@ -425,7 +438,7 @@ class _Tab extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.surfaceVariant : Colors.transparent,
+            color: isActive ? AppColors.accent : Colors.transparent,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           ),
           child: Text(
@@ -434,7 +447,7 @@ class _Tab extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12.5,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-              color: isActive ? AppColors.primaryDark : AppColors.textSecondary,
+              color: isActive ? const Color(0xFF080B0D) : AppColors.textSecondary,
             ),
           ),
         ),
@@ -466,7 +479,7 @@ class _PlanCard extends StatelessWidget {
 
   String get _planName => plan == PremiumPlan.gold ? 'Gold Sanctuary' : 'Platinum Circle';
 
-  Color get _accentColor => plan == PremiumPlan.gold ? AppColors.gold : AppColors.primary;
+  Color get _accentColor => plan == PremiumPlan.gold ? AppColors.accent : const Color(0xFFE7D5B5);
 
   int get _displayPrice => isAnnual ? annualPrice : monthlyPrice;
 
@@ -485,12 +498,12 @@ class _PlanCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
           border: Border.all(
             color: isSelected ? _accentColor : AppColors.border,
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 1.8 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: _accentColor.withOpacity(0.12),
+                    color: _accentColor.withOpacity(0.15),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -515,14 +528,14 @@ class _PlanCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.accent.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                      border: Border.all(color: AppColors.primaryLight),
+                      border: Border.all(color: AppColors.accent.withOpacity(0.5)),
                     ),
                     child: Text(
                       badge!,
                       style: GoogleFonts.plusJakartaSans(
-                        color: AppColors.primaryDark,
+                        color: AppColors.accent,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                       ),

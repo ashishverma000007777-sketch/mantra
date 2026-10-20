@@ -98,7 +98,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -127,8 +127,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           height: 84,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.surfaceVariant,
-                            border: Border.all(color: AppColors.border, width: 2),
+                            color: AppColors.surfaceSecondary,
+                            border: Border.all(color: AppColors.accent, width: 2),
                           ),
                           child: Center(
                             child: Text(
@@ -136,7 +136,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               style: GoogleFonts.lora(
                                 fontSize: 34,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                                color: AppColors.accent,
                               ),
                             ),
                           ),
@@ -147,14 +147,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppColors.accent,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: AppColors.background, width: 2),
                             ),
                             child: const Icon(
                               Icons.camera_alt_outlined,
                               size: 14,
-                              color: Colors.white,
+                              color: Color(0xFF080B0D),
                             ),
                           ),
                         ),
@@ -242,10 +242,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.surfaceVariant : AppColors.surface,
+                              color: isSelected ? AppColors.accent : AppColors.surfaceSecondary,
                               borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                               border: Border.all(
-                                color: isSelected ? AppColors.primary : AppColors.border,
+                                color: isSelected ? AppColors.accent : AppColors.border,
                                 width: isSelected ? 1.5 : 1,
                               ),
                             ),
@@ -253,7 +253,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (isSelected) ...[
-                                  const Icon(Icons.check_rounded, size: 12, color: AppColors.primary),
+                                  const Icon(Icons.check_rounded, size: 12, color: Color(0xFF080B0D)),
                                   const SizedBox(width: 4),
                                 ],
                                 Text(
@@ -261,7 +261,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 12,
                                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                    color: isSelected ? AppColors.primaryDark : AppColors.textSecondary,
+                                    color: isSelected ? const Color(0xFF080B0D) : AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -308,8 +308,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 10.5,
             fontWeight: FontWeight.w700,
-            letterSpacing: 0.8,
-            color: AppColors.primary,
+            letterSpacing: 1.0,
+            color: AppColors.accent,
           ),
         ),
         const SizedBox(height: 6),
@@ -321,7 +321,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             hintText: hint,
             hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 13.5),
             filled: true,
-            fillColor: AppColors.background,
+            fillColor: AppColors.surfaceSecondary,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: AppColors.border),
@@ -332,7 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.primary),
+              borderSide: const BorderSide(color: AppColors.accent),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           ),
