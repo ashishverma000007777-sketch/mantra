@@ -11,7 +11,7 @@ final connectionGardenFamily =
 class GardenNotifier extends FamilyAsyncNotifier<ConnectionGardenModel, String> {
   @override
   Future<ConnectionGardenModel> build(String arg) async {
-    return ref.read(signatureFeaturesRepoProvider).getConnectionGarden(arg);
+    return ref.watch(signatureFeaturesRepoProvider).getConnectionGarden(arg);
   }
 
   Future<void> logActivity(String activityType, {String? title, String? description}) async {

@@ -5,10 +5,10 @@ import 'mystery_match_provider.dart';
 
 final compatibilityDnaFamily =
     FutureProvider.family<CompatibilityDnaModel, String>((ref, targetUserId) async {
-  return ref.read(signatureFeaturesRepoProvider).compareCompatibility(targetUserId);
+  return ref.watch(signatureFeaturesRepoProvider).compareCompatibility(targetUserId);
 });
 
 final myCompatibilityProfileProvider =
     FutureProvider<Map<String, dynamic>>((ref) async {
-  return ref.read(signatureFeaturesRepoProvider).getCompatibilityProfile();
+  return ref.watch(signatureFeaturesRepoProvider).getCompatibilityProfile();
 });

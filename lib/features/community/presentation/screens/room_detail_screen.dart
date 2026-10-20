@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/preview/dev_preview.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
+import '../../data/models/room_model.dart';
 
 class RoomDetailScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -23,6 +27,42 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
   }
 
   Future<void> _fetchRoom() async {
+    final isPreview = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreview) {
+      final mock = RoomModel.mockRooms().firstWhere(
+        (r) => r.id == widget.roomId,
+        orElse: () => RoomModel.mockRooms().first,
+      );
+      setState(() {
+        _room = {
+          'id': mock.id,
+          'name': mock.name,
+          'description': mock.description,
+          'emoji': mock.emoji,
+          'member_count': mock.memberCount,
+          'color': '#8B5E3C',
+        };
+        _posts = [
+          {
+            'id': 'dev-post-1',
+            'content': 'Welcome to ${mock.name}! A quiet space to share reflections without algorithmic rush.',
+            'author_name': 'Mantra Guide',
+            'created_at': '2 hours ago',
+            'likes_count': 12,
+          },
+          {
+            'id': 'dev-post-2',
+            'content': 'What brought you to this room today? Feel free to introduce your cadence.',
+            'author_name': 'Aanya',
+            'created_at': '1 hour ago',
+            'likes_count': 8,
+          },
+        ];
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       final res = await ApiClient.instance.get('/rooms/${widget.roomId}');
       if (res.statusCode == 200 && res.data['success'] == true) {
@@ -69,9 +109,23 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(p['author_name'] ?? 'Anonymous', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(p['author_name'] ?? 'Anonymous', style: const TextStyle(fontWeight: FontWeight.w600)),
+                              Text(p['created_at'] ?? '', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           Text(p['content'] ?? ''),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.favorite_border_rounded, size: 16, color: AppColors.primary),
+                              const SizedBox(width: 4),
+                              Text('${p['likes_count'] ?? 0}', style: const TextStyle(fontSize: 12)),
+                            ],
+                          ),
                         ],
                       ),
                     ),

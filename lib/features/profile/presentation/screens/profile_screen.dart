@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/preview/dev_preview.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../core/network/api_client.dart';
@@ -23,6 +26,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
+    final isPreview = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreview) {
+      setState(() {
+        _profile = {
+          'display_name': 'Aria Sharma',
+          'age': 26,
+          'city': 'Bengaluru',
+          'trust_score': 88.0,
+        };
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       final res = await ApiClient.instance.get('/profile');
       if (res.statusCode == 200 && res.data['success'] == true) {
@@ -39,6 +56,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).value;
+    final isPreviewActive = !kReleaseMode && ref.watch(devPreviewProvider);
     final name = _profile?['display_name'] ?? 'Mantra Member';
     final age = _profile?['age'] ?? user?.age ?? 25;
     final city = _profile?['city'] ?? user?.city ?? 'India';
@@ -63,6 +81,49 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (isPreviewActive) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.explore_outlined, color: AppColors.gold, size: 24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Development Preview Mode',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.gold),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Exploring offline with mock data • No OTP required',
+                                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await ref.read(authControllerProvider.notifier).logout();
+                            if (context.mounted) context.go('/auth/phone');
+                          },
+                          child: const Text(
+                            'Exit',
+                            style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.gold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Center(
                   child: CircleAvatar(
                     radius: 48,
@@ -105,7 +166,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.logout_rounded, color: Colors.red),
-                  title: const Text('Log Out', style: TextStyle(color: Colors.red)),
+                  title: Text(isPreviewActive ? 'Exit Preview Mode' : 'Log Out', style: const TextStyle(color: Colors.red)),
                   onTap: () async {
                     await ref.read(authControllerProvider.notifier).logout();
                     if (context.mounted) context.go('/auth/phone');

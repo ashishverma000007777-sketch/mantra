@@ -4,7 +4,7 @@ import '../data/models/conversation_quest_model.dart';
 import '../../matching/providers/mystery_match_provider.dart';
 
 final dailyQuestProvider = FutureProvider<ConversationQuestModel>((ref) async {
-  return ref.read(signatureFeaturesRepoProvider).getDailyQuest();
+  return ref.watch(signatureFeaturesRepoProvider).getDailyQuest();
 });
 
 final connectionQuestFamily =
@@ -15,7 +15,7 @@ final connectionQuestFamily =
 class ConnectionQuestNotifier extends FamilyAsyncNotifier<ConversationQuestModel, String> {
   @override
   Future<ConversationQuestModel> build(String arg) async {
-    return ref.read(signatureFeaturesRepoProvider).getConnectionQuest(arg);
+    return ref.watch(signatureFeaturesRepoProvider).getConnectionQuest(arg);
   }
 
   Future<Map<String, dynamic>> submitAnswer(String questId, String answerText) async {

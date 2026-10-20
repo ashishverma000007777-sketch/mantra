@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../data/models/spark_model.dart';
+import '../../providers/sparks_provider.dart';
 
-class SparkDetailScreen extends StatelessWidget {
+class SparkDetailScreen extends ConsumerWidget {
   final String userId;
   final SparkModel? spark;
 
   const SparkDetailScreen({super.key, required this.userId, this.spark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    SparkModel? resolvedSpark = spark;
+    if (resolvedSpark == null) {
+      final sparks = ref.watch(sparksProvider).value ?? [];
+      for (final s in sparks) {
+        if (s.userId == userId) {
+          resolvedSpark = s;
+          break;
+        }
+      }
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(spark?.displayName ?? 'Spark Details'),
+        title: Text(resolvedSpark?.displayName ?? 'Spark Details'),
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
@@ -23,13 +35,13 @@ class SparkDetailScreen extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.screenPadding),
           child: ListView(
             children: [
-              if (spark != null) ...[
+              if (resolvedSpark != null) ...[
                 Center(
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: AppColors.primaryLight.withOpacity(0.3),
                     child: Text(
-                      spark!.displayName.isNotEmpty ? spark!.displayName[0] : '?',
+                      resolvedSpark.displayName.isNotEmpty ? resolvedSpark.displayName[0] : '?',
                       style: const TextStyle(fontSize: 36, color: AppColors.primary, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -37,13 +49,13 @@ class SparkDetailScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    '${spark!.displayName}, ${spark!.age}',
+                    '${resolvedSpark.displayName}, ${resolvedSpark.age}',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
                 Center(
                   child: Text(
-                    spark!.city,
+                    resolvedSpark.city,
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
                   ),
                 ),
@@ -52,7 +64,7 @@ class SparkDetailScreen extends StatelessWidget {
                   leading: const Icon(Icons.shield_rounded, color: AppColors.trust),
                   title: const Text('Trust Score'),
                   trailing: Text(
-                    '${spark!.trustScore.toInt()}',
+                    '${resolvedSpark.trustScore.toInt()}',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
@@ -60,18 +72,18 @@ class SparkDetailScreen extends StatelessWidget {
                   leading: const Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
                   title: const Text('Compatibility'),
                   trailing: Text(
-                    '${spark!.compatibilityScore}%',
+                    '${resolvedSpark.compatibilityScore}%',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
-                if (spark!.interests.isNotEmpty) ...[
+                if (resolvedSpark.interests.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text('Interests', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: spark!.interests.map((tag) => Chip(
+                    children: resolvedSpark.interests.map((tag) => Chip(
                       label: Text(tag),
                       backgroundColor: AppColors.surface,
                     )).toList(),

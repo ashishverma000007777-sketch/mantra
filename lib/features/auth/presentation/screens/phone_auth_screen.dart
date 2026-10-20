@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/preview/dev_preview.dart';
 import '../../providers/auth_provider.dart';
 
 class PhoneAuthScreen extends ConsumerStatefulWidget {
@@ -256,6 +257,64 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                     ],
                   ),
                 ).animate(delay: 600.ms).fadeIn(duration: 400.ms),
+
+                if (isDevPreviewSupported) ...[
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'DEVELOPMENT MODE',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                            color: AppColors.gold,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.border)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.gold,
+                        side: const BorderSide(color: AppColors.gold, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                        ),
+                      ),
+                      icon: const Icon(Icons.explore_outlined, size: 20),
+                      label: const Text(
+                        'Explore App (Development Only)',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                      onPressed: () {
+                        final success = ref.read(devPreviewProvider.notifier).enterPreview();
+                        if (success) {
+                          context.go('/home');
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      'Explore all screens with mock data • Disabled in release builds',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

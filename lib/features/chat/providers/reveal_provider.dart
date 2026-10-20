@@ -11,7 +11,7 @@ final revealProviderFamily =
 class RevealNotifier extends FamilyAsyncNotifier<GradualRevealModel, String> {
   @override
   Future<GradualRevealModel> build(String arg) async {
-    return ref.read(signatureFeaturesRepoProvider).getRevealStatus(arg);
+    return ref.watch(signatureFeaturesRepoProvider).getRevealStatus(arg);
   }
 
   Future<Map<String, dynamic>> requestStage(String stage) async {

@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../core/preview/dev_preview.dart';
 import '../data/models/message_model.dart';
 import '../data/models/conversation_state.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -18,6 +20,16 @@ class ChatNotifier
   @override
   Future<ConversationState?> build(String arg) async {
     _conversationId = arg;
+    final isPreview = !kReleaseMode && ref.watch(devPreviewProvider);
+    if (isPreview) {
+      return ConversationState(
+        conversationId: _conversationId,
+        messages: DevMockData.mockMessages,
+        stage: 2,
+        aiSuggestion: 'How about we answer today\'s Conversation Quest together?',
+        isTyping: false,
+      );
+    }
     _listenToMessages();
     return _fetchInitialState();
   }
@@ -88,6 +100,28 @@ class ChatNotifier
   }
 
   Future<void> sendText(String content) async {
+    final isPreview = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreview) {
+      final current = state.value;
+      if (current != null) {
+        final newMsg = MessageModel(
+          id: 'dev-msg-${DateTime.now().millisecondsSinceEpoch}',
+          conversationId: _conversationId,
+          senderId: _myUserId(),
+          type: MessageType.text,
+          content: content,
+          isMine: true,
+          isRead: false,
+          isDelivered: true,
+          createdAt: DateTime.now(),
+        );
+        state = AsyncData(current.copyWith(
+          messages: [...current.messages, newMsg],
+        ));
+      }
+      return;
+    }
+
     final msg = {
       'conversation_id': _conversationId,
       'sender_id': _myUserId(),
@@ -104,6 +138,29 @@ class ChatNotifier
   }
 
   Future<void> sendVoice(String localPath) async {
+    final isPreview = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreview) {
+      final current = state.value;
+      if (current != null) {
+        final newMsg = MessageModel(
+          id: 'dev-msg-${DateTime.now().millisecondsSinceEpoch}',
+          conversationId: _conversationId,
+          senderId: _myUserId(),
+          type: MessageType.voice,
+          content: localPath,
+          voiceDuration: 18,
+          isMine: true,
+          isRead: false,
+          isDelivered: true,
+          createdAt: DateTime.now(),
+        );
+        state = AsyncData(current.copyWith(
+          messages: [...current.messages, newMsg],
+        ));
+      }
+      return;
+    }
+
     // Upload to Firebase Storage then create message
     // Simplified here — in production, upload then create doc
     final msg = {
@@ -119,6 +176,9 @@ class ChatNotifier
   }
 
   Future<void> setTyping(bool isTyping) async {
+    final isPreview = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreview) return;
+
     await _firestore.collection('typing').doc(_conversationId).set({
       _myUserId(): isTyping,
     }, SetOptions(merge: true));

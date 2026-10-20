@@ -2,10 +2,19 @@ name: Build Mantra Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      build_mode:
+        description: 'Build mode (debug or release)'
+        required: false
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
 
 jobs:
   build_apk:
-    name: Build Android Release APK (split-per-abi)
+    name: Build Android APK (${{ github.event.inputs.build_mode || 'debug' }}, split-per-abi)
     runs-on: ubuntu-latest
 
     steps:
@@ -55,18 +64,26 @@ jobs:
       - name: Run Flutter tests
         run: flutter test
 
-      - name: Build Android Release APK with split-per-abi
-        run: flutter build apk --release --split-per-abi
+      - name: Build Android APK with split-per-abi
+        run: |
+          BUILD_MODE="${{ github.event.inputs.build_mode || 'debug' }}"
+          echo "Building Mantra APK with mode: $BUILD_MODE"
+          if [ "$BUILD_MODE" = "release" ]; then
+            flutter build apk --release --split-per-abi
+          else
+            flutter build apk --debug --split-per-abi
+          fi
 
       - name: Analyze APK size and file breakdown
         run: |
+          BUILD_MODE="${{ github.event.inputs.build_mode || 'debug' }}"
           echo "=========================================="
           echo "All generated APK files:"
           ls -lh build/app/outputs/flutter-apk/*.apk
           echo "=========================================="
-          ARM64_APK="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          ARM64_APK="build/app/outputs/flutter-apk/app-arm64-v8a-${BUILD_MODE}.apk"
           if [ -f "$ARM64_APK" ]; then
-            echo "Top 30 largest files inside app-arm64-v8a-release.apk:"
+            echo "Top 30 largest files inside $ARM64_APK:"
             unzip -l "$ARM64_APK" | sort -k1 -nr | head -n 35
             echo "=========================================="
             echo "Native libraries (.so) breakdown:"
@@ -79,12 +96,13 @@ jobs:
             unzip -l "$ARM64_APK" | grep "assets/" || true
           fi
 
-      - name: Verify ARM64 Release APK & calculate SHA-256
+      - name: Verify ARM64 APK & calculate SHA-256
         id: verify
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          BUILD_MODE="${{ github.event.inputs.build_mode || 'debug' }}"
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-${BUILD_MODE}.apk"
           if [ ! -f "$APK_PATH" ]; then
-            echo "ERROR: ARM64 Release APK not found at $APK_PATH" >&2
+            echo "ERROR: ARM64 APK not found at $APK_PATH" >&2
             exit 1
           fi
           APK_SIZE=$(stat -c%s "$APK_PATH" 2>/dev/null || stat -f%z "$APK_PATH")
@@ -94,7 +112,7 @@ jobs:
           fi
           SHA256=$(sha256sum "$APK_PATH" | awk '{print $1}')
           echo "=========================================="
-          echo "ARM64 Release APK Verification Succeeded"
+          echo "ARM64 $BUILD_MODE APK Verification Succeeded"
           echo "Path: $APK_PATH"
           echo "Size: $APK_SIZE bytes"
           echo "SHA-256: $SHA256"
@@ -103,18 +121,18 @@ jobs:
           echo "apk_size=$APK_SIZE" >> "$GITHUB_OUTPUT"
           echo "apk_sha256=$SHA256" >> "$GITHUB_OUTPUT"
 
-      - name: Upload ARM64 Release APK artifact
+      - name: Upload ARM64 APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Mantra-arm64-v8a-release-APK
-          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          name: Mantra-arm64-v8a-${{ github.event.inputs.build_mode || 'debug' }}-APK
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-${{ github.event.inputs.build_mode || 'debug' }}.apk
           retention-days: 7
           if-no-files-found: error
 
-      - name: Upload All Release APKs artifact
+      - name: Upload All Split APKs artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Mantra-all-split-release-APKs
-          path: build/app/outputs/flutter-apk/app-*-release.apk
+          name: Mantra-all-split-${{ github.event.inputs.build_mode || 'debug' }}-APKs
+          path: build/app/outputs/flutter-apk/app-*-${{ github.event.inputs.build_mode || 'debug' }}.apk
           retention-days: 7
           if-no-files-found: error

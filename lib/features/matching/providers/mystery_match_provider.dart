@@ -1,9 +1,16 @@
 // lib/features/matching/providers/mystery_match_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/preview/dev_preview.dart';
 import '../data/models/mystery_match_model.dart';
 import '../data/repositories/signature_features_repository.dart';
 
 final signatureFeaturesRepoProvider = Provider<SignatureFeaturesRepository>((ref) {
+  final isPreview = !kReleaseMode && ref.watch(devPreviewProvider);
+  if (isPreview) {
+    return DevPreviewSignatureFeaturesRepository();
+  }
   return SignatureFeaturesRepositoryImpl();
 });
 
@@ -15,7 +22,7 @@ final mysteryMatchProvider =
 class MysteryMatchNotifier extends AsyncNotifier<List<MysteryMatchModel>> {
   @override
   Future<List<MysteryMatchModel>> build() async {
-    return ref.read(signatureFeaturesRepoProvider).getMysteryCandidates();
+    return ref.watch(signatureFeaturesRepoProvider).getMysteryCandidates();
   }
 
   Future<Map<String, dynamic>> explore(String candidateId) async {

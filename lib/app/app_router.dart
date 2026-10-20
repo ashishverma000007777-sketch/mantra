@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../core/preview/dev_preview.dart';
 
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/phone_auth_screen.dart';
@@ -19,6 +22,7 @@ import '../features/home/presentation/screens/main_shell_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/matching/presentation/screens/sparks_screen.dart';
 import '../features/matching/presentation/screens/spark_detail_screen.dart';
+import '../features/matching/data/models/spark_model.dart';
 import '../features/chat/presentation/screens/conversations_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/community/presentation/screens/rooms_screen.dart';
@@ -39,12 +43,13 @@ import '../features/auth/providers/auth_provider.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
+  final isPreviewActive = !kReleaseMode && ref.watch(devPreviewProvider);
 
   return GoRouter(
     initialLocation: '/splash',
     redirect: (context, state) {
-      final isAuthenticated = authState.value != null;
-      final isOnboarded = authState.value?.isOnboarded ?? false;
+      final isAuthenticated = isPreviewActive || authState.value != null;
+      final isOnboarded = isPreviewActive ? true : (authState.value?.isOnboarded ?? false);
       final path = state.uri.path;
 
       if (path == '/splash') return null;
@@ -54,13 +59,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/auth/phone';
       }
 
-      if (!isOnboarded) {
-        if (path.startsWith('/onboarding')) return null;
-        return '/onboarding/intent';
+      // If user is already authenticated or previewing, redirect away from phone/otp screens
+      if (path == '/auth/phone' || path == '/auth/otp') {
+        return '/home';
       }
 
-      if (path.startsWith('/auth') || path.startsWith('/onboarding')) {
-        return '/home';
+      if (!isPreviewActive && !isOnboarded) {
+        if (path.startsWith('/onboarding')) return null;
+        return '/onboarding/intent';
       }
 
       return null;
@@ -147,6 +153,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: ':userId',
                 builder: (context, state) => SparkDetailScreen(
                   userId: state.pathParameters['userId']!,
+                  spark: state.extra is SparkModel ? state.extra as SparkModel : null,
                 ),
               ),
             ],
