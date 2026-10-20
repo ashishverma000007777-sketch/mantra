@@ -115,7 +115,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
       ),
       body: SafeArea(
         child: questAsync.when(
-          loading: () => const Center(
+          loading: () => Center(
             child: CircularProgressIndicator(color: AppColors.accent),
           ),
           error: (e, _) => MantraErrorState(

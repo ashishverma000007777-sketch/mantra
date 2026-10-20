@@ -249,7 +249,6 @@ class _BreakdownItem extends StatelessWidget {
   final bool isComplete;
 
   const _BreakdownItem({
-    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,

@@ -124,7 +124,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           // Messages
           Expanded(
             child: chatState.when(
-              loading: () => const Center(
+              loading: () => Center(
                 child: CircularProgressIndicator(color: AppColors.accent),
               ),
               error: (e, _) => Center(
@@ -274,13 +274,13 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           tooltip: 'Conversation Quest',
           onPressed: () => context.push('/quest/$conversationId'),
-          icon: const Icon(Icons.psychology_outlined, color: AppColors.accent, size: 21),
+          icon: Icon(Icons.psychology_outlined, color: AppColors.accent, size: 21),
         ),
         // Connection Garden Action
         IconButton(
           tooltip: 'Connection Garden',
           onPressed: () => context.push('/garden/$conversationId'),
-          icon: const Icon(Icons.eco_outlined, color: AppColors.trust, size: 21),
+          icon: Icon(Icons.eco_outlined, color: AppColors.trust, size: 21),
         ),
         // Safety Center
         IconButton(

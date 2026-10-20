@@ -52,7 +52,7 @@ class CompatibilityDnaScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: dnaAsync.when(
-          loading: () => const Center(
+          loading: () => Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
           error: (e, _) => MantraErrorState(

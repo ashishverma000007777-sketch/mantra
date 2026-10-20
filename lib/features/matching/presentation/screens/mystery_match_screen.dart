@@ -104,7 +104,7 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
       ),
       body: SafeArea(
         child: matchesAsync.when(
-          loading: () => const Center(
+          loading: () => Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
           error: (e, _) => MantraErrorState(

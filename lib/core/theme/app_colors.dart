@@ -9,11 +9,15 @@ class AppColors {
   static const Color primary = Color(0xFFD6B27A);
   static const Color primaryLight = Color(0xFFE7D5B5);
   static const Color primaryDark = Color(0xFFA58045);
+  static const Color accent = Color(0xFFD6B27A);
+  static const Color accentLight = Color(0xFFE7D5B5);
+  static const Color accentDark = Color(0xFFA58045);
 
   // Secondary Accent — Sage / Mint (Mindful Balance & Growth)
   static const Color secondary = Color(0xFF8BBFA9);
   static const Color secondaryLight = Color(0xFFB5D9CB);
   static const Color secondaryDark = Color(0xFF5B8F7A);
+  static const Color secondaryAccent = Color(0xFF8BBFA9);
 
   // Trust & Verification — Editorial Sage Green
   static const Color trust = Color(0xFF8BBFA9);

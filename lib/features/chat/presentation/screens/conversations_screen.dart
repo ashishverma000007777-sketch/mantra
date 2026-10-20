@@ -163,7 +163,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
             // Content
             Expanded(
               child: _isLoading
-                  ? const Center(
+                  ? Center(
                       child: CircularProgressIndicator(color: AppColors.accent),
                     )
                   : _error != null
