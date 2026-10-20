@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -71,8 +72,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final error = ref.read(authControllerProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error?.toString().replaceAll('Exception: ', '') ??
-              'Invalid OTP. Please verify and try again.'),
+          content: Text(
+            error?.toString().replaceAll('Exception: ', '') ??
+                'Invalid OTP. Please verify and try again.',
+          ),
         ),
       );
     }
@@ -95,35 +98,48 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPaddingHorizontal,
+            vertical: 16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-
-              Text('Enter OTP', style: AppTextStyles.heroDisplay)
-                  .animate()
-                  .fadeIn(duration: 400.ms)
-                  .slideY(begin: 0.1, end: 0),
-
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
               Text(
-                'We sent a 6-digit code to +91 ${widget.phone}',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 15,
-                  height: 1.5,
+                'Enter Verification Code',
+                style: GoogleFonts.lora(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.3,
                 ),
-              ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
+              )
+                  .animate()
+                  .fadeIn(duration: 350.ms)
+                  .slideY(begin: 0.1, end: 0),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
 
+              Text(
+                'We sent a 6-digit verification code to +91 ${widget.phone}',
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppColors.textSecondary,
+                  fontSize: 14.5,
+                  height: 1.45,
+                ),
+              ).animate(delay: 100.ms).fadeIn(duration: 350.ms),
+
+              const SizedBox(height: 36),
+
+              // PIN Code Fields
               PinCodeTextField(
                 appContext: context,
                 controller: _otpController,
@@ -131,14 +147,19 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 animationType: AnimationType.fade,
                 keyboardType: TextInputType.number,
                 autoFocus: true,
+                textStyle: GoogleFonts.plusJakartaSans(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
-                  borderRadius: BorderRadius.circular(12),
-                  fieldHeight: 56,
-                  fieldWidth: 48,
-                  activeFillColor: AppColors.surfaceVariant,
-                  inactiveFillColor: AppColors.surfaceVariant,
-                  selectedFillColor: AppColors.primaryLight.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                  fieldHeight: 54,
+                  fieldWidth: 46,
+                  activeFillColor: AppColors.surface,
+                  inactiveFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant.withOpacity(0.5),
                   activeColor: AppColors.primary,
                   inactiveColor: AppColors.border,
                   selectedColor: AppColors.primary,
@@ -146,32 +167,34 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 enableActiveFill: true,
                 onChanged: (v) => setState(() => _otp = v),
                 onCompleted: (_) => _verify(),
-              ).animate(delay: 200.ms).fadeIn(duration: 400.ms),
+              ).animate(delay: 180.ms).fadeIn(duration: 400.ms),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               MantraButton(
-                label: 'Verify',
+                label: 'Verify & Continue',
                 isLoading: isLoading,
                 onPressed: _otp.length == 6 ? _verify : null,
-              ).animate(delay: 300.ms).fadeIn(),
+                icon: Icons.check_circle_outline_rounded,
+              ).animate(delay: 250.ms).fadeIn(),
 
               const SizedBox(height: 24),
 
               Center(
                 child: _resendSeconds > 0
                     ? Text(
-                        'Resend OTP in ${_resendSeconds}s',
-                        style: TextStyle(
+                        'Resend code in ${_resendSeconds}s',
+                        style: GoogleFonts.plusJakartaSans(
                           color: AppColors.textMuted,
-                          fontSize: 14,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       )
-                    : GestureDetector(
-                        onTap: _resendOtp,
+                    : TextButton(
+                        onPressed: _resendOtp,
                         child: Text(
-                          'Resend OTP',
-                          style: TextStyle(
+                          'Resend Verification Code',
+                          style: GoogleFonts.plusJakartaSans(
                             color: AppColors.primary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

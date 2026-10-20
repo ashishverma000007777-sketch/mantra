@@ -5,10 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../../../../core/network/api_client.dart';
 
 class SosScreen extends ConsumerStatefulWidget {
@@ -52,7 +54,6 @@ class _SosScreenState extends ConsumerState<SosScreen>
       _countdown = 5;
     });
 
-    // Start countdown
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_countdown <= 1) {
         t.cancel();
@@ -63,21 +64,21 @@ class _SosScreenState extends ConsumerState<SosScreen>
       }
     });
 
-    // Fetch location simultaneously
     try {
       final permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         final pos = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 8),
+          timeLimit: const Duration(seconds: 4),
         );
-        _lastPos = pos;
         setState(() {
-          _locationText =
-              'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
+          _lastPos = pos;
+          _locationText = '${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)}';
           _locationFetching = false;
         });
+      } else {
+        setState(() => _locationFetching = false);
       }
     } catch (_) {
       setState(() => _locationFetching = false);
@@ -90,12 +91,10 @@ class _SosScreenState extends ConsumerState<SosScreen>
     setState(() {
       _activated = false;
       _countdown = 5;
-      _locationText = null;
     });
   }
 
   Future<void> _sendAlert() async {
-    HapticFeedback.heavyImpact();
     try {
       await ApiClient.instance.post('/safety/sos', data: {
         'latitude': _lastPos?.latitude,
@@ -127,32 +126,32 @@ class _SosScreenState extends ConsumerState<SosScreen>
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.trustLight.withOpacity(0.4),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.check_circle_rounded,
-                color: AppColors.success,
+                color: AppColors.trust,
                 size: 36,
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Alert Sent',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
+              'Emergency Alert Broadcasted',
+              style: GoogleFonts.lora(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Your trusted contacts have been notified with your location. Stay safe.',
+              'Your trusted emergency contacts have been notified with your current coordinates. Help is on the way.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: GoogleFonts.plusJakartaSans(
                 color: AppColors.textSecondary,
-                fontSize: 14,
-                height: 1.5,
+                fontSize: 13.5,
+                height: 1.45,
               ),
             ),
             const SizedBox(height: 24),
@@ -160,34 +159,32 @@ class _SosScreenState extends ConsumerState<SosScreen>
             GestureDetector(
               onTap: () => launchUrl(Uri.parse('tel:100')),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppColors.error.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border:
-                      Border.all(color: AppColors.error.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.error.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.phone_rounded,
-                        color: AppColors.error, size: 22),
+                    const Icon(Icons.phone_rounded, color: AppColors.error, size: 22),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Call Police — 100',
-                          style: TextStyle(
+                          style: GoogleFonts.plusJakartaSans(
                             color: AppColors.error,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
                           ),
                         ),
                         Text(
-                          'Tap to call emergency services',
-                          style: TextStyle(
-                            color: AppColors.error.withOpacity(0.7),
-                            fontSize: 12,
+                          'Immediate connection to Indian emergency police',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppColors.error.withOpacity(0.8),
+                            fontSize: 11.5,
                           ),
                         ),
                       ],
@@ -200,24 +197,22 @@ class _SosScreenState extends ConsumerState<SosScreen>
             GestureDetector(
               onTap: () => launchUrl(Uri.parse('tel:112')),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border:
-                      Border.all(color: AppColors.warning.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.warning.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.emergency_rounded,
-                        color: AppColors.warning, size: 22),
+                    const Icon(Icons.emergency_rounded, color: AppColors.warning, size: 22),
                     const SizedBox(width: 12),
                     Text(
-                      'Emergency — 112',
-                      style: TextStyle(
+                      'National Emergency Helpline — 112',
+                      style: GoogleFonts.plusJakartaSans(
                         color: AppColors.warning,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -232,8 +227,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
               },
               child: Text(
                 "I'm safe now",
-                style: TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
               ),
@@ -247,34 +243,36 @@ class _SosScreenState extends ConsumerState<SosScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _activated ? const Color(0xFF0D1B2A) : AppColors.background,
+      backgroundColor: _activated ? const Color(0xFF1E1412) : AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           onPressed: () => context.pop(),
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: _activated ? Colors.white : AppColors.textPrimary,
-            size: 20,
+            size: 18,
           ),
         ),
         title: Text(
           'Emergency SOS',
-          style: TextStyle(
+          style: GoogleFonts.lora(
             color: _activated ? Colors.white : AppColors.textPrimary,
             fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
         ),
       ),
       body: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        color: _activated ? const Color(0xFF0D1B2A) : AppColors.background,
+        duration: const Duration(milliseconds: 400),
+        color: _activated ? const Color(0xFF1E1412) : AppColors.background,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Column(
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // Main SOS button
                 Center(
@@ -287,82 +285,76 @@ class _SosScreenState extends ConsumerState<SosScreen>
                       : _IdleSOSButton(onActivate: _activateSOS),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 36),
 
                 if (_activated) ...[
                   Text(
                     _countdown > 0
-                        ? 'Sending alert in $_countdown seconds...'
-                        : 'Sending alert...',
-                    style: const TextStyle(
+                        ? 'Broadcasting in $_countdown seconds...'
+                        : 'Broadcasting emergency alert...',
+                    style: GoogleFonts.lora(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
                   ).animate().fadeIn(duration: 300.ms),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     _locationFetching
-                        ? 'Getting your location...'
+                        ? 'Capturing high-precision GPS coordinates...'
                         : _locationText != null
-                            ? 'Location captured ✓'
-                            : 'Could not get location',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 14,
+                            ? 'Coordinates: $_locationText ✓'
+                            : 'Sending alert with approximate location',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 13,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
                   GestureDetector(
                     onTap: _cancelSOS,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                       decoration: BoxDecoration(
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.3)),
-                        borderRadius:
-                            BorderRadius.circular(AppSpacing.radiusFull),
+                        border: Border.all(color: Colors.white.withOpacity(0.4)),
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                       ),
-                      child: const Text(
-                        'Cancel — I\'m safe',
-                        style: TextStyle(
+                      child: Text(
+                        'Cancel — I am safe',
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                  ).animate().fadeIn(duration: 400.ms),
+                  ).animate().fadeIn(duration: 300.ms),
                 ] else ...[
                   Text(
-                    'Hold the button above to activate.',
-                    style: TextStyle(
+                    'Tap the shield above to trigger an emergency broadcast.',
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
-                      fontSize: 14,
+                      fontSize: 13.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
                   _InfoCard(
                     icon: Icons.send_rounded,
-                    title: 'Alerts your contacts',
-                    subtitle:
-                        'Your trusted contacts receive an SMS with your location.',
+                    title: 'Notifies your emergency circle',
+                    subtitle: 'Trusted contacts receive an automated SMS with your live coordinates.',
                   ),
                   const SizedBox(height: 10),
                   _InfoCard(
-                    icon: Icons.archive_rounded,
-                    title: 'Archives the conversation',
-                    subtitle:
-                        'Current conversation is saved as evidence automatically.',
+                    icon: Icons.archive_outlined,
+                    title: 'Archives current conversation',
+                    subtitle: 'Active messages are timestamped and preserved securely as evidence.',
                   ),
                   const SizedBox(height: 10),
                   _InfoCard(
-                    icon: Icons.location_on_rounded,
-                    title: 'Shares your location',
-                    subtitle:
-                        'GPS location sent to contacts as a Google Maps link.',
+                    icon: Icons.location_on_outlined,
+                    title: 'Broadcasts GPS location',
+                    subtitle: 'Google Maps link dispatched directly to your trusted contacts.',
                   ),
                 ],
               ],
@@ -396,19 +388,19 @@ class _IdleSOSButtonState extends State<_IdleSOSButton> {
       onTapCancel: () => setState(() => _pressing = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        width: _pressing ? 160 : 180,
-        height: _pressing ? 160 : 180,
+        width: _pressing ? 154 : 170,
+        height: _pressing ? 154 : 170,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.trust, const Color(0xFF3A7BBF)],
+          gradient: const LinearGradient(
+            colors: [Color(0xFFC94A4A), Color(0xFFDC6868)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColors.trust.withOpacity(_pressing ? 0.2 : 0.35),
-              blurRadius: _pressing ? 16 : 32,
+              color: const Color(0xFFC94A4A).withOpacity(_pressing ? 0.2 : 0.35),
+              blurRadius: _pressing ? 16 : 28,
               offset: const Offset(0, 8),
             ),
           ],
@@ -416,15 +408,15 @@ class _IdleSOSButtonState extends State<_IdleSOSButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shield_rounded, color: Colors.white, size: 48),
-            const SizedBox(height: 8),
+            const Icon(Icons.shield_rounded, color: Colors.white, size: 44),
+            const SizedBox(height: 6),
             Text(
               'SOS',
-              style: const TextStyle(
+              style: GoogleFonts.plusJakartaSans(
                 color: Colors.white,
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 3,
+                letterSpacing: 2.5,
               ),
             ),
           ],
@@ -454,16 +446,16 @@ class _ActivatedSOSButton extends StatelessWidget {
         return Transform.scale(
           scale: scale,
           child: Container(
-            width: 180,
-            height: 180,
+            width: 170,
+            height: 170,
             decoration: BoxDecoration(
               color: AppColors.error,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.error.withOpacity(0.4 + pulseController.value * 0.2),
-                  blurRadius: 40 + pulseController.value * 20,
-                  spreadRadius: 8,
+                  color: AppColors.error.withOpacity(0.4 + pulseController.value * 0.25),
+                  blurRadius: 36 + pulseController.value * 20,
+                  spreadRadius: 6,
                 ),
               ],
             ),
@@ -472,19 +464,19 @@ class _ActivatedSOSButton extends StatelessWidget {
               children: [
                 Text(
                   '$countdown',
-                  style: const TextStyle(
+                  style: GoogleFonts.plusJakartaSans(
                     color: Colors.white,
-                    fontSize: 56,
+                    fontSize: 52,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 Text(
-                  'SENDING',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 3,
+                  'BROADCASTING',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 2,
                   ),
                 ),
               ],
@@ -509,23 +501,19 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MantraCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-        border: Border.all(color: AppColors.border),
-      ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: AppColors.trust.withOpacity(0.1),
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
             ),
-            child: Icon(icon, color: AppColors.trust, size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -534,17 +522,19 @@ class _InfoCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
                 ),
+                const SizedBox(height: 1),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
                     color: AppColors.textSecondary,
-                    height: 1.4,
+                    height: 1.35,
                   ),
                 ),
               ],

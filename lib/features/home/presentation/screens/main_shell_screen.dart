@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 class MainShellScreen extends StatelessWidget {
   final Widget child;
@@ -46,18 +48,26 @@ class MainShellScreen extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
           border: Border(
             top: BorderSide(
               color: AppColors.border,
               width: 1,
             ),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
         ),
         child: SafeArea(
+          top: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -130,12 +140,10 @@ class _NavItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primary.withOpacity(0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: isActive ? AppColors.surfaceVariant : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -143,28 +151,24 @@ class _NavItem extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    isActive ? icon : iconOutlined,
-                    key: ValueKey(isActive),
-                    color: isActive ? AppColors.primary : AppColors.textMuted,
-                    size: 24,
-                  ),
+                Icon(
+                  isActive ? icon : iconOutlined,
+                  color: isActive ? AppColors.primary : AppColors.textSecondary,
+                  size: 22,
                 ),
                 if (badge != null)
                   Positioned(
                     top: -4,
-                    right: -8,
+                    right: -7,
                     child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                      decoration: BoxDecoration(
                         color: AppColors.primary,
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         badge!,
-                        style: const TextStyle(
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -175,15 +179,14 @@ class _NavItem extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 3),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight:
-                    isActive ? FontWeight.w600 : FontWeight.w400,
-                color: isActive ? AppColors.primary : AppColors.textMuted,
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 10.5,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? AppColors.primary : AppColors.textSecondary,
+                letterSpacing: 0.2,
               ),
-              child: Text(label),
             ),
           ],
         ),

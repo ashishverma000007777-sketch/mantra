@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_states.dart';
 import '../../data/models/conversation_quest_model.dart';
 import '../../providers/quest_provider.dart';
 
@@ -32,7 +36,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
     final text = _answerController.text.trim();
     if (text.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please write a thoughtful answer before submitting.')),
+        const SnackBar(content: Text('Please write a thoughtful reflection before submitting.')),
       );
       return;
     }
@@ -46,7 +50,7 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
       _answerController.clear();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Response submitted!')),
+        SnackBar(content: Text(res['message'] ?? 'Reflection shared ✨')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -59,19 +63,17 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
   }
 
   Color _getCategoryColor(String category) {
-    switch (category) {
+    switch (category.toLowerCase()) {
       case 'values':
-        return const Color(0xFFC4654A);
+      case 'values & reflections':
+        return AppColors.primary;
       case 'memories':
-        return const Color(0xFF7A9E7E);
+      case 'shared memories':
+        return AppColors.secondary;
       case 'relationships':
         return const Color(0xFF5B8DB8);
       case 'aspirations':
         return const Color(0xFFD4884A);
-      case 'humour':
-        return const Color(0xFFE8A030);
-      case 'everyday_life':
-        return const Color(0xFF8B6BB1);
       default:
         return AppColors.primary;
     }
@@ -86,52 +88,51 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Conversation Quest', style: TextStyle(fontWeight: FontWeight.w700)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Conversation Quest',
+              style: GoogleFonts.lora(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              'A mindful prompt for mutual vulnerability',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: questAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 12),
-                  const Text('Could not load today\'s quest'),
-                  const SizedBox(height: 8),
-                  Text(e.toString(), style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(connectionQuestFamily(widget.connectionId)),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          error: (e, _) => MantraErrorState(
+            message: 'Could not load today\'s quest.\n${e.toString()}',
+            onRetry: () => ref.refresh(connectionQuestFamily(widget.connectionId)),
           ),
           data: (quest) {
             final catColor = _getCategoryColor(quest.category);
 
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               children: [
                 // Daily Quest Prompt Card
-                Container(
+                MantraCard(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-                    border: Border.all(color: AppColors.border),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.shadow.withOpacity(0.06),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                  hasShadow: true,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -140,39 +141,45 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: catColor.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          border: Border.all(color: catColor.withOpacity(0.3), width: 0.8),
                         ),
                         child: Text(
                           quest.category.toUpperCase().replaceAll('_', ' '),
-                          style: TextStyle(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: catColor,
-                            letterSpacing: 0.6,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
 
                       // Main Prompt
                       Text(
                         quest.promptText,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          height: 1.35,
+                        style: GoogleFonts.lora(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
 
                       // Mutual Participation State Badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: quest.isUnlocked
-                              ? AppColors.trust.withOpacity(0.1)
+                              ? AppColors.trustLight.withOpacity(0.35)
                               : AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                          border: Border.all(
+                            color: quest.isUnlocked ? AppColors.trust : AppColors.border,
+                            width: 0.8,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -180,19 +187,21 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                             Icon(
                               quest.isUnlocked ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
                               size: 14,
-                              color: quest.isUnlocked ? AppColors.trust : AppColors.textMuted,
+                              color: quest.isUnlocked ? AppColors.trust : AppColors.textSecondary,
                             ),
                             const SizedBox(width: 6),
-                            Text(
-                              quest.isUnlocked
-                                  ? 'Unlocked! Both answered ✨'
-                                  : quest.hasUserAnswered
-                                      ? 'Your answer recorded. Waiting for partner.'
-                                      : 'Answer to unlock each other\'s responses',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: quest.isUnlocked ? AppColors.trust : AppColors.textMuted,
+                            Flexible(
+                              child: Text(
+                                quest.isUnlocked
+                                    ? 'Unlocked! Both answers revealed ✨'
+                                    : quest.hasUserAnswered
+                                        ? 'Your reflection recorded. Waiting for partner.'
+                                        : 'Answer to mutually reveal reflections',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: quest.isUnlocked ? AppColors.trust : AppColors.textSecondary,
+                                ),
                               ),
                             ),
                           ],
@@ -213,47 +222,82 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                   ),
                 ] else ...[
                   // Input Box to Answer
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
+                  MantraCard(
+                    padding: const EdgeInsets.all(18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
-                          'Share your answer',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        Text(
+                          'Share your reflection',
+                          style: GoogleFonts.lora(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         TextField(
                           controller: _answerController,
                           maxLines: 4,
                           maxLength: 1000,
+                          style: GoogleFonts.plusJakartaSans(fontSize: 14),
                           decoration: InputDecoration(
-                            hintText: 'Take your time. Reflect thoughtfully...',
-                            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                            hintText: 'Take your time. Speak from the heart...',
+                            hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 13.5),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.border),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppColors.primary),
                             ),
                             filled: true,
-                            fillColor: AppColors.surfaceVariant.withOpacity(0.4),
+                            fillColor: AppColors.background,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        const SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.28),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                          onPressed: _isSubmitting ? null : () => _submitAnswer(quest.id),
-                          child: _isSubmitting
-                              ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : const Text('Submit Reflection', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                              ),
+                            ),
+                            onPressed: _isSubmitting ? null : () => _submitAnswer(quest.id),
+                            child: _isSubmitting
+                                ? const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Text(
+                                    'Submit Reflection',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                          ),
                         ),
                       ],
                     ),
@@ -276,35 +320,42 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
 
                   // Follow-Up Question Card
                   if (quest.followUpPrompt != null) ...[
-                    Container(
+                    MantraCard(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.trust.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.trust.withOpacity(0.3)),
-                      ),
+                      color: AppColors.surfaceVariant.withOpacity(0.4),
+                      borderColor: AppColors.secondaryLight,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            children: const [
-                              Icon(Icons.explore_outlined, size: 16, color: AppColors.trust),
-                              SizedBox(width: 6),
+                            children: [
+                              const Icon(Icons.spa_outlined, size: 16, color: AppColors.secondary),
+                              const SizedBox(width: 6),
                               Text(
-                                'Deeper Follow-Up',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.trust),
+                                'DEEPER REFLECTION',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 11,
+                                  letterSpacing: 0.8,
+                                  color: AppColors.secondaryDark,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Text(
                             quest.followUpPrompt!,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.35),
+                            style: GoogleFonts.lora(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              height: 1.4,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Feel free to explore this question in your private conversation.',
-                            style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            'Feel free to explore this question together in your private chat.',
+                            style: GoogleFonts.plusJakartaSans(fontSize: 11.5, color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -312,40 +363,47 @@ class _ConversationQuestScreenState extends ConsumerState<ConversationQuestScree
                   ],
                 ] else if (quest.hasUserAnswered && !quest.isUnlocked) ...[
                   // Locked Partner Placeholder
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
+                  MantraCard(
+                    padding: const EdgeInsets.all(22),
                     child: Column(
                       children: [
-                        const Icon(Icons.lock_rounded, size: 32, color: AppColors.textMuted),
-                        const SizedBox(height: 8),
-                        const Text(
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: const Icon(Icons.lock_rounded, size: 24, color: AppColors.primary),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
                           'Partner\'s Answer is Gated',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                          style: GoogleFonts.lora(fontWeight: FontWeight.w600, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'To encourage mutual vulnerability, their response will be revealed once they also share theirs.',
+                          'To encourage mutual vulnerability, their reflection will be revealed once they also share theirs.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.35),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
                         ),
                       ],
                     ),
                   ),
                 ],
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 // Non-compulsive slow dating notice
                 Center(
                   child: Text(
-                    'Participation in Conversation Quests is always optional.\nNo streaks. No rush. Just meaningful connection.',
+                    'Participation in Conversation Quests is always optional.\nNo streaks. No rush. Just genuine connection.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.4),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11.5,
+                      color: AppColors.textMuted,
+                      height: 1.45,
+                    ),
                   ),
                 ),
               ],
@@ -372,43 +430,51 @@ class _AnswerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emojis = ['❤️', '💭', '✨', '🌱', '🙏'];
+    final emojis = ['🌿', '🤍', '✨', '💭', '🙏'];
 
-    return Container(
+    return MantraCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+              Text(
+                title,
+                style: GoogleFonts.lora(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
+              ),
               Text(
                 answer.createdAt.isNotEmpty ? answer.createdAt.substring(0, 10) : '',
-                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
-            answer.answerText,
-            style: const TextStyle(fontSize: 14, height: 1.4, fontWeight: FontWeight.w500),
+            '"${answer.answerText}"',
+            style: GoogleFonts.lora(
+              fontSize: 14.5,
+              height: 1.5,
+              fontStyle: FontStyle.italic,
+              color: AppColors.textPrimary,
+            ),
           ),
           if (answer.reactions.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Wrap(
               spacing: 6,
               children: answer.reactions
                   .map((e) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Text(e, style: const TextStyle(fontSize: 12)),
                       ))
@@ -416,14 +482,24 @@ class _AnswerCard extends StatelessWidget {
             ),
           ],
           if (onReact != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Row(
               children: [
-                Text('React: ', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                Text(
+                  'React: ',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
+                    color: AppColors.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 ...emojis.map((e) => GestureDetector(
-                      onTap: () => onReact!(e),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        onReact!(e);
+                      },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: Text(e, style: const TextStyle(fontSize: 18)),
                       ),
                     )),

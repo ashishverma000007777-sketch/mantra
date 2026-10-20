@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_badge.dart';
 import '../../../community/data/models/room_model.dart';
 import '../../../community/providers/rooms_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
@@ -16,17 +18,17 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final roomsAsync = ref.watch(roomsProvider);
     final user = ref.watch(authStateProvider).value;
-    final greetingName = user?.gender == 'woman' ? 'Welcome back' : 'Welcome back';
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
-            // Header
+            // Editorial Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
                 child: Row(
                   children: [
                     Expanded(
@@ -34,109 +36,151 @@ class HomeScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Good evening 🌙',
-                            style: TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 13,
+                            'MINDFUL DATING',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                              color: AppColors.primary,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            user != null ? 'Welcome back ✨' : 'Welcome to Mantra ✨',
-                            style:
-                                Theme.of(context).textTheme.headlineMedium,
+                            user != null ? 'Welcome Back' : 'Welcome to Mantra',
+                            style: GoogleFonts.lora(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    // Safety always accessible
-                    GestureDetector(
-                      onTap: () => context.push('/safety'),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.trust.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.shield_rounded,
-                          color: AppColors.trust,
-                          size: 20,
+                    // Safety Center Button
+                    Tooltip(
+                      message: 'Safety Center',
+                      child: InkWell(
+                        onTap: () => context.push('/safety'),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.trustLight.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.trust.withOpacity(0.3)),
+                          ),
+                          child: const Icon(
+                            Icons.shield_outlined,
+                            color: AppColors.trust,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Icon(
-                          Icons.notifications_none_rounded,
-                          color: AppColors.textSecondary,
-                          size: 20,
+                    const SizedBox(width: 8),
+                    // Emergency SOS Shortcut
+                    Tooltip(
+                      message: 'SOS Emergency Beacon',
+                      child: InkWell(
+                        onTap: () => context.push('/safety/sos'),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: const Icon(
+                            Icons.emergency_outlined,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ).animate().fadeIn(duration: 400.ms),
+              ).animate().fadeIn(duration: 350.ms),
             ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-            // Mood check-in
+            // Daily Mindful Mood Check-in
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _MoodCheckIn(),
-              ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.06, end: 0),
+              ).animate(delay: 80.ms).fadeIn().slideY(begin: 0.05, end: 0),
             ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            // Today's Sparks preview
+            // Today's Sparks Signature Card
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _SparksBanner(onTap: () => context.go('/sparks')),
-              ).animate(delay: 180.ms).fadeIn().slideY(begin: 0.06, end: 0),
+              ).animate(delay: 140.ms).fadeIn().slideY(begin: 0.05, end: 0),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-            // Mystery Match Banner (Slow Dating)
+            // Mystery Match (Slow Dating Discovery)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _MysteryMatchBanner(onTap: () => context.push('/mystery-match')),
-              ).animate(delay: 210.ms).fadeIn().slideY(begin: 0.06, end: 0),
+              ).animate(delay: 180.ms).fadeIn().slideY(begin: 0.05, end: 0),
             ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-            // Communities header
+            // Daily Mindful Quest Teaser
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _DailyQuestTeaser(onTap: () => context.push('/quest/daily')),
+              ).animate(delay: 220.ms).fadeIn().slideY(begin: 0.05, end: 0),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+            // Communities Header
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Your Communities',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Slow Communities',
+                          style: GoogleFonts.lora(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          'Thoughtful group conversations',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                     TextButton(
                       onPressed: () => context.go('/rooms'),
                       child: Text(
-                        'See all',
-                        style: TextStyle(
+                        'View All',
+                        style: GoogleFonts.plusJakartaSans(
                           color: AppColors.primary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -145,34 +189,40 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ).animate(delay: 240.ms).fadeIn(),
+              ).animate(delay: 260.ms).fadeIn(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-            // Community rooms list
+            // Community Rooms Preview
             roomsAsync.when(
-              loading: () => const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              loading: () => const SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  ),
+                ),
+              ),
               error: (_, __) => const SliverToBoxAdapter(child: SizedBox()),
               data: (rooms) {
-                final myRooms = rooms.where((r) => r.isMember).take(3).toList();
+                final previewRooms = rooms.take(3).toList();
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, i) => Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                      child: _HomeRoomTile(room: myRooms[i])
-                          .animate(
-                              delay: Duration(milliseconds: 280 + i * 60))
-                          .fadeIn(duration: 250.ms)
-                          .slideX(begin: 0.04, end: 0),
+                      child: _HomeRoomTile(
+                        room: previewRooms[i],
+                        onTap: () => context.push('/rooms/${previewRooms[i].id}'),
+                      ).animate(delay: Duration(milliseconds: 280 + i * 50)).fadeIn(duration: 200.ms),
                     ),
-                    childCount: myRooms.length,
+                    childCount: previewRooms.length,
                   ),
                 );
               },
             ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
       ),
@@ -186,13 +236,19 @@ class _MoodCheckIn extends StatefulWidget {
 }
 
 class _MoodCheckInState extends State<_MoodCheckIn> {
-  final _moods = ['😴', '😊', '🔥', '🥺', '💭', '🎉'];
+  final _moods = [
+    ('🌿', 'Reflective'),
+    ('☕', 'Relaxed'),
+    ('✨', 'Curious'),
+    ('🌱', 'Open'),
+    ('🛋️', 'Cozy'),
+  ];
   int? _selected;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
@@ -201,43 +257,48 @@ class _MoodCheckInState extends State<_MoodCheckIn> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'How are you feeling today?',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Mindful Check-in',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                _selected != null ? _moods[_selected!].$2 : 'How are you arriving today?',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11.5,
+                  color: _selected != null ? AppColors.primary : AppColors.textSecondary,
+                  fontWeight: _selected != null ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _moods.asMap().entries.map((e) {
               final selected = _selected == e.key;
               return GestureDetector(
                 onTap: () => setState(() => _selected = e.key),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 42,
-                  height: 42,
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primaryLight.withOpacity(0.2)
-                        : Colors.transparent,
-                    shape: BoxShape.circle,
+                    color: selected ? AppColors.surfaceVariant : Colors.transparent,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                     border: Border.all(
-                      color: selected
-                          ? AppColors.primary
-                          : Colors.transparent,
+                      color: selected ? AppColors.primary : Colors.transparent,
+                      width: 1.2,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      e.value,
-                      style: TextStyle(
-                        fontSize: selected ? 26 : 22,
-                      ),
-                    ),
+                  child: Text(
+                    e.value.$1,
+                    style: const TextStyle(fontSize: 20),
                   ),
                 ),
               );
@@ -255,60 +316,92 @@ class _SparksBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.25),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Today's Sparks are ready ✨",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '7 connections chosen just for you',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.22),
+                blurRadius: 16,
+                offset: const Offset(0, 5),
               ),
-            ),
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                shape: BoxShape.circle,
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-              child: const Icon(
-                Icons.arrow_forward_rounded,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Today's Sparks",
+                          style: GoogleFonts.lora(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          ),
+                          child: const Text(
+                            '7 PROFILES',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Curated slow-dating connections waiting for your review.',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white.withOpacity(0.88),
+                        fontSize: 12.5,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
                 color: Colors.white,
-                size: 22,
+                size: 16,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -321,90 +414,149 @@ class _MysteryMatchBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF281347), Color(0xFF421B66)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            border: Border.all(color: AppColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-          border: Border.all(color: Colors.amber.withOpacity(0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF281347).withOpacity(0.3),
-              blurRadius: 18,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.15),
-                shape: BoxShape.circle,
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text('🎭', style: TextStyle(fontSize: 22)),
+                ),
               ),
-              child: const Center(
-                child: Text('🎭', style: TextStyle(fontSize: 22)),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'Mystery Match',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Slow Dating',
-                          style: TextStyle(
-                            color: Colors.amber,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Mystery Match',
+                          style: GoogleFonts.lora(
+                            color: AppColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Explore minds before faces — no superficial swipes',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.75),
-                      fontSize: 12,
+                        const SizedBox(width: 8),
+                        const MantraBadge(
+                          label: 'Values First',
+                          variant: MantraBadgeVariant.soft,
+                          fontSize: 10,
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 3),
+                    Text(
+                      'Know their mind, prompts and voice before seeing their photo.',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.textSecondary,
+                        fontSize: 12.5,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white70,
-              size: 24,
-            ),
-          ],
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.textMuted,
+                size: 15,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyQuestTeaser extends StatelessWidget {
+  final VoidCallback onTap;
+  const _DailyQuestTeaser({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.trustLight.withOpacity(0.35),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text('🌿', style: TextStyle(fontSize: 20)),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Today\'s Question Quest',
+                      style: GoogleFonts.lora(
+                        color: AppColors.textPrimary,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '"What is a habit or belief you grew out of this year?"',
+                      style: GoogleFonts.lora(
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.textMuted,
+                size: 15,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -413,59 +565,95 @@ class _MysteryMatchBanner extends StatelessWidget {
 
 class _HomeRoomTile extends StatelessWidget {
   final RoomModel room;
-  const _HomeRoomTile({required this.room});
+  final VoidCallback onTap;
+
+  const _HomeRoomTile({required this.room, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: room.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(child: Text(room.emoji, style: TextStyle(fontSize: 20))),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            border: Border.all(color: AppColors.border),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  room.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: room.color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                if (room.latestPost != null)
-                  Text(
-                    room.latestPost!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
+                child: Center(
+                  child: Text(room.emoji, style: const TextStyle(fontSize: 20)),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            room.name,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        if (room.isWomenOnly) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Women Only',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${room.memberCount} members • ${room.latestPost ?? room.description}',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.textMuted,
+                size: 14,
+              ),
+            ],
           ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textMuted,
-            size: 18,
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/mantra_button.dart';
@@ -7,46 +9,121 @@ import '../widgets/step_bar.dart';
 
 class PromptsScreen extends StatelessWidget {
   const PromptsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    const prompts = [
+      "The most spontaneous, joyful thing I've done...",
+      "A life philosophy that anchors my everyday decisions...",
+      "What slow, intentional love means to me...",
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(backgroundColor: Colors.transparent),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+        ),
+      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPaddingHorizontal,
+            vertical: 12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StepBar(current: 6, total: 6),
+              const StepBar(current: 6, total: 6),
               const SizedBox(height: 24),
-              Text('Tell your story', style: Theme.of(context).textTheme.headlineMedium),
+
+              Text(
+                'Tell Your Story in Depth.',
+                style: GoogleFonts.lora(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  height: 1.25,
+                  letterSpacing: -0.3,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Choose 3 prompts. These show the real you.', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+
+              Text(
+                'Answers to these prompts spark genuine first conversations beyond trivial small talk.',
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.45,
+                ),
+              ),
+
               const SizedBox(height: 24),
-              ...[
-                "The most spontaneous thing I've done...",
-                "I'll never shut up about...",
-                "My love language is...",
-              ].asMap().entries.map((e) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(AppSpacing.radiusLG), border: Border.all(color: AppColors.border)),
+
+              ...prompts.asMap().entries.map((e) => Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(e.value, style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
+                    Text(
+                      e.value,
+                      style: GoogleFonts.lora(
+                        color: AppColors.primary,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
-                      style: const TextStyle(fontSize: 14),
-                      maxLines: 2,
-                      decoration: InputDecoration(hintText: 'Your answer...', hintStyle: TextStyle(color: AppColors.textMuted), border: InputBorder.none, contentPadding: EdgeInsets.zero),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Share your authentic thoughts...',
+                        hintStyle: GoogleFonts.plusJakartaSans(
+                          color: AppColors.textMuted,
+                          fontSize: 13.5,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        fillColor: Colors.transparent,
+                        filled: false,
+                      ),
                     ),
                   ],
                 ),
               )),
-              const Spacer(),
-              MantraButton(label: "Let's go! 🌱", onPressed: () => context.push('/onboarding/safety-tour'), icon: Icons.arrow_forward_rounded),
+
+              const SizedBox(height: 24),
+
+              MantraButton(
+                label: 'Save & View Safety Tour',
+                onPressed: () => context.push('/onboarding/safety-tour'),
+                icon: Icons.shield_outlined,
+              ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),

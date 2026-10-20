@@ -5,10 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_card.dart';
 
 class SafetyCenterScreen extends ConsumerWidget {
   const SafetyCenterScreen({super.key});
@@ -18,37 +19,51 @@ class SafetyCenterScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Safety Center'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Safety & Sanctuary',
+          style: GoogleFonts.lora(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SOS Card — always first, always prominent
+            // SOS Emergency Card
             _SOSCard(onTap: () => context.push('/safety/sos'))
                 .animate()
                 .fadeIn(duration: 300.ms)
-                .slideY(begin: 0.08, end: 0),
+                .slideY(begin: 0.06, end: 0),
 
             const SizedBox(height: 24),
 
             Text(
-              'Your safety controls',
-              style: Theme.of(context).textTheme.titleLarge,
+              'Your Safety Controls',
+              style: GoogleFonts.lora(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
             ).animate(delay: 100.ms).fadeIn(),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             _SafetyOption(
               icon: Icons.people_alt_rounded,
               iconColor: AppColors.trust,
               title: 'Trusted Contacts',
-              subtitle: 'People who get alerted if you need help',
+              subtitle: 'Emergency circle alerted when SOS is triggered',
               badge: '2 added',
               onTap: () => context.push('/safety/trusted-contacts'),
             ).animate(delay: 150.ms).fadeIn().slideX(begin: 0.04, end: 0),
@@ -57,8 +72,8 @@ class SafetyCenterScreen extends ConsumerWidget {
               icon: Icons.visibility_off_rounded,
               iconColor: AppColors.secondary,
               title: 'Ghost Mode',
-              subtitle: 'Go invisible — browse without being seen',
-              trailing: _ToggleSwitch(),
+              subtitle: 'Browse quietly without appearing in sparks',
+              trailing: const _ToggleSwitch(),
               onTap: null,
             ).animate(delay: 200.ms).fadeIn().slideX(begin: 0.04, end: 0),
 
@@ -66,98 +81,72 @@ class SafetyCenterScreen extends ConsumerWidget {
               icon: Icons.no_photography_rounded,
               iconColor: AppColors.warning,
               title: 'Screenshot Alerts',
-              subtitle: 'Get notified if someone screenshots your chat',
-              trailing: _ToggleSwitch(initialValue: true),
+              subtitle: 'Immediate alert if a chat or prompt is captured',
+              trailing: const _ToggleSwitch(initialValue: true),
               onTap: null,
             ).animate(delay: 250.ms).fadeIn().slideX(begin: 0.04, end: 0),
 
             _SafetyOption(
               icon: Icons.nightlight_round,
               iconColor: AppColors.primary,
-              title: 'Night Mode Protection',
-              subtitle: 'Delay messages from new connections after 11 PM',
-              trailing: _ToggleSwitch(initialValue: true),
+              title: 'Night Protection',
+              subtitle: 'Mute alerts and pause new connections after 11 PM',
+              trailing: const _ToggleSwitch(initialValue: true),
               onTap: null,
             ).animate(delay: 300.ms).fadeIn().slideX(begin: 0.04, end: 0),
-
-            _SafetyOption(
-              icon: Icons.event_available_rounded,
-              iconColor: AppColors.success,
-              title: 'Meetup Check-In',
-              subtitle: 'Set up a safety check-in for real dates',
-              onTap: () {},
-            ).animate(delay: 350.ms).fadeIn().slideX(begin: 0.04, end: 0),
 
             const SizedBox(height: 24),
 
             Text(
-              'Privacy controls',
-              style: Theme.of(context).textTheme.titleLarge,
+              'Privacy & Consent',
+              style: GoogleFonts.lora(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
             ).animate(delay: 380.ms).fadeIn(),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             _SafetyOption(
               icon: Icons.blur_on_rounded,
               iconColor: AppColors.primary,
-              title: 'Always Blur My Photos',
-              subtitle: 'Never reveal photos automatically',
-              trailing: _ToggleSwitch(),
+              title: 'Strict Photo Blurring',
+              subtitle: 'Requires double mutual confirmation before reveal',
+              trailing: const _ToggleSwitch(initialValue: true),
               onTap: null,
             ).animate(delay: 400.ms).fadeIn().slideX(begin: 0.04, end: 0),
 
             _SafetyOption(
               icon: Icons.location_off_rounded,
               iconColor: AppColors.secondary,
-              title: 'Location Privacy',
-              subtitle: 'Show only your city, never neighborhood',
-              trailing: _ToggleSwitch(initialValue: true),
+              title: 'City-Level Location Only',
+              subtitle: 'Never disclose coordinates or neighborhood',
+              trailing: const _ToggleSwitch(initialValue: true),
               onTap: null,
             ).animate(delay: 430.ms).fadeIn().slideX(begin: 0.04, end: 0),
 
-            _SafetyOption(
-              icon: Icons.timer_off_rounded,
-              iconColor: AppColors.textSecondary,
-              title: 'Hide Last Active',
-              subtitle: "Don't show when you were last online",
-              trailing: _ToggleSwitch(),
-              onTap: null,
-            ).animate(delay: 460.ms).fadeIn().slideX(begin: 0.04, end: 0),
-
             const SizedBox(height: 24),
 
-            // Block list
-            _SafetyOption(
-              icon: Icons.block_rounded,
-              iconColor: AppColors.error,
-              title: 'Blocked Users',
-              subtitle: 'Manage people you have blocked',
-              badge: 'View',
-              onTap: () {},
-            ).animate(delay: 490.ms).fadeIn().slideX(begin: 0.04, end: 0),
-
-            const SizedBox(height: 32),
-
-            // Help section
+            // Safety Support Card
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.trust.withOpacity(0.06),
+                color: AppColors.surfaceVariant.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                border: Border.all(color: AppColors.trust.withOpacity(0.15)),
+                border: Border.all(color: AppColors.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.support_agent_rounded,
-                          color: AppColors.trust, size: 20),
+                      const Icon(Icons.support_agent_rounded, color: AppColors.trust, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Need help?',
-                        style: TextStyle(
-                          color: AppColors.trust,
+                        'Human Trust & Safety Team',
+                        style: GoogleFonts.lora(
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
                         ),
@@ -166,30 +155,16 @@ class SafetyCenterScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Our safety team is available 8 AM – 12 AM IST. Reports are reviewed within 4 hours.',
-                    style: TextStyle(
+                    'Our dedicated safety committee reviews reports and provides 24/7 human oversight. You are never left without support.',
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Contact Safety Team →',
-                      style: TextStyle(
-                        color: AppColors.trust,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
+                      fontSize: 12.5,
+                      height: 1.45,
                     ),
                   ),
                 ],
               ),
-            ).animate(delay: 520.ms).fadeIn(),
-
-            const SizedBox(height: 32),
+            ).animate(delay: 480.ms).fadeIn(),
           ],
         ),
       ),
@@ -197,7 +172,6 @@ class SafetyCenterScreen extends ConsumerWidget {
   }
 }
 
-// ─── SOS Card ──────────────────────────────────────────
 class _SOSCard extends StatelessWidget {
   final VoidCallback onTap;
   const _SOSCard({required this.onTap});
@@ -209,10 +183,10 @@ class _SOSCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [
-              AppColors.trust,
-              AppColors.trust.withBlue(200),
+              Color(0xFFC94A4A),
+              Color(0xFFDC6868),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -220,25 +194,25 @@ class _SOSCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
           boxShadow: [
             BoxShadow(
-              color: AppColors.trust.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: const Color(0xFFC94A4A).withOpacity(0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.shield_rounded,
+                Icons.emergency_outlined,
                 color: Colors.white,
-                size: 28,
+                size: 26,
               ),
             )
                 .animate(onPlay: (c) => c.repeat(reverse: true))
@@ -247,26 +221,26 @@ class _SOSCard extends StatelessWidget {
                     end: 1.06,
                     duration: 1500.ms,
                     curve: Curves.easeInOut),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'SOS — Emergency Alert',
-                    style: const TextStyle(
+                    'SOS Emergency Alert',
+                    style: GoogleFonts.lora(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
-                    'One tap sends your location to trusted contacts and archives this conversation.',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
-                      fontSize: 12,
-                      height: 1.5,
+                    'Instantly broadcast location to trusted contacts & archive chat.',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 11.5,
+                      height: 1.4,
                     ),
                   ),
                 ],
@@ -274,9 +248,9 @@ class _SOSCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.white.withOpacity(0.7),
-              size: 16,
+              Icons.chevron_right_rounded,
+              color: Colors.white.withOpacity(0.8),
+              size: 20,
             ),
           ],
         ),
@@ -285,7 +259,6 @@ class _SOSCard extends StatelessWidget {
   }
 }
 
-// ─── Safety Option Tile ────────────────────────────────
 class _SafetyOption extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -307,78 +280,71 @@ class _SafetyOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MantraCard(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 20),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (trailing != null) trailing!,
-            if (badge != null)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.radiusFull),
                 ),
-                child: Text(
-                  badge!,
-                  style: TextStyle(
-                    fontSize: 12,
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
                     color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
+                    height: 1.35,
                   ),
                 ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+          if (badge != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                border: Border.all(color: AppColors.border),
               ),
-            if (trailing == null && badge == null && onTap != null)
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: AppColors.textMuted,
+              child: Text(
+                badge!,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: AppColors.primaryDark,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-          ],
-        ),
+            ),
+          if (trailing == null && badge == null && onTap != null)
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: AppColors.textMuted,
+            ),
+        ],
       ),
     );
   }
@@ -404,7 +370,7 @@ class _ToggleSwitchState extends State<_ToggleSwitch> {
   @override
   Widget build(BuildContext context) {
     return Transform.scale(
-      scale: 0.85,
+      scale: 0.8,
       child: Switch(
         value: _value,
         onChanged: (v) {

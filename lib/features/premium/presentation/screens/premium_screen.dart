@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../../../../core/network/api_client.dart';
 
 enum PremiumPlan { gold, platinum }
@@ -56,10 +57,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     if (!_isAnnual) return '';
     if (_selected == PremiumPlan.gold) {
       final saved = (_goldMonthly * 12) - _goldAnnual;
-      return 'Save ₹$saved/year';
+      return 'Save ₹$saved / year with annual sanctuary';
     }
     final saved = (_platinumMonthly * 12) - _platinumAnnual;
-    return 'Save ₹$saved/year';
+    return 'Save ₹$saved / year with annual sanctuary';
   }
 
   Future<void> _startPayment() async {
@@ -82,7 +83,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           'name': 'Mantra',
           'description':
               '${_selected == PremiumPlan.gold ? 'Gold' : 'Platinum'} ${_isAnnual ? '(Annual)' : '(Monthly)'}',
-          'theme': {'color': '#C4654A'},
+          'theme': {'color': '#C66F55'},
         };
         _razorpay.open(options);
       } else {
@@ -145,8 +146,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
   void _onPaymentError(PaymentFailureResponse response) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Payment failed. Please try again.'),
+      const SnackBar(
+        content: Text('Payment cancelled or failed. Please try again.'),
         backgroundColor: AppColors.error,
       ),
     );
@@ -157,6 +158,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           // Header
           SliverAppBar(
@@ -165,13 +167,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             backgroundColor: AppColors.background,
             leading: IconButton(
               onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1A1512), Color(0xFF2C2420)],
+                    colors: [Color(0xFF2C2220), Color(0xFF1E1614)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
@@ -180,22 +182,31 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 40),
-                      Text(
-                        '✨',
-                        style: TextStyle(fontSize: 40),
+                      const SizedBox(height: 30),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.gold.withOpacity(0.18),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.auto_awesome_rounded, color: AppColors.gold, size: 28),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Mantra Premium',
-                        style: GoogleFonts_loraStyle(),
+                        'Mantra Inner Circle',
+                        style: GoogleFonts.lora(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'More connections. More depth. More you.',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                          fontSize: 13,
+                        'Patience rewarded. Intentional depth unlocked.',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white.withOpacity(0.75),
+                          fontSize: 12.5,
                         ),
                       ),
                     ],
@@ -207,7 +218,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -226,15 +237,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     isAnnual: _isAnnual,
                     monthlyPrice: _goldMonthly,
                     annualPrice: _goldAnnual,
-                    onTap: () =>
-                        setState(() => _selected = PremiumPlan.gold),
+                    onTap: () => setState(() => _selected = PremiumPlan.gold),
                     features: const [
-                      '10 daily Sparks (3 extra)',
-                      'See who connected with you',
-                      'Read receipts always on',
-                      'Priority in match algorithm',
-                      '2 premium rooms per month',
-                      'Conversation archive',
+                      '10 daily Sparks (3 extra reflective slots)',
+                      'See who resonated with your cadence',
+                      'Read receipts & conversation archives',
+                      'Priority placement in mindful algorithm',
+                      'Access to 2 curated community rooms',
                     ],
                   ).animate(delay: 80.ms).fadeIn().slideY(begin: 0.04, end: 0),
 
@@ -246,46 +255,40 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     isAnnual: _isAnnual,
                     monthlyPrice: _platinumMonthly,
                     annualPrice: _platinumAnnual,
-                    onTap: () =>
-                        setState(() => _selected = PremiumPlan.platinum),
-                    badge: 'Most Popular',
+                    onTap: () => setState(() => _selected = PremiumPlan.platinum),
+                    badge: 'Recommended',
                     features: const [
-                      'Everything in Gold',
-                      '14 daily Sparks',
-                      '1 weekly Super Connect',
-                      'Voice call at Stage 2',
-                      'AI Conversation Coach',
-                      'Weekly 24h profile boost',
-                      'Exclusive Platinum room',
-                      'Profile preview mode',
+                      'Everything in Gold tier',
+                      '14 daily Sparks for broader discovery',
+                      '1 weekly Deep Connect token',
+                      'Unlock voice intro earlier in stage flow',
+                      'Exclusive intimate community rooms',
+                      'Anti-rush profile concierge',
                     ],
                   ).animate(delay: 160.ms).fadeIn().slideY(begin: 0.04, end: 0),
 
                   const SizedBox(height: 24),
 
-                  // Women's discount note
+                  // Women's 50% discount notice
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.08),
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.radiusLG),
-                      border: Border.all(
-                        color: AppColors.secondary.withOpacity(0.2),
-                      ),
+                      color: AppColors.trustLight.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                      border: Border.all(color: AppColors.trust.withOpacity(0.3)),
                     ),
                     child: Row(
                       children: [
-                        Text('💚', style: TextStyle(fontSize: 18)),
+                        const Icon(Icons.favorite_rounded, size: 18, color: AppColors.trust),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Women get 50% off all plans, always. No code needed.',
-                            style: TextStyle(
-                              color: AppColors.secondary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
+                            'Women receive 50% off all membership tiers automatically. No coupon needed.',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppColors.trust,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              height: 1.35,
                             ),
                           ),
                         ),
@@ -300,84 +303,68 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     children: [
                       MantraButton(
                         label: _isAnnual
-                            ? 'Start for ₹$_currentPrice/year'
-                            : 'Start for ₹$_currentPrice/month',
+                            ? 'Begin Sanctuary (₹$_currentPrice/yr)'
+                            : 'Begin Sanctuary (₹$_currentPrice/mo)',
                         onPressed: _startPayment,
                         icon: Icons.star_rounded,
                       ),
                       if (_savingsText.isNotEmpty) ...[
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         Text(
                           _savingsText,
-                          style: TextStyle(
-                            color: AppColors.success,
-                            fontSize: 13,
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppColors.trust,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w600,
                           ),
                           textAlign: TextAlign.center,
                         ),
                       ],
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Text(
-                        'Cancel anytime. No hidden fees.',
-                        style: TextStyle(
+                        'Cancel anytime with a single tap. Transparent billing.',
+                        style: GoogleFonts.plusJakartaSans(
                           color: AppColors.textMuted,
-                          fontSize: 12,
+                          fontSize: 11.5,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ],
-                  ).animate(delay: 280.ms).fadeIn().slideY(begin: 0.06, end: 0),
+                  ).animate(delay: 280.ms).fadeIn().slideY(begin: 0.05, end: 0),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
                   // Safety features always free note
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.trust.withOpacity(0.06),
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.radiusLG),
-                      border: Border.all(
-                        color: AppColors.trust.withOpacity(0.15),
-                      ),
+                      color: AppColors.surfaceVariant.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.shield_rounded,
-                            color: AppColors.trust, size: 18),
+                        const Icon(Icons.shield_outlined, color: AppColors.textSecondary, size: 18),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'All safety features are FREE forever for everyone. Premium is only for extra connections.',
-                            style: TextStyle(
-                              color: AppColors.trust,
-                              fontSize: 12,
-                              height: 1.5,
+                            'All safety features (SOS, verification, ghost mode, screenshot alerts) are 100% free forever for all members.',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppColors.textSecondary,
+                              fontSize: 11.5,
+                              height: 1.4,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ).animate(delay: 320.ms).fadeIn(),
-
-                  const SizedBox(height: 48),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  TextStyle GoogleFonts_loraStyle() {
-    return const TextStyle(
-      color: Colors.white,
-      fontSize: 26,
-      fontWeight: FontWeight.w600,
-      fontFamily: 'Lora',
-      letterSpacing: -0.5,
     );
   }
 }
@@ -393,8 +380,9 @@ class _BillingToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -404,7 +392,7 @@ class _BillingToggle extends StatelessWidget {
             onTap: () => onChanged(false),
           ),
           _Tab(
-            label: 'Annual  🎉 4 months free',
+            label: 'Annual (Save 40%)',
             isActive: isAnnual,
             onTap: () => onChanged(true),
           ),
@@ -435,28 +423,18 @@ class _Tab extends StatelessWidget {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.surface : Colors.transparent,
+            color: isActive ? AppColors.surfaceVariant : Colors.transparent,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: AppColors.shadow.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-              color:
-                  isActive ? AppColors.textPrimary : AppColors.textMuted,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12.5,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+              color: isActive ? AppColors.primaryDark : AppColors.textSecondary,
             ),
           ),
         ),
@@ -486,11 +464,9 @@ class _PlanCard extends StatelessWidget {
     this.badge,
   });
 
-  String get _planName =>
-      plan == PremiumPlan.gold ? '🥇 Gold' : '💎 Platinum';
+  String get _planName => plan == PremiumPlan.gold ? 'Gold Sanctuary' : 'Platinum Circle';
 
-  Color get _accentColor =>
-      plan == PremiumPlan.gold ? AppColors.gold : AppColors.platinum;
+  Color get _accentColor => plan == PremiumPlan.gold ? AppColors.gold : AppColors.primary;
 
   int get _displayPrice => isAnnual ? annualPrice : monthlyPrice;
 
@@ -514,7 +490,7 @@ class _PlanCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: _accentColor.withOpacity(0.15),
+                    color: _accentColor.withOpacity(0.12),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -528,78 +504,77 @@ class _PlanCard extends StatelessWidget {
               children: [
                 Text(
                   _planName,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.lora(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
                     color: isSelected ? _accentColor : AppColors.textPrimary,
                   ),
                 ),
                 const Spacer(),
                 if (badge != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                     decoration: BoxDecoration(
-                      color: _accentColor.withOpacity(0.1),
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.radiusFull),
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      border: Border.all(color: AppColors.primaryLight),
                     ),
                     child: Text(
                       badge!,
-                      style: TextStyle(
-                        color: _accentColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.primaryDark,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
                   '₹$_displayPrice',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: 4),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    isAnnual ? '/year' : '/month',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 14,
-                    ),
+                Text(
+                  isAnnual ? '/ year' : '/ month',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.textMuted,
+                    fontSize: 13,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             ...features.map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 7),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        color: isSelected
-                            ? _accentColor
-                            : AppColors.success,
-                        size: 16,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.check_circle_rounded,
+                          color: isSelected ? _accentColor : AppColors.trust,
+                          size: 15,
+                        ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           f,
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
                             color: AppColors.textSecondary,
-                            height: 1.3,
+                            height: 1.35,
                           ),
                         ),
                       ),

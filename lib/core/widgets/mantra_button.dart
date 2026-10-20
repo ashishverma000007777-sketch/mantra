@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-enum MantraButtonVariant { primary, secondary, outline, ghost }
+enum MantraButtonVariant { primary, secondary, outline, ghost, soft }
 
 class MantraButton extends StatefulWidget {
   final String label;
@@ -24,7 +25,7 @@ class MantraButton extends StatefulWidget {
     this.icon,
     this.variant = MantraButtonVariant.primary,
     this.width,
-    this.height = 52,
+    this.height = 50,
     this.backgroundColor,
     this.foregroundColor,
   });
@@ -63,8 +64,9 @@ class _MantraButtonState extends State<MantraButton>
         return AppColors.primary;
       case MantraButtonVariant.secondary:
         return AppColors.secondary;
+      case MantraButtonVariant.soft:
+        return AppColors.surfaceVariant;
       case MantraButtonVariant.outline:
-        return Colors.transparent;
       case MantraButtonVariant.ghost:
         return Colors.transparent;
     }
@@ -74,11 +76,11 @@ class _MantraButtonState extends State<MantraButton>
     if (widget.foregroundColor != null) return widget.foregroundColor!;
     switch (widget.variant) {
       case MantraButtonVariant.primary:
-        return Colors.white;
       case MantraButtonVariant.secondary:
         return Colors.white;
+      case MantraButtonVariant.soft:
+        return AppColors.primaryDark;
       case MantraButtonVariant.outline:
-        return AppColors.primary;
       case MantraButtonVariant.ghost:
         return AppColors.primary;
     }
@@ -101,24 +103,23 @@ class _MantraButtonState extends State<MantraButton>
         onTapCancel: () => _scaleController.reverse(),
         onTap: isDisabled ? null : widget.onPressed,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 180),
           width: widget.width ?? double.infinity,
           height: widget.height,
           decoration: BoxDecoration(
             color: isDisabled
-                ? _backgroundColor.withOpacity(0.4)
+                ? _backgroundColor.withOpacity(0.35)
                 : _backgroundColor,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
             border: widget.variant == MantraButtonVariant.outline
                 ? Border.all(color: AppColors.primary, width: 1.5)
                 : null,
-            boxShadow: widget.variant == MantraButtonVariant.primary &&
-                    !isDisabled
+            boxShadow: widget.variant == MantraButtonVariant.primary && !isDisabled
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.25),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      color: AppColors.primary.withOpacity(0.2),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
@@ -126,12 +127,11 @@ class _MantraButtonState extends State<MantraButton>
           child: Center(
             child: widget.isLoading
                 ? SizedBox(
-                    width: 22,
-                    height: 22,
+                    width: 20,
+                    height: 20,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(_foregroundColor),
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(_foregroundColor),
                     ),
                   )
                 : Row(
@@ -139,9 +139,9 @@ class _MantraButtonState extends State<MantraButton>
                     children: [
                       Text(
                         widget.label,
-                        style: TextStyle(
+                        style: GoogleFonts.plusJakartaSans(
                           color: _foregroundColor,
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.2,
                         ),

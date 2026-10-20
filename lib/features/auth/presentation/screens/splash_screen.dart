@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/preview/dev_preview.dart';
 import '../../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -22,8 +25,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    await Future.delayed(const Duration(milliseconds: 1600));
     if (!mounted) return;
+
+    final isPreviewActive = !kReleaseMode && ref.read(devPreviewProvider);
+    if (isPreviewActive) {
+      context.go('/home');
+      return;
+    }
 
     final authState = ref.read(authStateProvider);
     authState.when(
@@ -49,85 +58,98 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo mark
+            // Refined Monogram Seal
             Container(
-              width: 80,
-              height: 80,
+              width: 84,
+              height: 84,
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(24),
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: AppColors.border, width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
+                    color: AppColors.primary.withOpacity(0.12),
+                    blurRadius: 28,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: const Center(
-                child: Text(
-                  'M',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Lora',
+              child: Center(
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'M',
+                      style: GoogleFonts.lora(
+                        color: Colors.white,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ),
             )
                 .animate()
-                .fadeIn(duration: 600.ms, curve: Curves.easeOut)
-                .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOut),
+                .fadeIn(duration: 500.ms, curve: Curves.easeOut)
+                .scale(begin: const Offset(0.85, 0.85), curve: Curves.easeOutBack),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             Text(
-              'mantra',
-              style: AppTextStyles.heroDisplay.copyWith(
+              'Mantra',
+              style: GoogleFonts.lora(
                 fontSize: 32,
-                letterSpacing: 2,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+                letterSpacing: 1.2,
               ),
             )
-                .animate(delay: 400.ms)
-                .fadeIn(duration: 500.ms)
-                .slideY(begin: 0.2, end: 0),
+                .animate(delay: 250.ms)
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.15, end: 0),
 
             const SizedBox(height: 8),
 
             Text(
               'Know them before you show yourself.',
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 13,
-                letterSpacing: 0.3,
+              style: GoogleFonts.lora(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                letterSpacing: 0.2,
               ),
             )
-                .animate(delay: 700.ms)
-                .fadeIn(duration: 500.ms),
+                .animate(delay: 450.ms)
+                .fadeIn(duration: 400.ms),
 
-            const SizedBox(height: 60),
+            const SizedBox(height: 52),
 
-            // Loading dots
+            // Mindful subtle pulse indicator
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (i) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: 6,
-                  height: 6,
+                  width: 7,
+                  height: 7,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withOpacity(0.6),
                     shape: BoxShape.circle,
                   ),
                 )
                     .animate(
-                      delay: Duration(milliseconds: 1000 + (i * 150)),
+                      delay: Duration(milliseconds: 700 + (i * 180)),
                       onPlay: (c) => c.repeat(),
                     )
-                    .fadeIn(duration: 300.ms)
+                    .fadeIn(duration: 350.ms)
                     .then()
-                    .fadeOut(duration: 300.ms);
+                    .fadeOut(duration: 350.ms);
               }),
             ),
           ],

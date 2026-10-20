@@ -2,9 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_states.dart';
 import '../../data/models/compatibility_dna_model.dart';
 import '../../providers/compatibility_provider.dart';
 
@@ -22,33 +26,43 @@ class CompatibilityDnaScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Compatibility DNA', style: TextStyle(fontWeight: FontWeight.w700)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Compatibility DNA',
+              style: GoogleFonts.lora(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              'Psychological and emotional synergy',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: dnaAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 12),
-                  const Text('Could not compute compatibility insights'),
-                  const SizedBox(height: 8),
-                  Text(e.toString(), style: TextStyle(fontSize: 12, color: AppColors.textMuted), textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(compatibilityDnaFamily(targetUserId)),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          error: (e, _) => MantraErrorState(
+            message: 'Could not compute compatibility insights.\n${e.toString()}',
+            onRetry: () => ref.refresh(compatibilityDnaFamily(targetUserId)),
           ),
           data: (dna) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             children: [
               // Overall Alignment Header Card
               _OverallAlignmentCard(dna: dna),
@@ -61,9 +75,11 @@ class CompatibilityDnaScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Text(
                     '7 Dimensions of Alignment',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                    style: GoogleFonts.lora(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -79,24 +95,28 @@ class CompatibilityDnaScreen extends ConsumerWidget {
 
               // Ethical Notice Card
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.surfaceVariant.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.textMuted),
-                    const SizedBox(width: 10),
+                    const Icon(
+                      Icons.spa_outlined,
+                      size: 18,
+                      color: AppColors.secondary,
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         dna.ethicalNotice,
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
                           color: AppColors.textSecondary,
-                          height: 1.4,
+                          height: 1.45,
                         ),
                       ),
                     ),
@@ -134,11 +154,11 @@ class _OverallAlignmentCard extends StatelessWidget {
         children: [
           // Circular Score Indicator
           Container(
-            width: 72,
-            height: 72,
+            width: 76,
+            height: 76,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.18),
               border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
             ),
             child: Center(
@@ -147,18 +167,18 @@ class _OverallAlignmentCard extends StatelessWidget {
                 children: [
                   Text(
                     '${dna.overallAlignment}%',
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                     ),
                   ),
                   Text(
                     'harmony',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Colors.white.withOpacity(0.85),
-                      fontWeight: FontWeight.w500,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -171,21 +191,21 @@ class _OverallAlignmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Compatibility DNA',
-                  style: TextStyle(
+                  style: GoogleFonts.lora(
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Evaluated across ${dna.evaluatedDimensionsCount} mindful dimensions including values, rhythm, and communication.',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white.withOpacity(0.92),
                     fontSize: 12,
-                    height: 1.35,
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -228,38 +248,45 @@ class _DimensionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = model.score / 100.0;
 
-    return Container(
+    return MantraCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(_getIcon(), size: 18, color: AppColors.primary),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Icon(_getIcon(), size: 16, color: AppColors.primary),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   model.dimension,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  style: GoogleFonts.lora(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
               Text(
                 '${model.score}%',
-                style: const TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
-                  color: AppColors.primary,
+                  color: model.score >= 80 ? AppColors.trust : AppColors.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // Score bar
           ClipRRect(
@@ -270,7 +297,7 @@ class _DimensionCard extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(
                 model.score >= 80 ? AppColors.trust : AppColors.primary,
               ),
-              minHeight: 6,
+              minHeight: 5,
             ),
           ),
           const SizedBox(height: 10),
@@ -278,7 +305,11 @@ class _DimensionCard extends StatelessWidget {
           // Insight explanation
           Text(
             model.insight,
-            style: TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.35),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+              height: 1.4,
+            ),
           ),
 
           // Contributing factors
@@ -289,12 +320,19 @@ class _DimensionCard extends StatelessWidget {
               children: [
                 Text(
                   'Based on: ',
-                  style: TextStyle(fontSize: 11, color: AppColors.textMuted, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    color: AppColors.textMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Expanded(
                   child: Text(
-                    model.contributingFactors.join(', '),
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    model.contributingFactors.join(' · '),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ],
@@ -303,19 +341,24 @@ class _DimensionCard extends StatelessWidget {
 
           // Shared items tags
           if (model.sharedItems.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Wrap(
               spacing: 6,
-              runSpacing: 4,
+              runSpacing: 5,
               children: model.sharedItems.map((item) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Text(
                       '✨ $item',
-                      style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: AppColors.primaryDark,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   )).toList(),
             ),

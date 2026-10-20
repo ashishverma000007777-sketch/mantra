@@ -2,9 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_states.dart';
 import '../../data/models/connection_garden_model.dart';
 import '../../providers/garden_provider.dart';
 
@@ -14,7 +18,7 @@ class ConnectionGardenScreen extends ConsumerWidget {
   const ConnectionGardenScreen({super.key, required this.connectionId});
 
   String _getBotanicalArt(String stage) {
-    switch (stage) {
+    switch (stage.toLowerCase()) {
       case 'seed':
         return '🌱';
       case 'sprout':
@@ -22,6 +26,7 @@ class ConnectionGardenScreen extends ConsumerWidget {
       case 'growing':
         return '🪴';
       case 'bloom':
+      case 'blooming':
         return '🌸';
       default:
         return '🌱';
@@ -37,11 +42,34 @@ class ConnectionGardenScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Connection Garden', style: TextStyle(fontWeight: FontWeight.w700)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Connection Garden',
+              style: GoogleFonts.lora(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              'A living metaphor for your mutual bond',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            tooltip: 'Pause Garden',
-            icon: const Icon(Icons.pause_circle_outline_rounded),
+            tooltip: 'Pause or resume garden',
+            icon: const Icon(Icons.pause_circle_outline_rounded, size: 21),
             onPressed: () {
               final garden = gardenAsync.value;
               if (garden != null) {
@@ -56,29 +84,16 @@ class ConnectionGardenScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: gardenAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.eco_outlined, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 12),
-                  const Text('Could not load connection garden'),
-                  const SizedBox(height: 8),
-                  Text(e.toString(), style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(connectionGardenFamily(connectionId)),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          error: (e, _) => MantraErrorState(
+            message: 'Could not load your connection garden.\n${e.toString()}',
+            onRetry: () => ref.refresh(connectionGardenFamily(connectionId)),
           ),
           data: (garden) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             children: [
               // Garden Stage Botanical Showcase Card
               Container(
@@ -86,14 +101,21 @@ class ConnectionGardenScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.trust.withOpacity(0.18),
-                      AppColors.primary.withOpacity(0.1),
+                      AppColors.trustLight.withOpacity(0.35),
+                      AppColors.surfaceVariant.withOpacity(0.5),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-                  border: Border.all(color: AppColors.trust.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.trust.withOpacity(0.3), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
@@ -110,8 +132,8 @@ class ConnectionGardenScreen extends ConsumerWidget {
 
                     Text(
                       'STAGE: ${garden.stage.toUpperCase()}',
-                      style: const TextStyle(
-                        fontSize: 15,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.2,
                         color: AppColors.trust,
@@ -121,13 +143,13 @@ class ConnectionGardenScreen extends ConsumerWidget {
                     Text(
                       garden.stageDescription,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: GoogleFonts.lora(
+                        fontSize: 14.5,
                         color: AppColors.textPrimary,
-                        height: 1.4,
+                        height: 1.45,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
 
                     // Growth points bar
                     Column(
@@ -136,115 +158,132 @@ class ConnectionGardenScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Growth Points',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+                              'GROWTH POINTS',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.8,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                             Text(
-                              '${garden.growthPoints}/100',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.trust),
+                              '${garden.growthPoints} / 200',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.trust,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: garden.growthPoints / 100.0,
-                            backgroundColor: AppColors.surface,
+                            value: (garden.growthPoints / 200.0).clamp(0.0, 1.0),
+                            backgroundColor: AppColors.surface.withOpacity(0.7),
                             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.trust),
-                            minHeight: 8,
+                            minHeight: 7,
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
+              ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
+
+              const SizedBox(height: 16),
 
               // Next Mindful Step
-              Container(
+              MantraCard(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.lightbulb_outline_rounded, size: 20, color: AppColors.warning),
-                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceVariant,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: const Icon(Icons.spa_outlined, size: 20, color: AppColors.primary),
+                    ),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Next Mindful Milestone',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                          Text(
+                            'NEXT MINDFUL STEP',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 10.5,
+                              letterSpacing: 0.8,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 3),
                           Text(
                             garden.nextMilestoneSuggestion,
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.3),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              color: AppColors.textPrimary,
+                              height: 1.35,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-              ),
+              ).animate(delay: 80.ms).fadeIn().slideY(begin: 0.04, end: 0),
+
               const SizedBox(height: 20),
 
-              // Milestone History Section
+              // Milestone Journey Section
               Row(
                 children: [
                   const Icon(Icons.history_rounded, size: 18, color: AppColors.primary),
                   const SizedBox(width: 8),
                   Text(
                     'Milestone Journey',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                    style: GoogleFonts.lora(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
 
               if (garden.milestones.isEmpty) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.border),
-                  ),
+                MantraCard(
+                  padding: const EdgeInsets.all(20),
                   child: Center(
                     child: Text(
                       'Your journey begins here. Complete your first Conversation Quest together!',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: AppColors.textMuted),
                     ),
                   ),
                 ),
               ] else ...[
-                ...garden.milestones.map((m) => Container(
+                ...garden.milestones.map((m) => MantraCard(
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
-                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: 32,
-                            height: 32,
+                            width: 34,
+                            height: 34,
                             decoration: BoxDecoration(
-                              color: AppColors.trust.withOpacity(0.12),
+                              color: AppColors.surfaceVariant,
                               shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.border),
                             ),
-                            child: const Center(child: Text('🌿', style: TextStyle(fontSize: 16))),
+                            child: const Center(child: Text('🌿', style: TextStyle(fontSize: 15))),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -256,18 +295,29 @@ class ConnectionGardenScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       m.title,
-                                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                      style: GoogleFonts.lora(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
                                     Text(
                                       m.achievedAt.isNotEmpty ? m.achievedAt.substring(0, 10) : '',
-                                      style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 10.5,
+                                        color: AppColors.textMuted,
+                                      ),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
                                   m.description,
-                                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.3),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                    height: 1.35,
+                                  ),
                                 ),
                               ],
                             ),
@@ -284,18 +334,22 @@ class ConnectionGardenScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceVariant.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.nature_people_rounded, size: 16, color: AppColors.trust),
+                    const Icon(Icons.shield_outlined, size: 16, color: AppColors.trust),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         garden.antiStreakGuarantee,
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          color: AppColors.textSecondary,
+                          height: 1.45,
+                        ),
                       ),
                     ),
                   ],

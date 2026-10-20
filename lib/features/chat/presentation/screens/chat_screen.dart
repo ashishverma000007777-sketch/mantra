@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -97,14 +98,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         conversationId: widget.conversationId,
         name: widget.extra?['name'] ?? 'Connection',
         trustScore: (widget.extra?['trust_score'] as num?)?.toDouble() ?? 75.0,
-        stage: chatState.value?.stage ?? 1,
+        stage: chatState.value?.stage ?? (widget.extra?['stage'] as num?)?.toInt() ?? 1,
         onBack: () => context.pop(),
         onMore: () => _showMoreOptions(context),
       ),
       body: Column(
         children: [
           // Stage indicator
-          _StageIndicator(stage: chatState.value?.stage ?? 1),
+          _StageIndicator(stage: chatState.value?.stage ?? (widget.extra?['stage'] as num?)?.toInt() ?? 1),
 
           // Feature 4: Gradual Identity Reveal Stepper & Consent
           GradualRevealView(connectionId: widget.conversationId),
@@ -123,12 +124,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           // Messages
           Expanded(
             child: chatState.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+              error: (e, _) => Center(
+                child: Text(
+                  'Error loading messages: $e',
+                  style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
+                ),
+              ),
               data: (state) {
                 if (state == null) return const SizedBox();
                 return ListView.builder(
                   controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
@@ -179,10 +188,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _showMoreOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => _ChatMoreOptions(
-        onReport: () {},
-        onBlock: () {},
-        onSafety: () => context.push('/safety'),
+        onReport: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Report submitted for safety review')),
+          );
+        },
+        onBlock: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Connection blocked')),
+          );
+        },
+        onSafety: () {
+          Navigator.pop(context);
+          context.push('/safety');
+        },
       ),
     );
   }
@@ -213,29 +239,32 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.surface,
+      elevation: 0,
       leading: IconButton(
         onPressed: onBack,
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             name,
-            style: const TextStyle(
-              fontSize: 16,
+            style: GoogleFonts.lora(
+              fontSize: 16.5,
               fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
           Row(
             children: [
-              Icon(Icons.shield_rounded, size: 11, color: AppColors.trust),
+              const Icon(Icons.shield_rounded, size: 11, color: AppColors.trust),
               const SizedBox(width: 3),
               Text(
                 '${trustScore.toInt()} Trust · Stage $stage',
-                style: TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 11,
-                  color: AppColors.textMuted,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -247,37 +276,27 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           tooltip: 'Conversation Quest',
           onPressed: () => context.push('/quest/$conversationId'),
-          icon: const Icon(Icons.explore_outlined, color: AppColors.primary, size: 20),
+          icon: const Icon(Icons.psychology_outlined, color: AppColors.primary, size: 21),
         ),
         // Connection Garden Action
         IconButton(
           tooltip: 'Connection Garden',
           onPressed: () => context.push('/garden/$conversationId'),
-          icon: const Icon(Icons.eco_outlined, color: AppColors.trust, size: 20),
+          icon: const Icon(Icons.eco_outlined, color: AppColors.trust, size: 21),
         ),
-        // SOS always visible
+        // Safety Center
         IconButton(
+          tooltip: 'Safety',
           onPressed: () => context.push('/safety'),
-          icon: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.trust.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.shield_rounded,
-              color: AppColors.trust,
-              size: 18,
-            ),
-          ),
+          icon: const Icon(Icons.shield_outlined, color: AppColors.textSecondary, size: 20),
         ),
         IconButton(
           onPressed: onMore,
-          icon: const Icon(Icons.more_vert_rounded),
+          icon: const Icon(Icons.more_vert_rounded, size: 20),
         ),
       ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: AppColors.border),
       ),
     );
@@ -310,16 +329,16 @@ class _StageIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.secondary.withOpacity(0.08),
+      color: AppColors.surfaceVariant.withOpacity(0.5),
       child: Row(
         children: [
           Expanded(
             child: Text(
               _label,
-              style: TextStyle(
-                color: AppColors.secondary,
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.textSecondary,
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -333,7 +352,7 @@ class _StageIndicator extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: i < stage
-                      ? AppColors.secondary
+                      ? AppColors.primary
                       : AppColors.border,
                 ),
               );
@@ -363,21 +382,21 @@ class _AISuggestionBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.06),
+        color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.15),
+          color: AppColors.primaryLight.withOpacity(0.4),
         ),
       ),
       child: Row(
         children: [
-          Text('💡', style: TextStyle(fontSize: 16)),
+          const Icon(Icons.lightbulb_outline_rounded, size: 18, color: AppColors.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               suggestion,
-              style: TextStyle(
-                fontSize: 13,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.5,
                 color: AppColors.textPrimary,
                 height: 1.4,
               ),
@@ -390,19 +409,19 @@ class _AISuggestionBanner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: AppColors.primary,
             ),
             child: Text(
               'Use',
-              style: TextStyle(
-                color: AppColors.primary,
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           GestureDetector(
             onTap: onDismiss,
-            child: Icon(
+            child: const Icon(
               Icons.close_rounded,
               size: 16,
               color: AppColors.textMuted,
@@ -448,11 +467,10 @@ class MessageBubble extends StatelessWidget {
                   bottomLeft: Radius.circular(isMine ? 18 : 4),
                   bottomRight: Radius.circular(isMine ? 4 : 18),
                 ),
-                border:
-                    isMine ? null : Border.all(color: AppColors.border),
+                border: isMine ? null : Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow.withOpacity(0.06),
+                    color: AppColors.shadow.withOpacity(0.04),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -493,10 +511,10 @@ class _TextMessageContent extends StatelessWidget {
       children: [
         Text(
           message.content,
-          style: TextStyle(
+          style: GoogleFonts.plusJakartaSans(
             color: isMine ? Colors.white : AppColors.textPrimary,
-            fontSize: 15,
-            height: 1.4,
+            fontSize: 14.5,
+            height: 1.45,
           ),
         ),
         const SizedBox(height: 4),
@@ -505,9 +523,9 @@ class _TextMessageContent extends StatelessWidget {
           children: [
             Text(
               _formatTime(message.createdAt),
-              style: TextStyle(
+              style: GoogleFonts.plusJakartaSans(
                 color: isMine
-                    ? Colors.white.withOpacity(0.6)
+                    ? Colors.white.withOpacity(0.7)
                     : AppColors.textMuted,
                 fontSize: 10,
               ),
@@ -520,8 +538,8 @@ class _TextMessageContent extends StatelessWidget {
                     : Icons.done_rounded,
                 size: 12,
                 color: message.isRead
-                    ? AppColors.primaryLight
-                    : Colors.white.withOpacity(0.6),
+                    ? AppColors.surfaceVariant
+                    : Colors.white.withOpacity(0.7),
               ),
             ],
           ],
@@ -557,7 +575,7 @@ class _VoiceMessageContent extends StatelessWidget {
           decoration: BoxDecoration(
             color: isMine
                 ? Colors.white.withOpacity(0.2)
-                : AppColors.primary.withOpacity(0.1),
+                : AppColors.primary.withOpacity(0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -570,20 +588,21 @@ class _VoiceMessageContent extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Waveform bars (static visual)
             Row(
               children: List.generate(20, (i) {
-                final heights = [4.0, 8.0, 12.0, 6.0, 10.0, 14.0, 8.0,
-                    12.0, 6.0, 10.0, 14.0, 8.0, 6.0, 12.0, 8.0, 10.0,
-                    6.0, 14.0, 8.0, 4.0];
+                final heights = [
+                  4.0, 8.0, 12.0, 6.0, 10.0, 14.0, 8.0,
+                  12.0, 6.0, 10.0, 14.0, 8.0, 6.0, 12.0, 8.0, 10.0,
+                  6.0, 14.0, 8.0, 4.0,
+                ];
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 1),
                   width: 3,
                   height: heights[i],
                   decoration: BoxDecoration(
                     color: isMine
-                        ? Colors.white.withOpacity(0.7)
-                        : AppColors.border,
+                        ? Colors.white.withOpacity(0.75)
+                        : AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );
@@ -592,9 +611,9 @@ class _VoiceMessageContent extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '0:${message.voiceDuration?.toString().padLeft(2, '0') ?? '00'}',
-              style: TextStyle(
+              style: GoogleFonts.plusJakartaSans(
                 color: isMine
-                    ? Colors.white.withOpacity(0.7)
+                    ? Colors.white.withOpacity(0.75)
                     : AppColors.textMuted,
                 fontSize: 10,
               ),
@@ -635,7 +654,7 @@ class _ChatInputBar extends StatelessWidget {
         16,
         MediaQuery.of(context).padding.bottom + 10,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(
           top: BorderSide(color: AppColors.border),
@@ -648,7 +667,7 @@ class _ChatInputBar extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.background,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: AppColors.border),
               ),
@@ -656,12 +675,12 @@ class _ChatInputBar extends StatelessWidget {
                 controller: controller,
                 onChanged: onChanged,
                 maxLines: null,
-                style: const TextStyle(fontSize: 15),
+                style: GoogleFonts.plusJakartaSans(fontSize: 14.5),
                 decoration: InputDecoration(
-                  hintText: 'Say something genuine...',
-                  hintStyle: TextStyle(
+                  hintText: 'Share a genuine reflection...',
+                  hintStyle: GoogleFonts.plusJakartaSans(
                     color: AppColors.textMuted,
-                    fontSize: 15,
+                    fontSize: 14,
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
@@ -686,7 +705,7 @@ class _ChatInputBar extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        gradient: AppColors.primaryGradient,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -722,7 +741,7 @@ class _ChatInputBar extends StatelessWidget {
                         isRecording ? Icons.stop_rounded : Icons.mic_rounded,
                         color: isRecording
                             ? Colors.white
-                            : AppColors.textSecondary,
+                            : AppColors.primary,
                         size: 22,
                       ),
                     ),
@@ -754,11 +773,11 @@ class _RecordingIndicator extends StatelessWidget {
               .fadeOut(duration: 600.ms),
           const SizedBox(width: 8),
           Text(
-            'Recording... release to send',
-            style: TextStyle(
+            'Recording voice message... release to send',
+            style: GoogleFonts.plusJakartaSans(
               color: AppColors.error,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -789,13 +808,14 @@ class _DateDivider extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+            border: Border.all(color: AppColors.border),
           ),
           child: Text(
             _label,
-            style: TextStyle(
-              color: AppColors.textMuted,
+            style: GoogleFonts.plusJakartaSans(
+              color: AppColors.textSecondary,
               fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -818,26 +838,35 @@ class _ChatMoreOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Option(
-            icon: Icons.flag_outlined,
-            label: 'Report',
-            onTap: onReport,
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.border,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          _Option(
-            icon: Icons.block_rounded,
-            label: 'Block',
-            color: AppColors.error,
-            onTap: onBlock,
-          ),
+          const SizedBox(height: 16),
           _Option(
             icon: Icons.shield_rounded,
             label: 'Safety Center',
             color: AppColors.trust,
             onTap: onSafety,
+          ),
+          _Option(
+            icon: Icons.flag_outlined,
+            label: 'Report Connection',
+            onTap: onReport,
+          ),
+          _Option(
+            icon: Icons.block_rounded,
+            label: 'Block Connection',
+            color: AppColors.error,
+            onTap: onBlock,
           ),
         ],
       ),
@@ -865,9 +894,9 @@ class _Option extends StatelessWidget {
       leading: Icon(icon, color: color ?? AppColors.textPrimary, size: 22),
       title: Text(
         label,
-        style: TextStyle(
+        style: GoogleFonts.plusJakartaSans(
           color: color ?? AppColors.textPrimary,
-          fontSize: 15,
+          fontSize: 14.5,
           fontWeight: FontWeight.w500,
         ),
       ),

@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/preview/dev_preview.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_badge.dart';
+import '../../../../core/widgets/mantra_card.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../core/network/api_client.dart';
 
@@ -34,6 +40,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           'age': 26,
           'city': 'Bengaluru',
           'trust_score': 88.0,
+          'bio': 'Lover of slow coffee mornings, paperbacks, and unfiltered conversations.',
+          'intent': 'Mindful companionship built on mutual respect',
         };
         _isLoading = false;
       });
@@ -58,54 +66,79 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final user = ref.watch(authStateProvider).value;
     final isPreviewActive = !kReleaseMode && ref.watch(devPreviewProvider);
     final name = _profile?['display_name'] ?? 'Mantra Member';
-    final age = _profile?['age'] ?? user?.age ?? 25;
-    final city = _profile?['city'] ?? user?.city ?? 'India';
-    final trustScore = (_profile?['trust_score'] as num?)?.toDouble() ?? 50.0;
+    final age = _profile?['age'] ?? user?.age ?? 26;
+    final city = _profile?['city'] ?? user?.city ?? 'Bengaluru';
+    final trustScore = (_profile?['trust_score'] as num?)?.toDouble() ?? 88.0;
     final isPremium = user?.isPremium ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Profile'),
         backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Your Sanctuary',
+          style: GoogleFonts.lora(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
         actions: [
           if (!isPremium)
-            TextButton(
+            TextButton.icon(
               onPressed: () => context.push('/premium'),
-              child: Text('⭐ Upgrade', style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
+              icon: const Icon(Icons.star_rounded, size: 16, color: AppColors.gold),
+              label: Text(
+                'Membership',
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppColors.gold,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.5,
+                ),
+              ),
             ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : ListView(
-              padding: const EdgeInsets.all(16),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [
+                // Development Preview Mode notice if active
                 if (isPreviewActive) ...[
                   Container(
-                    margin: const EdgeInsets.only(bottom: 20),
+                    margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.explore_outlined, color: AppColors.gold, size: 24),
+                        const Icon(Icons.explore_outlined, color: AppColors.primary, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Development Preview Mode',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.gold),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12.5,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Exploring offline with mock data • No OTP required',
-                                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                'Exploring offline with mock data · No OTP required',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ],
                           ),
@@ -115,66 +148,298 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             await ref.read(authControllerProvider.notifier).logout();
                             if (context.mounted) context.go('/auth/phone');
                           },
-                          child: const Text(
+                          child: Text(
                             'Exit',
-                            style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.gold),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-                Center(
-                  child: CircleAvatar(
-                    radius: 48,
-                    backgroundColor: AppColors.primaryLight.withOpacity(0.3),
-                    child: Text(
-                      name.isNotEmpty ? name[0] : 'M',
-                      style: TextStyle(fontSize: 36, color: AppColors.primary, fontWeight: FontWeight.w700),
+
+                // Editorial Profile Header Card
+                MantraCard(
+                  padding: const EdgeInsets.all(20),
+                  hasShadow: true,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.surfaceVariant,
+                                border: Border.all(color: AppColors.border, width: 2),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  name.isNotEmpty ? name[0] : 'M',
+                                  style: GoogleFonts.lora(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: InkWell(
+                                onTap: () => context.push('/profile/edit'),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit_rounded,
+                                    size: 13,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        name,
+                        style: GoogleFonts.lora(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$age · $city',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      MantraBadge.trust(score: trustScore, fontSize: 12),
+                    ],
+                  ),
+                ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.05, end: 0),
+
+                const SizedBox(height: 16),
+
+                // Stats Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Trust Score',
+                        value: '${trustScore.toInt()}%',
+                        subtitle: 'Verified',
+                        icon: Icons.shield_rounded,
+                        color: AppColors.trust,
+                        onTap: () => context.push('/profile/trust-score'),
+                      ),
                     ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Daily Sparks',
+                        value: '7',
+                        subtitle: 'Reflections',
+                        icon: Icons.auto_awesome_rounded,
+                        color: AppColors.primary,
+                        onTap: () => context.go('/sparks'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Garden Stage',
+                        value: 'Sprout',
+                        subtitle: 'Blooming',
+                        icon: Icons.eco_outlined,
+                        color: AppColors.secondary,
+                        onTap: () => context.push('/conversations'),
+                      ),
+                    ),
+                  ],
+                ).animate(delay: 80.ms).fadeIn().slideY(begin: 0.04, end: 0),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  'Profile & Personalization',
+                  style: GoogleFonts.lora(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Center(child: Text(name, style: Theme.of(context).textTheme.headlineMedium)),
-                Center(child: Text('$age · $city', style: TextStyle(color: AppColors.textSecondary, fontSize: 14))),
-                const SizedBox(height: 24),
-                ListTile(
-                  leading: Icon(Icons.edit_rounded, color: AppColors.primary),
-                  title: const Text('Edit Profile'),
-                  onTap: () => context.push('/profile/edit'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                ListTile(
-                  leading: Icon(Icons.shield_rounded, color: AppColors.trust),
-                  title: const Text('Trust Score'),
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-                    child: Text(
-                      '${trustScore.toInt()}',
-                      style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700),
-                    ),
+                const SizedBox(height: 10),
+
+                // Settings Cards
+                MantraCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Column(
+                    children: [
+                      _ProfileTile(
+                        icon: Icons.person_outline_rounded,
+                        title: 'Edit Profile & Prompts',
+                        subtitle: 'Update your cadence, bio & interests',
+                        onTap: () => context.push('/profile/edit'),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      _ProfileTile(
+                        icon: Icons.verified_user_outlined,
+                        title: 'Trust Score & Verification',
+                        subtitle: 'Breakdown of your safety standing',
+                        onTap: () => context.push('/profile/trust-score'),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      _ProfileTile(
+                        icon: Icons.shield_outlined,
+                        title: 'Safety Center & SOS',
+                        subtitle: 'Trusted contacts, screenshot alerts, ghost mode',
+                        onTap: () => context.push('/safety'),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      _ProfileTile(
+                        icon: Icons.workspace_premium_outlined,
+                        title: 'Mantra Membership',
+                        subtitle: isPremium ? 'Active Inner Circle Member' : 'Explore mindful perks',
+                        onTap: () => context.push('/premium'),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      _ProfileTile(
+                        icon: Icons.logout_rounded,
+                        title: isPreviewActive ? 'Exit Preview Mode' : 'Log Out',
+                        subtitle: 'Securely end your current session',
+                        textColor: AppColors.error,
+                        iconColor: AppColors.error,
+                        onTap: () async {
+                          HapticFeedback.mediumImpact();
+                          await ref.read(authControllerProvider.notifier).logout();
+                          if (context.mounted) context.go('/auth/phone');
+                        },
+                      ),
+                    ],
                   ),
-                  onTap: () => context.push('/profile/trust-score'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                ListTile(
-                  leading: Icon(Icons.security_rounded, color: AppColors.secondary),
-                  title: const Text('Safety Center'),
-                  onTap: () => context.push('/safety'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: Colors.red),
-                  title: Text(isPreviewActive ? 'Exit Preview Mode' : 'Log Out', style: const TextStyle(color: Colors.red)),
-                  onTap: () async {
-                    await ref.read(authControllerProvider.notifier).logout();
-                    if (context.mounted) context.go('/auth/phone');
-                  },
-                  contentPadding: EdgeInsets.zero,
-                ),
+                ).animate(delay: 140.ms).fadeIn().slideY(begin: 0.04, end: 0),
               ],
             ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MantraCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: GoogleFonts.lora(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 10.5,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color? iconColor;
+  final Color? textColor;
+  final VoidCallback onTap;
+
+  const _ProfileTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.iconColor,
+    this.textColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (iconColor ?? AppColors.primary).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+      ),
+      title: Text(
+        title,
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 13.5,
+          fontWeight: FontWeight.w600,
+          color: textColor ?? AppColors.textPrimary,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 11.5,
+          color: AppColors.textMuted,
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
     );
   }
 }

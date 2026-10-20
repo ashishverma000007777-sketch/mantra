@@ -1,14 +1,17 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:ui';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/mantra_badge.dart';
+import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_states.dart';
 import '../../../matching/data/models/spark_model.dart';
 import '../../../matching/providers/sparks_provider.dart';
 
@@ -25,13 +28,26 @@ class SparksScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SparksHeader(),
+            _SparksHeader(
+              sparksCount: sparksAsync.value?.length ?? 0,
+            ),
             Expanded(
               child: sparksAsync.when(
                 loading: () => const _SparksShimmer(),
-                error: (e, _) => _ErrorState(message: e.toString()),
+                error: (e, _) => MantraErrorState(
+                  message: 'Could not load your daily sparks.\nPlease check your connection.',
+                  onRetry: () => ref.invalidate(sparksProvider),
+                ),
                 data: (sparks) {
-                  if (sparks.isEmpty) return const _EmptyState();
+                  if (sparks.isEmpty) {
+                    return MantraEmptyState(
+                      icon: Icons.nightlight_round_outlined,
+                      title: "You've seen today's sparks",
+                      message: 'New sparks arrive every morning at 9 AM.\nMeanwhile, explore community reflections or check your garden.',
+                      actionLabel: 'Explore Community',
+                      onAction: () => context.go('/community'),
+                    );
+                  }
                   return _SparksList(sparks: sparks);
                 },
               ),
@@ -44,52 +60,72 @@ class SparksScreen extends ConsumerWidget {
 }
 
 class _SparksHeader extends StatelessWidget {
+  final int sparksCount;
+  const _SparksHeader({required this.sparksCount});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Today's Sparks ✨",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '7 connections chosen for you',
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 13,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DAILY CURATION',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  "Today's Sparks",
+                  style: GoogleFonts.lora(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Grounded in emotional depth & compatibility',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withOpacity(0.15),
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-              border: Border.all(
-                color: AppColors.primaryLight.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.auto_awesome_rounded,
                   color: AppColors.primary,
-                  size: 14,
+                  size: 13,
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 5),
                 Text(
-                  '5 left',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12,
+                  '$sparksCount remaining',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.primaryDark,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -110,14 +146,15 @@ class _SparksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       itemCount: sparks.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (context, i) {
         return SparkCard(spark: sparks[i])
-            .animate(delay: Duration(milliseconds: i * 80))
-            .fadeIn(duration: 300.ms)
-            .slideY(begin: 0.08, end: 0);
+            .animate(delay: Duration(milliseconds: i * 70))
+            .fadeIn(duration: 350.ms)
+            .slideY(begin: 0.06, end: 0);
       },
     );
   }
@@ -132,8 +169,7 @@ class SparkCard extends ConsumerStatefulWidget {
   ConsumerState<SparkCard> createState() => _SparkCardState();
 }
 
-class _SparkCardState extends ConsumerState<SparkCard>
-    with SingleTickerProviderStateMixin {
+class _SparkCardState extends ConsumerState<SparkCard> {
   bool _isPlayingVoice = false;
   bool _actionTaken = false;
 
@@ -152,6 +188,12 @@ class _SparkCardState extends ConsumerState<SparkCard>
   void _onSave() {
     HapticFeedback.selectionClick();
     ref.read(sparksProvider.notifier).save(widget.spark.userId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Saved ${widget.spark.displayName} for later reflection'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -163,163 +205,231 @@ class _SparkCardState extends ConsumerState<SparkCard>
       child: AnimatedOpacity(
         opacity: _actionTaken ? 0.4 : 1.0,
         duration: const Duration(milliseconds: 300),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
-            border: Border.all(color: AppColors.border),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadow.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+        child: MantraCard(
+          padding: const EdgeInsets.all(16),
+          hasShadow: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top section: blurred photo + info
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Blurred photo avatar
-                    _BlurredAvatar(
-                      imageUrl: spark.profilePhotoUrl,
-                      isBlurred: spark.photosBlurred,
-                    ),
-                    const SizedBox(width: 14),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
+              // Top Profile Overview Row
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _BlurredAvatar(
+                    imageUrl: spark.profilePhotoUrl,
+                    isBlurred: spark.photosBlurred,
+                    initial: spark.displayName.isNotEmpty ? spark.displayName[0] : '?',
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
                                 spark.displayName,
-                                style: const TextStyle(
-                                  fontSize: 17,
+                                style: GoogleFonts.lora(
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(width: 6),
-                              if (spark.isVerified)
-                                Icon(
-                                  Icons.verified_rounded,
-                                  color: AppColors.trust,
-                                  size: 16,
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${spark.age} · ${spark.city}',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          // Trust score pill
-                          _TrustPill(score: spark.trustScore),
-                        ],
-                      ),
-                    ),
-
-                    // Compatibility score
-                    _CompatibilityBadge(score: spark.compatibilityScore),
-                  ],
-                ),
-              ),
-
-              // Voice intro button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _VoiceIntroButton(
-                  isPlaying: _isPlayingVoice,
-                  onTap: () => setState(() => _isPlayingVoice = !_isPlayingVoice),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Interest tags
-              if (spark.interests.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: spark.interests.take(4).map((tag) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                            if (spark.isVerified) ...[
+                              const SizedBox(width: 5),
+                              const Icon(
+                                Icons.verified_rounded,
+                                color: AppColors.trust,
+                                size: 16,
+                              ),
+                            ],
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          borderRadius:
-                              BorderRadius.circular(AppSpacing.radiusFull),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Text(
-                          tag,
-                          style: TextStyle(
-                            fontSize: 12,
+                        const SizedBox(height: 2),
+                        Text(
+                          '${spark.age} · ${spark.city}',
+                          style: GoogleFonts.plusJakartaSans(
                             color: AppColors.textSecondary,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                      );
-                    }).toList(),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            MantraBadge.trust(
+                              score: spark.trustScore,
+                              fontSize: 11,
+                            ),
+                            if (spark.sharedRoomsCount > 0) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceVariant,
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Text(
+                                  '${spark.sharedRoomsCount} shared rooms',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 10.5,
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+                  // Compatibility Score Badge
+                  MantraBadge.compatibility(
+                    score: spark.compatibilityScore,
+                    fontSize: 11.5,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 14),
+
+              // Voice Introduction Preview Card
+              _VoiceIntroButton(
+                isPlaying: _isPlayingVoice,
+                durationSeconds: spark.voiceDurationSeconds > 0 ? spark.voiceDurationSeconds : 30,
+                onTap: () => setState(() => _isPlayingVoice = !_isPlayingVoice),
+              ),
+
+              // Interest / Reflection Tags
+              if (spark.interests.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: spark.interests.take(4).map((tag) {
+                    final isShared = spark.sharedInterests.contains(tag);
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isShared ? AppColors.surfaceVariant : AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        border: Border.all(
+                          color: isShared ? AppColors.primaryLight : AppColors.border,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isShared) ...[
+                            const Icon(
+                              Icons.favorite_rounded,
+                              size: 10,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            tag,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              color: isShared ? AppColors.primaryDark : AppColors.textSecondary,
+                              fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
+              ],
 
               const SizedBox(height: 16),
 
-              // Action buttons
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Row(
-                  children: [
-                    // Pass button
-                    Expanded(
-                      child: _ActionButton(
-                        label: 'Pass',
-                        icon: Icons.close_rounded,
-                        color: AppColors.textMuted,
-                        backgroundColor: AppColors.surfaceVariant,
-                        onTap: _actionTaken ? null : _onPass,
+              // Action Bar: Pass, Save, Connect
+              Row(
+                children: [
+                  // Pass
+                  Expanded(
+                    flex: 3,
+                    child: OutlinedButton.icon(
+                      onPressed: _actionTaken ? null : _onPass,
+                      icon: const Icon(Icons.close_rounded, size: 16),
+                      label: Text(
+                        'Pass',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
+                        side: const BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                  ),
+                  const SizedBox(width: 8),
 
-                    // Save button
-                    _ActionButton(
-                      label: '',
-                      icon: Icons.bookmark_outline_rounded,
-                      color: AppColors.warning,
-                      backgroundColor: AppColors.warningLight.withOpacity(0.3),
-                      onTap: _onSave,
-                      isIconOnly: true,
+                  // Save for later
+                  IconButton.outlined(
+                    onPressed: _actionTaken ? null : _onSave,
+                    icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
+                    color: AppColors.primary,
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(color: AppColors.border),
+                      padding: const EdgeInsets.all(10),
                     ),
-                    const SizedBox(width: 10),
+                    tooltip: 'Save for reflection',
+                  ),
+                  const SizedBox(width: 8),
 
-                    // Connect button
-                    Expanded(
-                      child: _ActionButton(
-                        label: 'Connect',
-                        icon: Icons.favorite_rounded,
-                        color: Colors.white,
-                        backgroundColor: AppColors.primary,
-                        onTap: _actionTaken ? null : _onConnect,
-                        isPrimary: true,
+                  // Connect
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.28),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: _actionTaken ? null : _onConnect,
+                        icon: const Icon(Icons.favorite_rounded, size: 16, color: Colors.white),
+                        label: Text(
+                          'Connect',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -332,51 +442,62 @@ class _SparkCardState extends ConsumerState<SparkCard>
 class _BlurredAvatar extends StatelessWidget {
   final String? imageUrl;
   final bool isBlurred;
+  final String initial;
 
-  const _BlurredAvatar({this.imageUrl, required this.isBlurred});
+  const _BlurredAvatar({
+    this.imageUrl,
+    required this.isBlurred,
+    required this.initial,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: SizedBox(
-        width: 72,
-        height: 72,
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 1.5),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            imageUrl != null
-                ? CachedNetworkImage(
-                    imageUrl: imageUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
-                    errorWidget: (_, __, ___) => Container(
-                      color: AppColors.surfaceVariant,
-                      child: Icon(
-                        Icons.person_rounded,
-                        color: AppColors.textMuted,
-                        size: 36,
-                      ),
-                    ),
-                  )
-                : Container(
-                    color: AppColors.surfaceVariant,
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: AppColors.textMuted,
-                      size: 36,
-                    ),
-                  ),
+            if (imageUrl != null && imageUrl!.isNotEmpty)
+              CachedNetworkImage(
+                imageUrl: imageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(color: AppColors.surfaceVariant),
+                errorWidget: (_, __, ___) => _fallbackAvatar(),
+              )
+            else
+              _fallbackAvatar(),
             if (isBlurred)
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
-                  color: AppColors.primary.withOpacity(0.05),
+                  color: AppColors.textPrimary.withOpacity(0.2),
                   child: Center(
-                    child: Icon(
-                      Icons.lock_rounded,
-                      color: Colors.white.withOpacity(0.9),
-                      size: 20,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.lock_outline_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Stage 1',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -386,82 +507,18 @@ class _BlurredAvatar extends StatelessWidget {
       ),
     );
   }
-}
 
-class _TrustPill extends StatelessWidget {
-  final double score;
-  const _TrustPill({required this.score});
-
-  Color get _color {
-    if (score >= 80) return AppColors.success;
-    if (score >= 60) return AppColors.warning;
-    return AppColors.error;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _fallbackAvatar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: _color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.shield_rounded, color: _color, size: 11),
-          const SizedBox(width: 3),
-          Text(
-            '${score.toInt()} Trust',
-            style: TextStyle(
-              color: _color,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CompatibilityBadge extends StatelessWidget {
-  final int score;
-  const _CompatibilityBadge({required this.score});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: score >= 80
-            ? AppColors.primaryGradient
-            : LinearGradient(
-                colors: [AppColors.secondary, AppColors.secondaryLight],
-              ),
-        shape: BoxShape.circle,
-      ),
+      color: AppColors.surfaceVariant,
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$score%',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Text(
-              'match',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
-                fontSize: 8,
-              ),
-            ),
-          ],
+        child: Text(
+          initial,
+          style: GoogleFonts.lora(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primary,
+          ),
         ),
       ),
     );
@@ -470,9 +527,14 @@ class _CompatibilityBadge extends StatelessWidget {
 
 class _VoiceIntroButton extends StatelessWidget {
   final bool isPlaying;
+  final int durationSeconds;
   final VoidCallback onTap;
 
-  const _VoiceIntroButton({required this.isPlaying, required this.onTap});
+  const _VoiceIntroButton({
+    required this.isPlaying,
+    required this.durationSeconds,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -480,25 +542,25 @@ class _VoiceIntroButton extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: isPlaying
-              ? AppColors.primary.withOpacity(0.1)
-              : AppColors.surfaceVariant,
+          color: isPlaying ? AppColors.surfaceVariant : AppColors.background,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
           border: Border.all(
-            color: isPlaying ? AppColors.primary : AppColors.border,
+            color: isPlaying ? AppColors.primaryLight : AppColors.border,
           ),
         ),
         child: Row(
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+            Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isPlaying ? AppColors.primary : AppColors.primaryLight.withOpacity(0.3),
+                color: isPlaying ? AppColors.primary : AppColors.surfaceVariant,
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: isPlaying ? AppColors.primary : AppColors.border,
+                ),
               ),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
@@ -511,29 +573,44 @@ class _VoiceIntroButton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Voice Introduction',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  // Fake waveform visualization
-                  const SizedBox(height: 4),
                   Row(
-                    children: List.generate(20, (i) {
-                      final heights = [6.0, 10.0, 14.0, 8.0, 12.0, 16.0, 6.0,
-                          10.0, 14.0, 8.0, 12.0, 10.0, 6.0, 14.0, 8.0, 12.0,
-                          16.0, 6.0, 10.0, 8.0];
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isPlaying ? 'Playing Voice Cadence' : 'Voice Introduction',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        '0:${durationSeconds.toString().padLeft(2, '0')}',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppColors.textMuted,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: List.generate(24, (i) {
+                      final heights = [
+                        4.0, 8.0, 14.0, 6.0, 11.0, 16.0, 7.0, 10.0,
+                        13.0, 8.0, 15.0, 9.0, 5.0, 12.0, 8.0, 14.0,
+                        16.0, 7.0, 10.0, 6.0, 11.0, 9.0, 6.0, 4.0,
+                      ];
+                      final isPastBar = isPlaying && i < 14;
                       return Expanded(
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          margin: const EdgeInsets.symmetric(horizontal: 0.8),
                           height: heights[i % heights.length],
                           decoration: BoxDecoration(
-                            color: isPlaying
+                            color: isPastBar
                                 ? AppColors.primary
-                                : AppColors.border,
+                                : (isPlaying ? AppColors.primaryLight : AppColors.border),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -543,91 +620,7 @@ class _VoiceIntroButton extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Text(
-              '0:32',
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final Color backgroundColor;
-  final VoidCallback? onTap;
-  final bool isPrimary;
-  final bool isIconOnly;
-
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.backgroundColor,
-    this.onTap,
-    this.isPrimary = false,
-    this.isIconOnly = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (onTap != null) {
-          HapticFeedback.lightImpact();
-          onTap!();
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: 44,
-        width: isIconOnly ? 44 : null,
-        padding: isIconOnly
-            ? EdgeInsets.zero
-            : const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: onTap == null
-              ? backgroundColor.withOpacity(0.4)
-              : backgroundColor,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-          boxShadow: isPrimary && onTap != null
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 18),
-              if (!isIconOnly && label.isNotEmpty) ...[
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
-          ),
         ),
       ),
     );
@@ -640,61 +633,19 @@ class _SparksShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       itemCount: 3,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (_, __) => Container(
-        height: 200,
+        height: 220,
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+          border: Border.all(color: AppColors.border),
         ),
       ).animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(duration: 1200.ms, color: AppColors.surface),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('🌙', style: TextStyle(fontSize: 56)),
-          const SizedBox(height: 16),
-          Text(
-            "You've seen everyone for today",
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'New Sparks arrive tomorrow.\nMeanwhile, explore your communities.',
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  const _ErrorState({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Something went wrong.\nPull to refresh.',
-        style: TextStyle(color: AppColors.textSecondary),
-        textAlign: TextAlign.center,
-      ),
+          .shimmer(duration: 1200.ms, color: AppColors.surfaceVariant),
     );
   }
 }

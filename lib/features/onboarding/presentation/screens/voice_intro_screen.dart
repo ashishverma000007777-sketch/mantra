@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:record/record.dart';
 import 'package:just_audio/just_audio.dart' hide PlayerState;
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +15,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/mantra_button.dart';
+import '../widgets/step_bar.dart';
 
 enum VoiceRecordState { idle, recording, recorded, playing }
 
@@ -34,8 +36,8 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
   VoiceRecordState _state = VoiceRecordState.idle;
   String? _recordedPath;
   int _recordingSeconds = 0;
-  int _maxSeconds = 45;
-  int _minSeconds = 15;
+  final int _maxSeconds = 45;
+  final int _minSeconds = 10;
 
   @override
   void initState() {
@@ -61,7 +63,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
     final micPerm = await Permission.microphone.request();
     if (!micPerm.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission is needed')),
+        const SnackBar(content: Text('Microphone permission is needed to record a voice intro')),
       );
       return;
     }
@@ -76,7 +78,6 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
       _recordingSeconds = 0;
     });
 
-    // Count up
     _startTimer();
   }
 
@@ -97,7 +98,7 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
     if (_recordingSeconds < _minSeconds) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please record at least $_minSeconds seconds'),
+          content: Text('Please record at least $_minSeconds seconds for your matches to hear you.'),
         ),
       );
       return;
@@ -138,11 +139,6 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
     });
   }
 
-  String get _timerText {
-    final remaining = _maxSeconds - _recordingSeconds;
-    return '${remaining}s';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,282 +147,288 @@ class _VoiceIntroScreenState extends ConsumerState<VoiceIntroScreen>
         backgroundColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
         ),
         actions: [
           TextButton(
             onPressed: () => context.push('/onboarding/photos'),
             child: Text(
-              'Skip',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+              'Skip for now',
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.textSecondary,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPaddingHorizontal,
+            vertical: 12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _StepIndicator(current: 4, total: 6),
-              const SizedBox(height: 32),
+              const StepBar(current: 4, total: 6),
+              const SizedBox(height: 24),
 
               Text(
-                'Your voice,\nyour first impression.',
-                style: AppTextStyles.heroDisplay,
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                'Your voice,\nyour true presence.',
+                style: GoogleFonts.lora(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  height: 1.25,
+                  letterSpacing: -0.3,
+                ),
+              ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               Text(
-                'Answer this prompt in 15–45 seconds:',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                'In slow dating, tone, cadence, and warmth speak louder than still photos.',
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.45,
+                ),
               ).animate(delay: 100.ms).fadeIn(),
-
-              const SizedBox(height: 16),
-
-              // Prompt card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
-                  border: Border.all(
-                    color: AppColors.primaryLight.withOpacity(0.3),
-                  ),
-                ),
-                child: Text(
-                  '🎙️ Tell us three things — one fact about you, one thing you\'re curious about, and one unpopular opinion.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                    height: 1.6,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ).animate(delay: 150.ms).fadeIn(),
-
-              const Spacer(),
-
-              // Waveform / recording visual
-              if (_state == VoiceRecordState.recording)
-                Center(
-                  child: AudioWaveforms(
-                    size: Size(MediaQuery.of(context).size.width - 40, 80),
-                    recorderController: _recorderController,
-                    waveStyle: WaveStyle(
-                      waveColor: AppColors.primary,
-                      showDurationLabel: false,
-                      spacing: 8.0,
-                      showBottom: true,
-                      extendWaveform: true,
-                      showMiddleLine: false,
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 300.ms),
-
-              if (_state == VoiceRecordState.recorded ||
-                  _state == VoiceRecordState.playing)
-                Center(
-                  child: AudioFileWaveforms(
-                    size: Size(MediaQuery.of(context).size.width - 40, 80),
-                    playerController: _playerController,
-                    waveformType: WaveformType.fitWidth,
-                    playerWaveStyle: PlayerWaveStyle(
-                      fixedWaveColor: AppColors.border,
-                      liveWaveColor: AppColors.primary,
-                      spacing: 8,
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 300.ms),
-
-              if (_state == VoiceRecordState.idle)
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.mic_none_rounded,
-                        size: 64,
-                        color: AppColors.textMuted,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Tap the mic to start recording',
-                        style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(duration: 400.ms),
-
-              const SizedBox(height: 32),
-
-              // Timer display while recording
-              if (_state == VoiceRecordState.recording)
-                Center(
-                  child: Text(
-                    _timerText,
-                    style: TextStyle(
-                      color: _recordingSeconds > 35
-                          ? AppColors.warning
-                          : AppColors.textSecondary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
 
               const SizedBox(height: 24),
 
-              // Action buttons
-              if (_state == VoiceRecordState.idle)
-                _RecordButton(onTap: _startRecording),
-
-              if (_state == VoiceRecordState.recording)
-                _StopButton(onTap: _stopRecording),
-
-              if (_state == VoiceRecordState.recorded ||
-                  _state == VoiceRecordState.playing)
-                Column(
+              // Editorial prompt card
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: MantraButton(
-                            label: _state == VoiceRecordState.playing
-                                ? 'Pause'
-                                : 'Preview',
-                            onPressed: _playPreview,
-                            variant: MantraButtonVariant.outline,
-                            icon: _state == VoiceRecordState.playing
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        IconButton(
-                          onPressed: _deleteRecording,
-                          icon: const Icon(Icons.delete_outline_rounded),
-                          color: AppColors.error,
-                          style: IconButton.styleFrom(
-                            backgroundColor: AppColors.error.withOpacity(0.1),
-                            padding: const EdgeInsets.all(14),
+                        const Icon(Icons.format_quote_rounded, color: AppColors.primary, size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          'PROMPT SUGGESTION',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.1,
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
+                    Text(
+                      '"Tell us three things: one belief that grounds you, one curiosity that keeps you up, and one small joy in your week."',
+                      style: GoogleFonts.lora(
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textPrimary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate(delay: 150.ms).fadeIn(),
+
+              const SizedBox(height: 36),
+
+              // Audio Waveform / Recording status area
+              Center(
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Center(
+                    child: _state == VoiceRecordState.recording
+                        ? AudioWaveforms(
+                            size: Size(MediaQuery.of(context).size.width - 80, 70),
+                            recorderController: _recorderController,
+                            waveStyle: const WaveStyle(
+                              waveColor: AppColors.primary,
+                              showDurationLabel: false,
+                              spacing: 7.0,
+                              showBottom: true,
+                              extendWaveform: true,
+                              showMiddleLine: false,
+                            ),
+                          )
+                        : _state == VoiceRecordState.recorded || _state == VoiceRecordState.playing
+                            ? AudioFileWaveforms(
+                                size: Size(MediaQuery.of(context).size.width - 80, 70),
+                                playerController: _playerController,
+                                waveformType: WaveformType.fitWidth,
+                                playerWaveStyle: const PlayerWaveStyle(
+                                  fixedWaveColor: AppColors.border,
+                                  liveWaveColor: AppColors.primary,
+                                  spacing: 7.0,
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.graphic_eq_rounded,
+                                    size: 36,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '15 to 45 seconds of genuine voice',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Dynamic Voice Controls
+              if (_state == VoiceRecordState.idle)
+                Center(
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: _startRecording,
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.3),
+                                blurRadius: 18,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.mic_rounded, color: Colors.white, size: 34),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Tap to start recording',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (_state == VoiceRecordState.recording)
+                Center(
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: _stopRecording,
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.error.withOpacity(0.3),
+                                blurRadius: 18,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.stop_rounded, color: Colors.white, size: 36),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Recording... ${_recordingSeconds}s / ${_maxSeconds}s',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (_state == VoiceRecordState.recorded || _state == VoiceRecordState.playing)
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton.filled(
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surfaceVariant,
+                            foregroundColor: AppColors.primary,
+                          ),
+                          onPressed: _playPreview,
+                          icon: Icon(
+                            _state == VoiceRecordState.playing
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        TextButton.icon(
+                          onPressed: _deleteRecording,
+                          icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.textSecondary),
+                          label: Text(
+                            'Re-record',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppColors.textSecondary,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                     MantraButton(
-                      label: 'Sounds good! Continue →',
+                      label: 'Save & Continue',
                       onPressed: () => context.push('/onboarding/photos'),
+                      icon: Icons.arrow_forward_rounded,
                     ),
                   ],
                 ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _RecordButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _RecordButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.35),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.mic_rounded,
-            color: Colors.white,
-            size: 36,
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(begin: 1.0, end: 1.04, duration: 1200.ms, curve: Curves.easeInOut),
-      ),
-    );
-  }
-}
-
-class _StopButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _StopButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: AppColors.error,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.error.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.stop_rounded,
-            color: Colors.white,
-            size: 36,
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(begin: 1.0, end: 1.06, duration: 700.ms, curve: Curves.easeInOut),
-      ),
-    );
-  }
-}
-
-class _StepIndicator extends StatelessWidget {
-  final int current;
-  final int total;
-  const _StepIndicator({required this.current, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(total, (i) {
-        return Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(right: 6),
-            height: 4,
-            decoration: BoxDecoration(
-              color: i < current ? AppColors.primary : AppColors.border,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-        );
-      }),
     );
   }
 }

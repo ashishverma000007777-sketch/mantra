@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/mantra_badge.dart';
+import '../../../../core/widgets/mantra_card.dart';
+import '../../../../core/widgets/mantra_states.dart';
 import '../../data/models/mystery_match_model.dart';
 import '../../providers/mystery_match_provider.dart';
 
@@ -29,6 +33,10 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => context.pop(),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -36,22 +44,24 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
               children: [
                 Text(
                   'Mystery Match',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                      ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(6),
+                  style: GoogleFonts.lora(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
-                  child: const Text(
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Text(
                     'SLOW DATING',
-                    style: TextStyle(
-                      fontSize: 9,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 9.5,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
                       letterSpacing: 0.8,
@@ -61,15 +71,18 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
               ],
             ),
             Text(
-              'Personality first. Identity with consent.',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              'Personality first. Identity with mutual consent.',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'Compatibility DNA',
-            icon: Icon(Icons.psychology_rounded, color: AppColors.primary),
+            icon: const Icon(Icons.psychology_rounded, color: AppColors.primary),
             onPressed: () {
               final candidates = matchesAsync.value ?? [];
               if (candidates.isNotEmpty && _currentIndex < candidates.length) {
@@ -83,53 +96,48 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
           ),
           IconButton(
             tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, size: 20),
             onPressed: () => ref.read(mysteryMatchProvider.notifier).refresh(),
           ),
         ],
       ),
       body: SafeArea(
         child: matchesAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 12),
-                  Text('Could not load mystery matches', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(e.toString(), textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.read(mysteryMatchProvider.notifier).refresh(),
-                    child: const Text('Try Again'),
-                  ),
-                ],
-              ),
-            ),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          error: (e, _) => MantraErrorState(
+            message: 'Could not load mystery matches.\n${e.toString()}',
+            onRetry: () => ref.read(mysteryMatchProvider.notifier).refresh(),
           ),
           data: (candidates) {
             if (candidates.isEmpty || _currentIndex >= candidates.length) {
-              return const _MysteryEmptyState();
+              return MantraEmptyState(
+                icon: Icons.nightlight_round_outlined,
+                title: 'No More Mystery Matches Today',
+                message: 'In slow dating, quality comes before quantity. Take time to reflect, nurture current connections, or explore community rooms.',
+                actionLabel: 'Explore Community',
+                onAction: () => context.go('/community'),
+              );
             }
 
             final candidate = candidates[_currentIndex];
 
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
                 children: [
                   // Progress indicator
-                  LinearProgressIndicator(
-                    value: (_currentIndex + 1) / candidates.length,
-                    backgroundColor: AppColors.surfaceVariant,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    minHeight: 3,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: (_currentIndex + 1) / candidates.length,
+                      backgroundColor: AppColors.surfaceVariant,
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      minHeight: 4,
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
 
                   // Mystery Discovery Card
                   Expanded(
@@ -171,37 +179,76 @@ class _MysteryMatchScreenState extends ConsumerState<MysteryMatchScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         backgroundColor: AppColors.surface,
         title: Column(
           children: [
-            const Text('✨', style: TextStyle(fontSize: 40)),
-            const SizedBox(height: 8),
-            const Text('Mutual Mystery Match!', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: AppColors.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Mutual Mystery Match!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.lora(
+                fontWeight: FontWeight.w600,
+                fontSize: 22,
+                color: AppColors.textPrimary,
+              ),
+            ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Both of you felt drawn to each other\'s minds and values. Your connection seed is now planted 🌱',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, height: 1.4),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            height: 1.5,
+            color: AppColors.textSecondary,
+          ),
         ),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
             ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (conversationId != null) {
-                context.push('/chat/$conversationId');
-              } else {
-                context.push('/conversations');
-              }
-            },
-            child: const Text('Begin Slow Conversation', style: TextStyle(color: Colors.white)),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (conversationId != null) {
+                  context.push('/chat/$conversationId');
+                } else {
+                  context.push('/conversations');
+                }
+              },
+              child: Text(
+                'Begin Slow Conversation',
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -248,11 +295,14 @@ class _MysteryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.12),
-                    AppColors.secondary.withOpacity(0.08),
+                    AppColors.surfaceVariant.withOpacity(0.7),
+                    AppColors.background,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
+                ),
+                border: const Border(
+                  bottom: BorderSide(color: AppColors.border, width: 1),
                 ),
               ),
               child: Row(
@@ -264,9 +314,9 @@ class _MysteryCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.surface,
-                      border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
+                      border: Border.all(color: AppColors.primaryLight, width: 1.5),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.auto_awesome_rounded,
                         color: AppColors.primary,
@@ -284,43 +334,57 @@ class _MysteryCard extends StatelessWidget {
                           children: [
                             Text(
                               candidate.pseudonym,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
+                              style: GoogleFonts.lora(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.textMuted),
+                            const Icon(
+                              Icons.lock_outline_rounded,
+                              size: 14,
+                              color: AppColors.textMuted,
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
                         Text(
                           '${candidate.age} yrs · ${candidate.city}',
-                          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         const SizedBox(height: 4),
-                        // Trust score indicator
                         Row(
                           children: [
-                            Icon(Icons.shield_rounded, size: 12, color: AppColors.trust),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${candidate.trustScore.toInt()} Trust Score',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.trust),
+                            MantraBadge.trust(
+                              score: candidate.trustScore,
+                              fontSize: 10.5,
                             ),
                             if (candidate.hasVoiceIntro) ...[
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceVariant,
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                                  border: Border.all(color: AppColors.border),
                                 ),
                                 child: Row(
-                                  children: const [
-                                    Icon(Icons.mic_rounded, size: 10, color: AppColors.primary),
-                                    SizedBox(width: 2),
-                                    Text('Voice recorded', style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                                  children: [
+                                    const Icon(Icons.mic_rounded, size: 10, color: AppColors.primary),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      'Voice intro',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.primaryDark,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -337,15 +401,16 @@ class _MysteryCard extends StatelessWidget {
             // Card Body with Mindful Answers
             Expanded(
               child: ListView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(16),
                 children: [
                   // Relationship Intention Pill
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.primaryLight.withOpacity(0.25)),
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Row(
                       children: [
@@ -354,42 +419,46 @@ class _MysteryCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Intention: ${candidate.intent}',
-                            style: const TextStyle(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
 
                   // Compatibility DNA banner trigger
                   GestureDetector(
                     onTap: onViewDna,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
                         border: Border.all(color: AppColors.border),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            children: const [
-                              Icon(Icons.insights_rounded, size: 16, color: AppColors.secondary),
-                              SizedBox(width: 8),
+                            children: [
+                              const Icon(Icons.psychology_rounded, size: 18, color: AppColors.secondary),
+                              const SizedBox(width: 8),
                               Text(
                                 'View Compatibility DNA',
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondary),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ],
                           ),
-                          const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.textMuted),
+                          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
                         ],
                       ),
                     ),
@@ -400,30 +469,32 @@ class _MysteryCard extends StatelessWidget {
                   if (candidate.promptResponses.isNotEmpty) ...[
                     ...candidate.promptResponses.map((p) => Container(
                           margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border.withOpacity(0.6)),
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusMD),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                p.question,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textMuted,
+                                p.question.toUpperCase(),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.8,
+                                  color: AppColors.primary,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Text(
-                                p.answer,
-                                style: const TextStyle(
+                                '"${p.answer}"',
+                                style: GoogleFonts.lora(
                                   fontSize: 14,
-                                  height: 1.4,
-                                  fontWeight: FontWeight.w500,
+                                  height: 1.45,
+                                  fontStyle: FontStyle.italic,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -431,34 +502,39 @@ class _MysteryCard extends StatelessWidget {
                         )),
                   ],
 
-                  // Personality Tags
+                  // Personality & Values Tags
                   if (candidate.personalityTags.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
-                      'Values & Interests',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+                      'VALUES & PERSPECTIVES',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.0,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: candidate.personalityTags.map((tag) {
                         final isShared = candidate.sharedInterests.contains(tag);
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: isShared ? AppColors.primary.withOpacity(0.12) : AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(20),
+                            color: isShared ? AppColors.surfaceVariant : AppColors.surface,
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                             border: Border.all(
-                              color: isShared ? AppColors.primary.withOpacity(0.4) : AppColors.border,
+                              color: isShared ? AppColors.primaryLight : AppColors.border,
                             ),
                           ),
                           child: Text(
                             isShared ? '✨ $tag' : tag,
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
                               fontWeight: isShared ? FontWeight.w600 : FontWeight.w500,
-                              color: isShared ? AppColors.primary : AppColors.textSecondary,
+                              color: isShared ? AppColors.primaryDark : AppColors.textSecondary,
                             ),
                           ),
                         );
@@ -472,43 +548,68 @@ class _MysteryCard extends StatelessWidget {
             // Action Buttons
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: Row(
                 children: [
-                  // "Not My Vibe"
+                  // Pass
                   Expanded(
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.border),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        side: const BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        ),
                       ),
                       onPressed: onPass,
-                      icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
+                      icon: const Icon(Icons.close_rounded, size: 16, color: AppColors.textSecondary),
                       label: Text(
-                        'Not My Vibe',
-                        style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w600, fontSize: 13),
+                        'Pass',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
 
-                  // "Explore Their Mind"
+                  // Explore Mind
                   Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        elevation: 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.28),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      onPressed: onExplore,
-                      icon: const Icon(Icons.psychology_rounded, size: 18, color: Colors.white),
-                      label: const Text(
-                        'Explore Mind',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          ),
+                        ),
+                        onPressed: onExplore,
+                        icon: const Icon(Icons.psychology_rounded, size: 17, color: Colors.white),
+                        label: Text(
+                          'Explore Mind',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -519,36 +620,5 @@ class _MysteryCard extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.04, end: 0);
-  }
-}
-
-class _MysteryEmptyState extends StatelessWidget {
-  const _MysteryEmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('🌙', style: TextStyle(fontSize: 52)),
-            const SizedBox(height: 16),
-            Text(
-              'No More Mystery Matches Today',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'In slow dating, quality comes before quantity. Take time to reflect, nurture your current connections, or check back tomorrow.',
-              style: TextStyle(color: AppColors.textSecondary, height: 1.5, fontSize: 13),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
