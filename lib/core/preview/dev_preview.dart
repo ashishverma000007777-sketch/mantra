@@ -253,13 +253,13 @@ class DevMockData {
         explanation: 'Stage 2 unlocked. Both members have exchanged voice notes and conversation quests. Face reveal is pending mutual consent.',
       );
 
-  static ConnectionGardenModel mockConnectionGarden(String connectionId) => const ConnectionGardenModel(
+  static ConnectionGardenModel mockConnectionGarden(String connectionId) => ConnectionGardenModel(
         connectionId: connectionId,
         stage: 'blooming',
         growthPoints: 180,
         stageDescription: 'Your garden is blooming with steady conversations and mindful quests.',
         isPaused: false,
-        milestones: [
+        milestones: const [
           GardenMilestoneItem(
             milestoneType: 'voice_intro',
             title: 'First Voice Exchange',

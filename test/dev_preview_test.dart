@@ -26,7 +26,7 @@ void main() {
     });
 
     test('isDevPreviewSupported compiles as boolean constant', () {
-      expect(isDevPreviewSupported is bool, true);
+      expect(isDevPreviewSupported, isA<bool>());
     });
   });
 
