@@ -29,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
           // 1. Layered Cinematic Hero Area
           SliverToBoxAdapter(
             child: _CinematicHeroHeader(
-              userName: user?.displayName ?? 'Seeker',
+              userName: 'Seeker',
               trustScore: 88.0,
             ),
           ),

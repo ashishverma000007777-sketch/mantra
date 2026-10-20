@@ -17,7 +17,7 @@ class CompatibilityDnaScreen extends ConsumerWidget {
   const CompatibilityDnaScreen({super.key, required this.targetUserId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final dnaAsync = ref.watch(compatibilityDnaFamily(targetUserId));
 
     return Scaffold(
@@ -210,7 +210,7 @@ class _OverallAlignmentCard extends StatelessWidget {
 
 class _DimensionCard extends StatelessWidget {
   final String dimensionKey;
-  final DimensionScore model;
+  final DimensionInsightModel model;
 
   const _DimensionCard({
     required this.dimensionKey,
