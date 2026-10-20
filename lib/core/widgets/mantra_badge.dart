@@ -21,21 +21,31 @@ class MantraBadge extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
   });
 
-  factory MantraBadge.trust({required double score, double fontSize = 11.5}) {
+  factory MantraBadge.trust({
+    required double score,
+    double fontSize = 11.5,
+    EdgeInsetsGeometry? padding,
+  }) {
     return MantraBadge(
       label: 'Trust ${score.round()}%',
       icon: Icons.verified_user_outlined,
       variant: MantraBadgeVariant.trust,
       fontSize: fontSize,
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
     );
   }
 
-  factory MantraBadge.compatibility({required int score, double fontSize = 11.5}) {
+  factory MantraBadge.compatibility({
+    required int score,
+    double fontSize = 11.5,
+    EdgeInsetsGeometry? padding,
+  }) {
     return MantraBadge(
       label: '$score% Aligned',
       icon: Icons.bubble_chart_outlined,
       variant: MantraBadgeVariant.primary,
       fontSize: fontSize,
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
     );
   }
 

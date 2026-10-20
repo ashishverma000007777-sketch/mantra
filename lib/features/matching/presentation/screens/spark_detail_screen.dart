@@ -448,7 +448,7 @@ class _SparkDetailScreenState extends ConsumerState<SparkDetailScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       if (isShared) ...[
-                                        const Icon(Icons.sparkles, size: 12, color: AppColors.primary),
+                                        const Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
                                         const SizedBox(width: 4),
                                       ],
                                       Text(
